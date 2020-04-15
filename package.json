@@ -1,0 +1,24 @@
+{
+  "name": "react-reparenting",
+  "version": "0.1.0",
+  "description": "React utilities to handle reparenting.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Paol-imi/react-reparenting.git"
+  },
+  "keywords": [
+    "react",
+    "reparenting",
+    "reparentable"
+  ],
+  "author": "Paol-imi",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Paol-imi/react-reparenting/issues"
+  },
+  "homepage": "https://github.com/Paol-imi/react-reparenting#readme"
+}
