@@ -1,4 +1,5 @@
 import React, {Component} from 'react';
+import type {ReactNode} from 'react';
 
 /**
  * Custom child component that accepts some lifecycle callback.
@@ -10,17 +11,17 @@ export class Child extends Component<ChildProps> {
     this.state = {id: Math.random()};
   }
 
-  componentDidMount() {
+  componentDidMount(): void {
     const {onMount} = this.props;
     if (onMount) onMount();
   }
 
-  componentWillUnmount() {
+  componentWillUnmount(): void {
     const {onUnmount} = this.props;
     if (onUnmount) onUnmount();
   }
 
-  render() {
+  render(): ReactNode {
     const {onRender, id} = this.props;
     if (onRender) onRender();
     return <div id={id} className="child" />;
