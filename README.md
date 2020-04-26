@@ -7,7 +7,7 @@
 **Simple**, **intuitive** and **configurable** tools to manage **reparenting** with [`React`](https://reactjs.org/)
 
 [![npm](https://img.shields.io/npm/v/react-reparenting.svg?style=flat-square)](http://npm.im/react-reparenting)
-[![React: Component](https://img.shields.io/badge/React-Component-26C9FF?style=flat-square&logo=react)](http://npm.im/react-reparenting)
+[![React: Tools](https://img.shields.io/badge/React-Tools-26C9FF?style=flat-square&logo=react)](http://npm.im/react-reparenting)
 [![Build: Trevis](https://img.shields.io/travis/paol-imi/react-reparenting.svg?style=flat-square)](https://travis-ci.com/github/Paol-imi/react-reparenting)
 [![Codecov](https://codecov.io/gh/Paol-imi/react-reparenting/branch/master/graph/badge.svg)](https://codecov.io/gh/Paol-imi/react-reparenting)
 [![Code style: Prettier](https://img.shields.io/badge/Code_style-Prettier-ff69b4.svg?style=flat-square&logo=prettier)](https://prettier.io/)
@@ -31,7 +31,9 @@ This package offers `easy` and `intuitive` tools to solve this problem. With a f
 
 <div align="center">
 
-<img src="https://raw.githubusercontent.com/Paol-imi/react-reparenting/master/website/static/images/code.png" width="68%" />
+<img src="https://raw.githubusercontent.com/Paol-imi/react-reparenting/master/website/static/images/code.png" width="68%" /><br />
+
+_Just re-render your app and watch the reparenting work_
 
 </div>
 
