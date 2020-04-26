@@ -379,7 +379,7 @@ describe('How the ParentFiber works', () => {
     ).toEqual(['3', '4', '1']);
   });
 
-  test('(Enable skipDOMUpdate option) The DOM is not updated', () => {
+  test('(Enable skipUpdate option) The DOM is not updated', () => {
     const position = parentA.send(0, parentB, 0, true);
     // The position is correct.
     expect(position).toBe(0);

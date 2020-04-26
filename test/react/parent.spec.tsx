@@ -2,8 +2,9 @@ import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
-import {warn} from '../__shared__';
+import {ErrorBoundary, warn} from '../__shared__';
 import {Parent, ParentFiber} from '../../src';
+import {Invariant} from '../../src/invariant';
 
 // Ref.
 const parentRef = createRef<ParentFiber>();
@@ -59,6 +60,37 @@ describe('How <Parent> works', () => {
     );
     // The correct fiber is set.
     expect(parentRef.current.fiber.key).toBe('1');
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  test('Pass a function as ParentRef', () => {
+    mount(
+      <Parent
+        parentRef={(p): void => {
+          parent = p;
+        }}>
+        <div key="1" />
+      </Parent>
+    );
+    // The ParentFiber instance is provided.
+    expect(parent).toBeInstanceOf(ParentFiber);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  test('Throw if parentRef is not passed', () => {
+    wrapper = mount(
+      <ErrorBoundary>
+        <Parent parentRef={null}>
+          <div key="1" />
+        </Parent>
+      </ErrorBoundary>
+    );
+    // The hook throw.
+    expect((wrapper.state() as ErrorBoundary['state']).error).toBeInstanceOf(
+      Invariant
+    );
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
   });

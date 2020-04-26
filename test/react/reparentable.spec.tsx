@@ -155,6 +155,22 @@ describe('How <Reparentable> works', () => {
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
   });
+
+  test('<Reparentable> throw if id is not passed', () => {
+    wrapper = mount(
+      <ErrorBoundary>
+        <Reparentable id={null}>{null}</Reparentable>
+      </ErrorBoundary>
+    );
+
+    // The hook throw.
+    expect((wrapper.state() as ErrorBoundary['state']).error).toBeInstanceOf(
+      Invariant
+    );
+
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+  });
 });
 
 describe('How useReparentable( ) works', () => {

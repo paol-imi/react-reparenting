@@ -7,13 +7,13 @@ beforeEach(() => {
 });
 
 describe('How warning works', () => {
-  test('Warning', () => {
+  test('Not log a warning', () => {
     warning(true, 'warning');
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
   });
 
-  test('Warning ', () => {
+  test('Log a warning', () => {
     warning(false, 'warning');
     // Warning calls.
     expect(warn).toHaveBeenCalledTimes(1);
