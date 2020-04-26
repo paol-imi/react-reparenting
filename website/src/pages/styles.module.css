@@ -1,0 +1,185 @@
+/* stylelint-disable docusaurus/copyright-header */
+
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+:root {
+  --ifm-color-primary: #3bd1ff;
+  --ifm-color-primary-dark: #1ccaff;
+  --ifm-color-primary-darker: #0cc6ff;
+  --ifm-color-primary-darkest: #00a8dc;
+  --ifm-color-primary-light: #5ad8ff;
+  --ifm-color-primary-lighter: #6adcff;
+  --ifm-color-primary-lightest: #99e7ff;
+
+  --ifm-color-danger: #ff6188;
+  --ifm-color-danger-dark: #ff3e6d;
+  --ifm-color-danger-darker: #ff2c60;
+  --ifm-color-danger-darkest: #f6003d;
+  --ifm-color-danger-light: #ff84a3;
+  --ifm-color-danger-lighter: #ff96b0;
+  --ifm-color-danger-lightest: #ffcbd8;
+
+  --ifm-color-success: #a9dc76;
+  --ifm-color-success-dark: #98d55b;
+  --ifm-color-success-darker: #90d24e;
+  --ifm-color-success-darkest: #76bc30;
+  --ifm-color-success-light: #bae391;
+  --ifm-color-success-lighter: #c2e69e;
+  --ifm-color-success-lightest: #dcf1c7;
+
+  --ifm-color-info: #78dce8;
+  --ifm-color-info-dark: #5ad4e3;
+  --ifm-color-info-darker: #4bd0e0;
+  --ifm-color-info-darkest: #24c0d3;
+  --ifm-color-info-light: #96e4ed;
+  --ifm-color-info-lighter: #a5e8f0;
+  --ifm-color-info-lightest: #d2f3f7;
+
+  --ifm-color-warning: #ffd866;
+  --ifm-color-warning-dark: #ffcf42;
+  --ifm-color-warning-darker: #ffca30;
+  --ifm-color-warning-darkest: #faba00;
+  --ifm-color-warning-light: #ffe18a;
+  --ifm-color-warning-lighter: #ffe69c;
+  --ifm-color-warning-lightest: #fff3d1;
+
+  --ifm-navbar-background-color: #f9f9f9;
+  --ifm-background-surface-color: #f9f9f9;
+  --ifm-background-surface-color-secondary: #f3f3f3;
+  --ifm-background-color: #ffffff;
+
+  --ifm-heading-color: #000000;
+  --ifm-hero-text-color: #000000;
+  --ifm-blockquote-color: #3c3c3c;
+
+  --ifm-code-font-size: 95%;
+}
+
+.footer.footer--dark {
+  --ifm-footer-background-color: #272822;
+}
+
+html[data-theme="dark"] {
+  --ifm-color-primary: #3bd1ff;
+  --ifm-color-primary-dark: #1ccaff;
+  --ifm-color-primary-darker: #0cc6ff;
+  --ifm-color-primary-darkest: #00a8dc;
+  --ifm-color-primary-light: #5ad8ff;
+  --ifm-color-primary-lighter: #6adcff;
+  --ifm-color-primary-lightest: #99e7ff;
+
+  --ifm-background-color: #1f201c;
+  --ifm-background-surface-color: #272822;
+  --ifm-background-surface-color-secondary: #2a2b25;
+  --ifm-navbar-background-color: #272822;
+
+  --ifm-code-background: #2e2f28;
+  --ifm-code-color: #ffffff;
+
+  background-color: #1f201c;
+
+  --ifm-heading-color: #ffffff;
+  --ifm-hero-text-color: #ffffff;
+  --ifm-color-secondary: #f0f0f0;
+  --ifm-blockquote-color: #c0c0c0;
+}
+
+.getStarted:hover {
+  color: var(--ifm-color-primary) !important;
+  border-color: var(--ifm-color-primary) !important;
+}
+
+.getStarted {
+  color: white !important;
+  background-color: transparent !important;
+}
+
+a{
+  transition: color 0.2s;
+}
+
+a>code {
+  color: var(--ifm-link-color);
+}
+
+a.contents__link>code {
+  color: var(--ifm-code-color);
+}
+
+.menu--responsive>button {
+  background-color: var(--ifm-color-primary);
+  border-color: var(--ifm-color-primary);
+}
+
+.heroBanner {
+  padding: 3.7rem 0;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background-color: #272822;
+  color: white;
+}
+
+.heroImg {
+  height: 200px;
+  -webkit-animation-duration: 2s;
+  animation-duration: 2s;
+  -webkit-animation-name: pop_out;
+  animation-name: pop_out;
+}
+
+@media screen and (max-width: 966px) {
+  .heroBanner {
+    padding: 2rem;
+  }
+}
+
+.buttons {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.features {
+  display: flex;
+  align-items: center;
+  padding: 2rem 0;
+  width: 100%;
+  text-align: center;
+}
+
+.featureImage {
+  height: 130px;
+  width: auto;
+  margin-bottom: 10px;
+}
+
+@keyframes pop_out {
+  0% {
+    opacity: 0;
+    -webkit-transform: scale(.1) rotate(30deg);
+    transform: scale(.1) rotate(30deg);
+    -webkit-transform-origin: center bottom;
+    transform-origin: center bottom
+  }
+
+  50% {
+    -webkit-transform: rotate(-10deg);
+    transform: rotate(-10deg)
+  }
+
+  70% {
+    -webkit-transform: rotate(3deg);
+    transform: rotate(3deg)
+  }
+
+  to {
+    opacity: 1;
+    -webkit-transform: scale(1);
+    transform: scale(1)
+  }
+}
