@@ -4,7 +4,7 @@ title: Usage
 
 import useBaseUrl from '@docusaurus/useBaseUrl';
 
-The key points for implementing reparenting are explained below.
+The key points to be followed to implement reparenting are explained below.
 
 ## Define your App
 
@@ -57,4 +57,4 @@ Choose the right tool for you, they are all independent of each other:
 
 ## React Native
 
-The default configuration is designed to work with ReactDOM. If you want to try implementing React-reparenting with other renderers, you can disable the setting that automatically sends DOM nodes in the send method (since it wouldn't work without a DOM), and manually send the nodes you are working with. You can even try to [instruct](https://github.com/Paol-imi/react-reparenting/blob/master/src/core/hostENV.ts#L65) the package to manage the types of nodes you are working with, in order to automate the process as happens with ReactDOM.
+The default configuration is designed to work with ReactDOM. If you want to try implementing React-reparenting with other renderers, you can disable the setting that automatically sends DOM nodes in the send method (since it wouldn't work without a DOM), and manually send the nodes you are working with. You can even try to [instruct](./renderer) the package to manage the types of nodes you are working with, in order to automate the process as happens with ReactDOM.

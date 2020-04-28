@@ -1,0 +1,24 @@
+---
+title: Core API ⚙️
+---
+
+## ParentFiber ⚙️
+
+### parent.send( child, toParent, position, [skipUpdate] ): index
+
+Remove a child from this instance and add it to the provided ParentFiber instance.
+
+#### arguments
+
+| Name       | Type              | Description                                                                                                                                                                                                                                                                                           |
+| ---------- | ----------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| toParent   | _ParentFiber_     | The ParentFiber linked with the new parent component. <br/><br/> **Required**                                                                                                                                                                                                                         |
+| child      | _string / number_ | The key or the index of the child to be transferred. <br/><br/> **Required**                                                                                                                                                                                                                          |
+| position   | _string / number_ | The index or the key of the child whose position will be used as an index _(insert before)_. The child is added at the bottom if -1 is provided or the index is greater than the number of children. The child is added at the bottom if none of the children have that key <br/><br/> **Required** . |
+| skipUpdate | _boolean_         | If true, the send method will not transfer the DOM nodes. <br/><br/> Default **false** .                                                                                                                                                                                                              |
+
+#### returns
+
+| Type     | Description                                                                                          |
+| -------- | ---------------------------------------------------------------------------------------------------- |
+| _number_ | The index in which the child is added, if the child to remove is not found (invalid key) returns -1. |

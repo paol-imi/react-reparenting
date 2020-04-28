@@ -6,20 +6,27 @@ import styles from './styles.module.css';
 const TITLE = 'Showcase';
 const DESCRIPTION = <>See the examples</>;
 
-const users = [
+const examples = [
   {
     type: 'Example',
     name: 'Reparentable',
     id: 'rvfi4',
+    description: 'Example showing how to implement reparenting.'
   },
-].map((demo) => ({
-  type: demo.type,
-  title: `${demo.type} - ${demo.name}`,
-  description: 'Example showing how to implement reparenting.',
-  preview: `https://screenshots.codesandbox.io/${demo.id.toLowerCase()}.png`,
-  website: `https://${demo.id}.csb.app/`,
-  source: `https://codesandbox.io/s/react-reparenting-${demo.name.toLowerCase()}-${
-    demo.id
+  {
+    type: 'Example',
+    name: 'React-DnD',
+    id: '5u458',
+    description: 'Drag and drop implementation with React-DnD.'
+  },
+].map((example) => ({
+  type: example.type,
+  title: `${example.type} - ${example.name}`,
+  description: example.description,
+  preview: `https://screenshots.codesandbox.io/${example.id.toLowerCase()}.png`,
+  website: `https://${example.id}.csb.app/`,
+  source: `https://codesandbox.io/s/react-reparenting-${example.name.toLowerCase()}-${
+    example.id
   }`,
 }));
 
@@ -32,38 +39,38 @@ function Showcase() {
           <p style={{fontSize: '25px'}}>{DESCRIPTION}</p>
         </div>
         <div className="row">
-          {users.map((user) => (
-            <div key={user.title} className="col col--4 margin-bottom--lg">
+          {examples.map((example) => (
+            <div key={example.title} className="col col--4 margin-bottom--lg">
               <div className={classnames('card', styles.showcaseCard)}>
                 <div className="card__image">
-                  <img src={user.preview} alt={user.title} />
+                  <img src={example.preview} alt={example.title} />
                 </div>
                 <div className="card__body">
                   <div className="avatar">
                     <div className="avatar__intro margin-left--none">
-                      <h4 className="avatar__name">{user.title}</h4>
+                      <h4 className="avatar__name">{example.title}</h4>
                       <small className="avatar__subtitle">
-                        {user.description}
+                        {example.description}
                       </small>
                     </div>
                   </div>
                 </div>
-                {(user.website || user.source) && (
+                {(example.website || example.source) && (
                   <div className="card__footer">
                     <div className="button-group button-group--block">
-                      {user.website && (
+                      {example.website && (
                         <a
                           className="button button--small button--secondary button--block"
-                          href={user.website}
+                          href={example.website}
                           target="_blank"
                           rel="noreferrer noopener">
                           Website
                         </a>
                       )}
-                      {user.source && (
+                      {example.source && (
                         <a
                           className="button button--small button--secondary button--block"
-                          href={user.source}
+                          href={example.source}
                           target="_blank"
                           rel="noreferrer noopener">
                           Source

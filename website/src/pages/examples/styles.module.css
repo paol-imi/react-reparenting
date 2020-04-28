@@ -1,6 +1,6 @@
 .showcaseCard {
   height: 100%;
-  transition: 0.3s;
+  transition: transform .2s ease-out;
   border: 1px solid #ddd;
 }
 

@@ -1,0 +1,26 @@
+---
+title: Custom Renderer
+---
+
+The default configuration is designed to work with ReactDOM.
+If you want to try implementing React-reparenting with other `renderers` you can try to `instruct` the package to manage the types of nodes you are working with, in order to automate the process as happens with ReactDOM.
+
+```js
+import {config} from 'react-reparenting';
+
+// The default configuration that works with ReactDOM.
+config({
+  appendChildToContainer(container, child) {
+    container.appendChild(child);
+  },
+  insertInContainerBefore(container, child, before) {
+    container.insertBefore(child, before);
+  },
+  removeChildFromContainer(container, child) {
+    container.removeChild(child);
+  },
+  isElement(elementType, stateNode) {
+    return stateNode instanceof Element;
+  },
+});
+```

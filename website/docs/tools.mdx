@@ -4,66 +4,102 @@ title: Tools API ⚙️
 
 ## <Reparentable /\> ⚙️
 
+A custom component to enable reparenting.
+
 ### Props
 
-| Name      | Type      | Description                                                                                   |
-| --------- | --------- | --------------------------------------------------------------------------------------------- |
-| id        | string    | The id of the component, it must be unique within a Reparentable.Provider. <br/> **Required** |
-| children  | ReactNode | The children that can be transferred.                                                         |
-| findFiber | func      | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber`   |
+| Name      | Type      | Description                                                                                        |
+| --------- | --------- | -------------------------------------------------------------------------------------------------- |
+| id        | _string_    | The id of the component, it must be unique within a Reparentable.Provider. <br/><br/> **Required** |
+| children  | _ReactNode_ | The children that can be transferred.                                                              |
+| findFiber | _func_      | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber`        |
 
 ## <Reparentable.Provider /\> ⚙️
+
+Provide a context with a ReparentableMap as value.
 
 ### Props
 
 | Name               | Type            | Description                                                                               |
 | ------------------ | --------------- | ----------------------------------------------------------------------------------------- |
-| reparentableMapRef | ReparentableMap | The map of the ParentFibers instances of the Reparentable components inside the provider. |
-| children           | ReactNode       | The children that can be transferred.                                                     |
+| reparentableMapRef | _ReparentableMap_ | The map of the ParentFibers instances of the Reparentable components inside the provider. |
+| children           | _ReactNode_       | The children that can be transferred.                                                     |
 
 ## useReparentable( ): map ⚙️
+
+An hook to get the reference of the ReparentableMap of the nearest Reparentable.Provider.
 
 ### returns
 
 | Type            | Description                                                                                              |
 | --------------- | -------------------------------------------------------------------------------------------------------- |
-| ReparentableMap | The map containing the ParentFiber instances of the reparentable components inside the nearest provider. |
+| _ReparentableMap_ | The map containing the ParentFiber instances of the reparentable components inside the nearest provider. |
+
+## ReparentableMap
+
+Map of the ParentFiber instances of the Reparentable components inside the Reparentable.Provider owner.
+
+### map.send( fromParentId, toParentId, child, position, [skipUpdate] ): index
+
+Remove a child from a Reparentable component and add it to a new Reparentable component. DOM nodes will also be sent (optional).
+
+#### arguments
+
+| Name         | Type            | Description                                                                                                                                                                                                                                                                                           |
+| ------------ | --------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| fromParentId | _string_          | The id of the current Reparentable parent. <br/><br/> **Required**                                                                                                                                                                                                                                    |
+| toParentId   | _string_          | The id of the new Reparentable parent. <br/><br/> **Required**                                                                                                                                                                                                                                        |
+| child        | _string / number_ | The key or the index of the child to be transferred. <br/><br/> **Required**                                                                                                                                                                                                                          |
+| position     | _string / number_ | The index or the key of the child whose position will be used as an index _(insert before)_. The child is added at the bottom if -1 is provided or the index is greater than the number of children. The child is added at the bottom if none of the children have that key <br/><br/> **Required** . |
+| skipUpdate   | _boolean_         | If true, the send method will not transfer the DOM nodes. <br/><br/> Default **false** .                                                                                                                                                                                                              |
+
+#### returns
+
+| Type   | Description                                                                                                                              |
+| ------ | ---------------------------------------------------------------------------------------------------------------------------------------- |
+| _number_ | The index in which the child is added. If the child to remove is not found (invalid key), or one of the parents is not found returns -1. |
 
 ## <Parent /\> ⚙️
+
+A component that generate a ParentFiber instance.
 
 ### Props
 
 | Name      | Type                    | Description                                                                                 |
 | --------- | ----------------------- | ------------------------------------------------------------------------------------------- |
-| children  | ReactNode               | The children that can be transferred.                                                       |
-| parentRef | React.Ref<ParentFiber\> | The ref of the parent fiber instance. <br/> **Required**                                    |
-| findFiber | func                    | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
+| children  | _ReactNode_               | The children that can be transferred.                                                       |
+| parentRef | _React.Ref<ParentFiber\>_ | The ref of the parent fiber instance. <br/><br/> **Required**                               |
+| findFiber | _func_                    | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
 
 ## createParent( instance, [findFiber] ): parent ⚙️
 
+A method to generate a ParentFiber instance.
+
 ### arguments
 
-| Name      | Type            | Description                                                                                    |
-| --------- | --------------- | ---------------------------------------------------------------------------------------------- |
-| instance  | React.Component | A class component instance, must be called before the component is mounted. <br/> **Required** |
-| findFiber | func            | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber`    |
+| Name      | Type            | Description                                                                                         |
+| --------- | --------------- | --------------------------------------------------------------------------------------------------- |
+| instance  | _React.Component_ | A class component instance, must be called before the component is mounted. <br/><br/> **Required** |
+| findFiber | _func_            | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber`         |
 
 ### returns
 
 | Type        | Description               |
 | ----------- | ------------------------- |
-| ParentFiber | The parentFiber instance. |
+| _ParentFiber_ | The parentFiber instance. |
 
 ## useParent( [findFiber] ): [parent, ref] ⚙️
+
+An hook to generate a ParentFiber instance.
 
 ### arguments
 
 | Name      | Type | Description                                                                                 |
 | --------- | ---- | ------------------------------------------------------------------------------------------- |
-| findFiber | func | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
+| findFiber | _func_ | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
 
 ### returns
 
 | Type                                   | Description                                                                                 |
 | -------------------------------------- | ------------------------------------------------------------------------------------------- |
-| [React.ref<HTMLElement\>, ParentFiber] | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
+| [_React.ref<HTMLElement\>_, _ParentFiber_] | A function the change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
