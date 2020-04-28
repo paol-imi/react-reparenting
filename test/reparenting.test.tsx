@@ -1,4 +1,4 @@
-import React, {createRef} from 'react';
+import React, {createRef, createContext} from 'react';
 import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
 import {Child} from './__shared__';
@@ -842,5 +842,66 @@ describe('Reparenting and adding other children', () => {
         child.getAttribute('id')
       )
     ).toEqual(['A', '1', 'B', '3', '4']);
+  });
+});
+
+describe('Reparenting with context', () => {
+  test('Without re-render', () => {
+    const Context = createContext<string>('');
+    let valueA: string;
+    let valueB: string;
+
+    wrapperA = mount(
+      <Context.Provider value="A">
+        <Parent parentRef={parentARef}>
+          <Context.Consumer key="1">
+            {(value): null => {
+              valueA = value;
+              return null;
+            }}
+          </Context.Consumer>
+        </Parent>
+      </Context.Provider>
+    );
+
+    wrapperB = mount(
+      <Context.Provider value="B">
+        <Parent parentRef={parentBRef}>
+          <Context.Consumer key="2">
+            {(value): null => {
+              valueB = value;
+              return null;
+            }}
+          </Context.Consumer>
+        </Parent>
+      </Context.Provider>
+    );
+
+    expect(valueA).toBe('A');
+    expect(valueB).toBe('B');
+
+    parentA.send(0, parentB, 0);
+
+    wrapperB.setProps({
+      children: (
+        <Parent parentRef={parentBRef}>
+          <Context.Consumer key="1">
+            {(value): null => {
+              valueA = value;
+              return null;
+            }}
+          </Context.Consumer>
+          <Context.Consumer key="2">
+            {(value): null => {
+              valueB = value;
+              return null;
+            }}
+          </Context.Consumer>
+        </Parent>
+      ),
+    });
+
+    expect(valueA).toBe('B');
+    expect(valueB).toBe('B');
   });
 });
