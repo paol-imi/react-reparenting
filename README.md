@@ -35,7 +35,7 @@ You can find the full documentation [**here**](https://paol-imi.github.io/react-
 
 ## Example 💡
 
-Check out the [examples](https://paol-imi.github.io/react-reparenting/examples) available on Codesandbox.
+Check out the [**examples**](https://paol-imi.github.io/react-reparenting/examples) available on Codesandbox.
 
 ## License ©
 
