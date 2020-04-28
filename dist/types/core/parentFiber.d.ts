@@ -1,7 +1,7 @@
 import type { Fiber } from 'react-reconciler';
 /**
  * The ParentFiber implement the logic manage a fiber of a parent component.
- * It provides simple methods for managing reparenting, such as add(), remove() and sending().
+ * It provides simple methods for managing reparenting, such as add(), remove() and send().
  */
 export declare class ParentFiber {
     /** The parent fiber. */

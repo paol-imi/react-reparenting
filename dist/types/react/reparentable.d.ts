@@ -42,7 +42,7 @@ export declare class ReparentableProvider extends Component<ReparentableProvider
  * Parent component.
  *
  * It is a simple wrapper that generate internally a
- * ParentFiber and allow to access it through a React.Ref.
+ * ParentFiber and allow to access it through a global provided map.
  * The children in which to enable reparenting must belong to this component.
  */
 export declare class Reparentable extends Component<ReparentableProps> {

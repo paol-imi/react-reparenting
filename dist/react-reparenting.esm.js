@@ -1,6 +1,6 @@
 /**
 * React-reparenting v0.1.0
-* https://github.com/Paol-imi/react-reparenting#readme
+* https://paol-imi.github.io/react-reparenting
 * Copyright (c) 2020-present, Paol-imi
 * Released under the MIT license
 * https://github.com/Paol-imi/react-reparenting/blob/master/LICENSE
@@ -517,7 +517,7 @@ function getFiberFromClassInstance(instance) {
 
 /**
  * The ParentFiber implement the logic manage a fiber of a parent component.
- * It provides simple methods for managing reparenting, such as add(), remove() and sending().
+ * It provides simple methods for managing reparenting, such as add(), remove() and send().
  */
 
 var ParentFiber = /*#__PURE__*/function () {
@@ -938,7 +938,7 @@ var ReparentableProvider = /*#__PURE__*/function (_Component) {
  * Parent component.
  *
  * It is a simple wrapper that generate internally a
- * ParentFiber and allow to access it through a React.Ref.
+ * ParentFiber and allow to access it through a global provided map.
  * The children in which to enable reparenting must belong to this component.
  */
 

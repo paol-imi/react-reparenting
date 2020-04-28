@@ -12,7 +12,7 @@ import {warning} from '../warning';
 
 /**
  * The ParentFiber implement the logic manage a fiber of a parent component.
- * It provides simple methods for managing reparenting, such as add(), remove() and sending().
+ * It provides simple methods for managing reparenting, such as add(), remove() and send().
  */
 export class ParentFiber {
   /** The parent fiber. */
