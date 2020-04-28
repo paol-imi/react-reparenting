@@ -25,15 +25,6 @@
   padding: 0 var(--ifm-pre-padding);
 }
 
-.markdown img {
-  margin-bottom: var(--ifm-leading);
-}
-
-.shadow {
-  border: 1px solid #ddd;
-  box-shadow: 0 2.8px 2.2px rgba(0, 0, 0, 0.034), 0 6.7px 5.3px rgba(0, 0, 0, 0.048), 0 12.5px 10px rgba(0, 0, 0, 0.06);
-}
-
 a {
   font-weight: 600;
 }

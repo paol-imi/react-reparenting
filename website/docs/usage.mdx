@@ -1,0 +1,60 @@
+---
+title: Usage
+---
+
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+The key points for implementing reparenting are explained below.
+
+## Define your App
+
+In each implementation you have to define mainly 3 things:
+
+- Who are the `Child` components that can be transferred.
+- Who are the `Parent` components who can hold these children.
+- Which components need to `trigger` reparenting.
+
+Parent components will need some small setup, child components won't need it. Any component can be used as a child, however it is your responsibility to provide them with unique `keys` _(don't use [indexes as keys](https://medium.com/@robinpokorny/index-as-a-key-is-an-anti-pattern-e0349aece318))_.
+
+:::tip
+Note that a component can also have multiple roles.
+:::
+
+## Send
+
+This package offers more than one tool to manage reparenting, in each of them the procedure is always the same:
+
+- Call a `send` method with the reparenting information.
+- `Re-render` the components with the transferred Children in their new Parents.
+
+<div align="center">
+  <img src={useBaseUrl('images/code.png')} width="60%" />
+</div>
+
+<br />
+
+That's all, the transferred components will not be re-mounted and will maintain its internal state.
+
+By default the send method will also find and transfer `DOM nodes`. This option can be disabled so that you can manually send the nodes _(for example with drag and drop)_.
+
+:::info
+Note that reparenting should only be done before re-rendering.
+:::
+
+## Choose your tool
+
+Choose the right tool for you, they are all independent of each other:
+
+- **I just want things to work**
+
+  - _Use a custom parent (recommended)_ - [**guide**](./reparentable)
+
+* **I need more flexibility**
+
+  - _Use a custom parent_ - [**guide**](./parent)
+  - _Use your class component_ - [**guide**](./createparent)
+  - _Use your function component (limited to ReactDOM for now)_ - [**guide**](./useparent)
+
+## React Native
+
+The default configuration is designed to work with ReactDOM. If you want to try implementing React-reparenting with other renderers, you can disable the setting that automatically sends DOM nodes in the send method (since it wouldn't work without a DOM), and manually send the nodes you are working with. You can even try to [instruct](https://github.com/Paol-imi/react-reparenting/blob/master/src/core/hostENV.ts#L65) the package to manage the types of nodes you are working with, in order to automate the process as happens with ReactDOM.

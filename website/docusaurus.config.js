@@ -29,6 +29,7 @@ module.exports = {
           label: 'Docs',
           position: 'left',
         },
+        {to: 'examples', label: 'Examples', position: 'left'},
         {
           href: 'https://github.com/paol-imi/react-reparenting',
           label: 'GitHub',

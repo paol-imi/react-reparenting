@@ -2,4 +2,33 @@
 title: Introduction
 ---
 
-Warn about react-reconciler
+import useBaseUrl from '@docusaurus/useBaseUrl';
+
+<div align="center">
+  <img src={useBaseUrl('gifs/reparenting.gif')} width="60%" />
+</div>
+
+## What does it do? 🤨
+
+Imagine that you have two Parent components, both with some Child components. To `transfer` a Child from one Parent to another, the components must be `re-rendered` with that Child in its new Parent. This procedure has obvious usability and performance `limits`, the transferred component is unmounted, re-mounted and loses its internal state, as well as all the nodes it has generated (such as a `<div>`).
+
+React does not yet offer specific APIs to solve this problem, in many cases we try to deal with it using `Portals` and `refs`. This approach presents other problems, it is difficult to implement for large-scale apps and above all it does not give the feeling of being very `"Reactive"`. In fact, portals have been designed for other purposes, citing the documentation:
+
+> Portals provide a first-class way to render children into a DOM node that exists outside the DOM hierarchy of the parent component.
+
+This process is more related to the DOM (or to the current environment), at `"React level"` the Child is still part of the same Parent. This is where `React-reparenting` intervenes.
+
+This package offers `easy` and `intuitive` tools to solve this problem. With a few lines of code you will be able to re-render your app and transfer your children, without being re-mounted or losing their internal state.
+
+## Under the hood
+
+Besides the tree of elements, React has a tree of internal instances used to keep the state. Starting from version 16, React rolled out a new implementation of that internal instances tree and the algorithm that manages it code-named `Fiber`.
+This package does nothing more than transfer the internal instances of the children you want to reparent.
+
+If you are interested, there are very valid sources in which to deepen the topic, such as:
+
+- [React fiber architecture](https://github.com/acdlite/react-fiber-architecture)
+- [Deep dive into react fiber internals](https://blog.logrocket.com/deep-dive-into-react-fiber-internals)
+- [Inside fiber in depth overview of the new reconciliation algorithm in react](https://medium.com/react-in-depth/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react-e1c04700ef6e)
+
+In any case, it is **not necessary** to know how React internals work to use this package.
