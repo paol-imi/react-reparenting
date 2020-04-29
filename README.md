@@ -33,7 +33,7 @@ This package offers `easy` and `intuitive` tools to solve this problem. With a f
 
 You can find the full documentation [**here**](https://paol-imi.github.io/react-reparenting).
 
-## Example 💡
+## Examples 💡
 
 Check out the [**examples**](https://paol-imi.github.io/react-reparenting/examples) available on Codesandbox.
 

@@ -32,28 +32,28 @@ Let's define a very simple child component for the example.
 const Child = () => <div />;
 ```
 
-We define in our app two simple parent components, and insert within them the `<Reparentable>`s with their ids and children.
+We define two parent components in the app as defined above and insert within them the children.
 
 ```jsx
 const App = () => {
-  // The current parent of the child.
+  // The children's keys.
   const [parent, setParent] = useState({
     A: ['c1', 'c2'],
     B: ['c3'],
   });
 
-  // The children.
+  // The child components.
   const children = {
     parentA: parent.A.map((key) => <Child key={key} />),
-    parentB: parent.A.map((key) => <Child key={key} />),
+    parentB: parent.B.map((key) => <Child key={key} />),
   };
 
   return (
     <>
       {/* Parent A */}
-      <MyParent />
+      <MyParent>{children.parentA}</MyParent>
       {/* Parent B */}
-      <MyParent />
+      <MyParent>{children.parentB}</MyParent>
     </>
   );
 };
