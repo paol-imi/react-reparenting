@@ -233,6 +233,9 @@ describe('How the state is manteined after reparenting', () => {
 
 describe('Reparenting after the some re-renders', () => {
   test('Rerender A and B before reparenting', () => {
+    const [state1, state2] = wrapperA.find(Child).map((child) => child.state());
+    const [state3, state4] = wrapperB.find(Child).map((child) => child.state());
+
     // Rerender.
     wrapperA.setProps({
       children: (
@@ -270,6 +273,16 @@ describe('Reparenting after the some re-renders', () => {
         </Parent>
       ),
     });
+
+    // The state is manteined.
+    expect(wrapperA.find(Child).map((child) => child.state())).toEqual([
+      state2,
+    ]);
+    expect(wrapperB.find(Child).map((child) => child.state())).toEqual([
+      state1,
+      state3,
+      state4,
+    ]);
 
     // The children are in the correct order.
     expect(
@@ -302,6 +315,9 @@ describe('Reparenting after the some re-renders', () => {
   });
 
   test('Rerender A and B before and after reparenting', () => {
+    const [state1, state2] = wrapperA.find(Child).map((child) => child.state());
+    const [state3, state4] = wrapperB.find(Child).map((child) => child.state());
+
     // Rerender.
     wrapperA.setProps({
       children: (
@@ -357,6 +373,16 @@ describe('Reparenting after the some re-renders', () => {
         </Parent>
       ),
     });
+
+    // The state is manteined.
+    expect(wrapperA.find(Child).map((child) => child.state())).toEqual([
+      state2,
+    ]);
+    expect(wrapperB.find(Child).map((child) => child.state())).toEqual([
+      state1,
+      state3,
+      state4,
+    ]);
 
     // The children are in the correct order.
     expect(
@@ -389,6 +415,9 @@ describe('Reparenting after the some re-renders', () => {
   });
 
   test('Rerender A before reparenting, rerender A and B after reparenting', () => {
+    const [state1, state2] = wrapperA.find(Child).map((child) => child.state());
+    const [state3, state4] = wrapperB.find(Child).map((child) => child.state());
+
     // Rerender.
     wrapperA.setProps({
       children: (
@@ -437,6 +466,16 @@ describe('Reparenting after the some re-renders', () => {
       ),
     });
 
+    // The state is manteined.
+    expect(wrapperA.find(Child).map((child) => child.state())).toEqual([
+      state2,
+    ]);
+    expect(wrapperB.find(Child).map((child) => child.state())).toEqual([
+      state1,
+      state3,
+      state4,
+    ]);
+
     // The children are in the correct order.
     expect(
       Array.from(wrapperA.getDOMNode().children).map((child: HTMLElement) =>
@@ -468,6 +507,9 @@ describe('Reparenting after the some re-renders', () => {
   });
 
   test('Rerender B before reparenting, rerender A and B after reparenting', () => {
+    const [state1, state2] = wrapperA.find(Child).map((child) => child.state());
+    const [state3, state4] = wrapperB.find(Child).map((child) => child.state());
+
     // Rerender.
     wrapperB.setProps({
       children: (
@@ -515,6 +557,16 @@ describe('Reparenting after the some re-renders', () => {
         </Parent>
       ),
     });
+
+    // The state is manteined.
+    expect(wrapperA.find(Child).map((child) => child.state())).toEqual([
+      state2,
+    ]);
+    expect(wrapperB.find(Child).map((child) => child.state())).toEqual([
+      state1,
+      state3,
+      state4,
+    ]);
 
     // The children are in the correct order.
     expect(

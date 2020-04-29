@@ -92,6 +92,14 @@ describe('How removeChildFiberAt( ) works', () => {
     // Warning calls.
     expect(warn).toHaveBeenCalled();
   });
+
+  test('(Provide an index < 0) Not remove any child fiber', () => {
+    const fiber = removeChildFiberAt(parentFiber, -1);
+    // The fiber is not found.
+    expect(fiber).toBe(null);
+    // Warning calls.
+    expect(warn).toHaveBeenCalled();
+  });
 });
 
 describe('How removeChildFiber( ) works', () => {
