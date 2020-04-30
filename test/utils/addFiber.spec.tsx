@@ -48,8 +48,8 @@ describe('How addChildFiberAt( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['3', '1', '2']);
   });
@@ -62,8 +62,8 @@ describe('How addChildFiberAt( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '3', '2']);
   });
@@ -76,8 +76,8 @@ describe('How addChildFiberAt( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '2', '3']);
   });
@@ -90,8 +90,8 @@ describe('How addChildFiberAt( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '2', '3']);
   });
@@ -104,8 +104,8 @@ describe('How addChildFiberAt( ) works', () => {
     expect(warn).toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '2', '3']);
   });
@@ -122,7 +122,25 @@ describe('How addChildFiberAt( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentFiber)).toEqual(['3']);
+  });
+
+  test('(Parent without children) Add a fiber as the second child', () => {
+    // Setup.
+    mount(<div ref={parentRef} />);
+    parentFiber = getFiberFromElementInstance(parentRef.current);
+
+    const position = addChildFiberAt(parentFiber, childFiber, 1);
+    // The position is correct.
+    expect(position).toBe(0);
+    // Warning calls.
+    expect(warn).toHaveBeenCalled();
+    // The parent fiber is updated.
+    expect(childFiber.return).toBe(parentFiber);
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['3']);
@@ -140,7 +158,7 @@ describe('How addChildFiberAt( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['3']);
@@ -158,27 +176,8 @@ describe('How addChildFiberAt( ) works', () => {
     expect(warn).toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0]);
-    // The keys are in the correct order.
-    expect(getFibersKeys(parentFiber)).toEqual(['3']);
-  });
-
-  test('(Skip update) Add a fiber as the only child', () => {
-    // Setup.
-    mount(<div ref={parentRef} />);
-    parentFiber = getFiberFromElementInstance(parentRef.current);
-
-    childFiber.index = 1;
-    const position = addChildFiberAt(parentFiber, childFiber, 0, true);
-    // The position is correct.
-    expect(position).toBe(0);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
-    // The parent fiber is updated.
-    expect(childFiber.return).toBe(parentFiber);
-    // The indices are not updated.
-    expect(getFibersIndices(parentFiber)).toEqual([1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['3']);
   });
@@ -193,8 +192,8 @@ describe('How addChildFiberBefore( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['3', '1', '2']);
   });
@@ -207,8 +206,8 @@ describe('How addChildFiberBefore( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '3', '2']);
   });
@@ -221,8 +220,8 @@ describe('How addChildFiberBefore( ) works', () => {
     expect(warn).toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '2', '3']);
   });
@@ -239,7 +238,7 @@ describe('How addChildFiberBefore( ) works', () => {
     expect(warn).toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['3']);
@@ -255,8 +254,8 @@ describe('How appendChildFiber( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '2', '3']);
   });
@@ -273,27 +272,8 @@ describe('How appendChildFiber( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0]);
-    // The keys are in the correct order.
-    expect(getFibersKeys(parentFiber)).toEqual(['3']);
-  });
-
-  test('(Skip update) Add a fiber as the only child', () => {
-    // Setup.
-    mount(<div ref={parentRef} />);
-    parentFiber = getFiberFromElementInstance(parentRef.current);
-
-    childFiber.index = 1;
-    const position = appendChildFiber(parentFiber, childFiber, true);
-    // The position is correct.
-    expect(position).toBe(0);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
-    // The parent fiber is updated.
-    expect(childFiber.return).toBe(parentFiber);
-    // The indices are not updated.
-    expect(getFibersIndices(parentFiber)).toEqual([1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['3']);
   });
@@ -309,8 +289,8 @@ describe('How addSiblingFiber( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
     // The parent fiber is updated.
     expect(childFiber.return).toBe(parentFiber);
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '3', '2']);
   });

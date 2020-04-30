@@ -16,18 +16,26 @@ describe('How invariant works (development)', () => {
 
 describe('How invariant works (production)', () => {
   test('Not throw Invariant', () => {
-    process.env.NODE_ENV = 'production';
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    global.__DEV__ = false;
     expect(() => {
       invariant(true, 'invariant');
     }).not.toThrow();
-    process.env.NODE_ENV = 'development';
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    global.__DEV__ = true;
   });
 
   test('Throw Invariant', () => {
     expect(() => {
-      process.env.NODE_ENV = 'production';
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      global.__DEV__ = false;
       invariant(false, 'invariant');
     }).toThrowError(new Invariant('Invariant failed'));
-    process.env.NODE_ENV = 'development';
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    global.__DEV__ = true;
   });
 });

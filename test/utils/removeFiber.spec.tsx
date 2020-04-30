@@ -1,5 +1,5 @@
 import React, {createRef} from 'react';
-import type {Fiber} from 'react-reconciler'; // eslint-disable-line
+import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
 import {getFibersIndices, getFibersKeys, warn} from '../__shared__';
 import {
@@ -9,13 +9,13 @@ import {
   removeFirstChildFiber,
   removeSiblingFiber,
 } from '../../src';
+import {Invariant} from '../../src/invariant';
 
 // Refs.
 const parentRef = createRef<HTMLDivElement>();
 // Fibers.
 let parentFiber: Fiber;
 
-// Mount the component before each test.
 beforeEach(() => {
   // Mount the component.
   mount(
@@ -39,14 +39,10 @@ describe('How removeChildFiberAt( ) works', () => {
     expect(fiber).not.toBe(null);
     // The key is correct.
     expect(fiber.key).toBe('1');
-    // The parent reference is removed.
-    expect(fiber.return).toBe(null);
-    // The sibling reference is removed.
-    expect(fiber.sibling).toBe(null);
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['2']);
   });
@@ -57,13 +53,9 @@ describe('How removeChildFiberAt( ) works', () => {
     expect(fiber).not.toBe(null);
     // The key is correct.
     expect(fiber.key).toBe('2');
-    // The parent reference is removed.
-    expect(fiber.return).toBe(null);
-    // The sibling reference is removed.
-    expect(fiber.sibling).toBe(null);
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
-    // The indices are updated.
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1']);
@@ -75,7 +67,7 @@ describe('How removeChildFiberAt( ) works', () => {
     expect(fiber).toBe(null);
     // Warning calls.
     expect(warn).toHaveBeenCalled();
-    // The indices are updated.
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '2']);
@@ -93,12 +85,12 @@ describe('How removeChildFiberAt( ) works', () => {
     expect(warn).toHaveBeenCalled();
   });
 
-  test('(Provide an index < 0) Not remove any child fiber', () => {
-    const fiber = removeChildFiberAt(parentFiber, -1);
-    // The fiber is not found.
-    expect(fiber).toBe(null);
+  test('(Provide an index < 0) Throw an error', () => {
+    expect(() => {
+      removeChildFiberAt(parentFiber, -1);
+    }).toThrow(Invariant);
     // Warning calls.
-    expect(warn).toHaveBeenCalled();
+    expect(warn).not.toHaveBeenCalled();
   });
 });
 
@@ -109,14 +101,10 @@ describe('How removeChildFiber( ) works', () => {
     expect(fiber).not.toBe(null);
     // The key is correct.
     expect(fiber.key).toBe('1');
-    // The parent reference is removed.
-    expect(fiber.return).toBe(null);
-    // The sibling reference is removed.
-    expect(fiber.sibling).toBe(null);
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['2']);
   });
@@ -127,13 +115,9 @@ describe('How removeChildFiber( ) works', () => {
     expect(fiber).not.toBe(null);
     // The key is correct.
     expect(fiber.key).toBe('2');
-    // The parent reference is removed.
-    expect(fiber.return).toBe(null);
-    // The sibling reference is removed.
-    expect(fiber.sibling).toBe(null);
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
-    // The indices are updated.
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1']);
@@ -145,7 +129,7 @@ describe('How removeChildFiber( ) works', () => {
     expect(fiber).toBe(null);
     // Warning calls.
     expect(warn).toHaveBeenCalled();
-    // The indices are updated.
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1', '2']);
@@ -171,14 +155,10 @@ describe('How removeFirstChildFiber( ) works', () => {
     expect(fiber).not.toBe(null);
     // The key is correct.
     expect(fiber.key).toBe('1');
-    // The parent reference is removed.
-    expect(fiber.return).toBe(null);
-    // The sibling reference is removed.
-    expect(fiber.sibling).toBe(null);
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
-    // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0]);
+    // The indices are changed.
+    expect(getFibersIndices(parentFiber)).toEqual([1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['2']);
   });
@@ -188,7 +168,7 @@ describe('How removeFirstChildFiber( ) works', () => {
     mount(<div ref={parentRef} />);
     parentFiber = getFiberFromElementInstance(parentRef.current);
 
-    const fiber = removeChildFiberAt(parentFiber, 1);
+    const fiber = removeFirstChildFiber(parentFiber);
     // The fiber is not found.
     expect(fiber).toBe(null);
     // Warning calls.
@@ -204,13 +184,9 @@ describe('How removeSiblingFiber( ) works', () => {
     expect(fiber).not.toBe(null);
     // The key is correct.
     expect(fiber.key).toBe('2');
-    // The parent reference is removed.
-    expect(fiber.return).toBe(null);
-    // The sibling reference is removed.
-    expect(fiber.sibling).toBe(null);
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
-    // The indices are updated.
+    // The indices are changed.
     expect(getFibersIndices(parentFiber)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parentFiber)).toEqual(['1']);

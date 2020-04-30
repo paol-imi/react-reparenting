@@ -64,10 +64,12 @@ describe('How findChildFiberAt( ) works', () => {
     expect(warn).not.toHaveBeenCalled();
   });
 
-  test('(Provide a position bigger than the number of children) Not find the fiber and get null', () => {
+  test('(Provide a position bigger than the number of children) Find the last child fiber', () => {
     const fiber = findChildFiberAt(parentFiber, 5);
-    // The fiber is not found.
-    expect(fiber).toBe(null);
+    // The fiber is found.
+    expect(fiber).not.toBe(null);
+    // The key is correct.
+    expect(fiber.key).toBe('2');
     // Warning calls.
     expect(warn).toHaveBeenCalled();
   });
@@ -188,6 +190,26 @@ describe('How findContainerInstanceFiber( ) works', () => {
     );
     // The stateNode is found.
     expect(stateNode).toBe(parentRef.current);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  test('Not find the first DOM node in the parents', () => {
+    // Setup.
+    mount(
+      <>
+        <>
+          <div ref={parentRef} />
+        </>
+      </>
+    );
+
+    const fragmentFiber = getFiberFromElementInstance(parentRef.current).return;
+    const fiber = findContainerInstanceFiber(fragmentFiber, ENV.isElement);
+    // The stateNode is not found.
+    expect(fiber).toBe(null);
+    // Warning calls.
+    expect(warn).toHaveBeenCalled();
   });
 });
 
@@ -212,6 +234,8 @@ describe('How findInstanceFiber( ) works', () => {
     );
     // The stateNode is found.
     expect(stateNode).toBe(childRef.current);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
   });
 
   test('Warning if the child structure is ambiguous', () => {
@@ -235,6 +259,24 @@ describe('How findInstanceFiber( ) works', () => {
     const fragmentFiber = getFiberFromElementInstance(parentRef.current).child;
     const {stateNode} = findInstanceFiber(fragmentFiber, ENV.isElement);
     expect(stateNode).toBe(childRef.current);
+    // Warning calls.
+    expect(warn).toHaveBeenCalled();
+  });
+
+  test('Not find the first DOM node in the descendants', () => {
+    // Setup.
+    mount(
+      <div ref={parentRef}>
+        <>
+          <>{null}</>
+        </>
+      </div>
+    );
+
+    const fragmentFiber = getFiberFromElementInstance(parentRef.current).child;
+    const fiber = findInstanceFiber(fragmentFiber, ENV.isElement);
+    // The stateNode is not found.
+    expect(fiber).toBe(null);
     // Warning calls.
     expect(warn).toHaveBeenCalled();
   });

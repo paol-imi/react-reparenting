@@ -1,6 +1,6 @@
-import {ENV, config} from '../../src';
+import {ENV, configure} from '../../src';
 
-describe('How config works', () => {
+describe('How configure works', () => {
   test('The component provide a ParentFiber instance', () => {
     const configuration = {
       appendChildToContainer(container, child): void {
@@ -17,7 +17,7 @@ describe('How config works', () => {
       },
     };
 
-    config(configuration);
+    configure(configuration);
 
     expect(Object.keys(configuration)).toEqual(Object.keys(ENV));
   });

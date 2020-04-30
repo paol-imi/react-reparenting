@@ -76,4 +76,15 @@ describe('How useParent( ) works', () => {
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
   });
+
+  test('The parent is the same after a re-render', () => {
+    const currentParent = parent;
+
+    wrapper.setProps({children: null});
+
+    // The hook throw.
+    expect(currentParent).toBe(parent);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+  });
 });

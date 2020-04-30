@@ -1,15 +1,19 @@
 import React, {createRef} from 'react';
-import type {Fiber} from 'react-reconciler'; // eslint-disable-line
+import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
 import {getFibersIndices, warn} from '../__shared__';
-import {getFiberFromElementInstance, updateFibersIndices} from '../../src';
+import {
+  getFiberFromElementInstance,
+  updateFibersIndices,
+  updateFiberDebugFields,
+} from '../../src';
 
 // Refs.
 const parentRef = createRef<HTMLDivElement>();
 // Fibers.
 let parentFiber: Fiber;
+let childFiber: Fiber;
 
-// Mount the component before each test.
 beforeEach(() => {
   // Mount the component.
   mount(
@@ -20,21 +24,63 @@ beforeEach(() => {
     </div>
   );
 
-  // Load the fiber.
+  // Load the fibers.
   parentFiber = getFiberFromElementInstance(parentRef.current);
+  childFiber = parentFiber.child;
 
   // Clear the mock.
   warn.mockClear();
 });
 
 describe('How updateFibersIndices( ) works', () => {
-  test('Remove the first child fiber', () => {
-    const childFiber = parentFiber.child;
-
-    updateFibersIndices(childFiber, 0);
+  test('Update from the first child fiber', () => {
+    updateFibersIndices(childFiber, 5);
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
     // The indices are updated.
-    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 2]);
+    expect(getFibersIndices(parentFiber)).toEqual([5, 6, 7]);
+  });
+
+  test('Update from the second child fiber', () => {
+    updateFibersIndices(childFiber.sibling, 5);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 5, 6]);
+  });
+
+  test('Update from the third child fiber', () => {
+    updateFibersIndices(childFiber.sibling.sibling, 5);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentFiber)).toEqual([0, 1, 5]);
+  });
+});
+
+describe('How updateFiberDebugFields( ) works', () => {
+  test('Update from the first child fiber', () => {
+    childFiber._debugOwner = null;
+    childFiber._debugSource = null;
+
+    updateFiberDebugFields(childFiber, parentFiber);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+    // The indices are updated.
+    expect(childFiber._debugOwner).toBe(childFiber.sibling._debugOwner);
+    expect(childFiber._debugSource).toBe(childFiber.sibling._debugSource);
+  });
+
+  test('Update from the second child fiber', () => {
+    childFiber = childFiber.sibling;
+    childFiber._debugOwner = null;
+    childFiber._debugSource = null;
+
+    updateFiberDebugFields(childFiber, parentFiber);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+    // The indices are updated.
+    expect(childFiber._debugOwner).toBe(childFiber.sibling._debugOwner);
+    expect(childFiber._debugSource).toBe(childFiber.sibling._debugSource);
   });
 });

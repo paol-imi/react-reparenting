@@ -7,16 +7,22 @@ beforeEach(() => {
 });
 
 describe('How warning works', () => {
-  test('Not log a warning', () => {
-    warning(true, 'warning');
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
-  });
-
   test('Log a warning', () => {
-    warning(false, 'warning');
+    warning('warning');
     // Warning calls.
     expect(warn).toHaveBeenCalledTimes(1);
     expect(warn).toHaveBeenCalledWith('Warning: warning');
+  });
+
+  test('Not throw in IE9', () => {
+    // Remove the console.
+    const cnl = global.console;
+    global.console = undefined;
+
+    expect(() => {
+      warning('warning');
+    }).not.toThrow();
+
+    global.console = cnl;
   });
 });

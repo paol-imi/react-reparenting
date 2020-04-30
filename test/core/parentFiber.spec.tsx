@@ -51,11 +51,11 @@ describe('How the ParentFiber works', () => {
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2]);
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['1', '3', '4']);
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '4']);
     // The children are in the correct order.
     expect(
       Array.from(wrapperA.getDOMNode().children).map((child) =>
@@ -76,11 +76,11 @@ describe('How the ParentFiber works', () => {
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2]);
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['3', '4', '1']);
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['3', '4', '1']);
     // The children are in the correct order.
     expect(
       Array.from(wrapperA.getDOMNode().children).map((child) =>
@@ -101,11 +101,11 @@ describe('How the ParentFiber works', () => {
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2]);
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['3', '1', '4']);
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['3', '1', '4']);
     // The children are in the correct order.
     expect(
       Array.from(wrapperA.getDOMNode().children).map((child) =>
@@ -128,11 +128,11 @@ describe('How the ParentFiber works', () => {
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2, 3]);
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2, 3]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual([]);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['3', '1', '2', '4']);
+    expect(getFibersKeys(parentA.getCurrent())).toEqual([]);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['3', '1', '2', '4']);
     // The children are in the correct order.
     expect(
       Array.from(wrapperA.getDOMNode().children).map((child) =>
@@ -146,6 +146,152 @@ describe('How the ParentFiber works', () => {
     ).toEqual(['3', '1', '2', '4']);
   });
 
+  test('(Provide a not valid child index) Not send the child', () => {
+    const position = parentA.send(5, parentB, '4');
+    // The position is correct.
+    expect(position).toBe(-1);
+    // Warning calls.
+    expect(warn).toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0, 1]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['1', '2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['3', '4']);
+    // The children are in the correct order.
+    expect(
+      Array.from(wrapperA.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['1', '2']);
+    expect(
+      Array.from(wrapperB.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['3', '4']);
+  });
+
+  test('(Provide a not valid child key) Not send the child', () => {
+    const position = parentA.send('5', parentB, '4');
+    // The position is correct.
+    expect(position).toBe(-1);
+    // Warning calls.
+    expect(warn).toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0, 1]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['1', '2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['3', '4']);
+    // The children are in the correct order.
+    expect(
+      Array.from(wrapperA.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['1', '2']);
+    expect(
+      Array.from(wrapperB.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['3', '4']);
+  });
+
+  test('(Provide a not valid position index) The child is added at the bottom', () => {
+    const position = parentA.send(0, parentB, 5);
+    // The position is correct.
+    expect(position).toBe(2);
+    // Warning calls.
+    expect(warn).toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['3', '4', '1']);
+    // The children are in the correct order.
+    expect(
+      Array.from(wrapperA.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['2']);
+    expect(
+      Array.from(wrapperB.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['3', '4', '1']);
+  });
+
+  test('(Provide a not valid position key) The child is added at the bottom', () => {
+    const position = parentA.send(0, parentB, '5');
+    // The position is correct.
+    expect(position).toBe(2);
+    // Warning calls.
+    expect(warn).toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['3', '4', '1']);
+    // The children are in the correct order.
+    expect(
+      Array.from(wrapperA.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['2']);
+    expect(
+      Array.from(wrapperB.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['3', '4', '1']);
+  });
+
+  test('(Enable skipUpdate option) The DOM is not updated', () => {
+    const position = parentA.send(0, parentB, 0, true);
+    // The position is correct.
+    expect(position).toBe(0);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '4']);
+    // The children are in the correct order.
+    expect(
+      Array.from(wrapperA.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['1', '2']);
+    expect(
+      Array.from(wrapperB.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['3', '4']);
+
+    // Send back the fiber to avoid errors on unMounting.
+    parentB.send(0, parentA, 0, true);
+  });
+
+  test('The methods throw an error if the fiber is not setted', () => {
+    parentA.clear();
+
+    expect(() => {
+      parentA.send('1', parentB, 0);
+    }).toThrow(Invariant);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+  });
+
+  test('Logs warning if the fiber to set is null', () => {
+    parentA.set(null);
+    // Warning calls.
+    expect(warn).toHaveBeenCalled();
+  });
+});
+
+describe('Some possible scenarios', () => {
   test('(Load alternates A and B) Send the child with the key "1" in the position of the current first child', () => {
     // Generate the alternate with a re-render.
     wrapperA.setProps({
@@ -171,17 +317,17 @@ describe('How the ParentFiber works', () => {
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2]);
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['1', '3', '4']);
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '4']);
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber().alternate)).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber().alternate)).toEqual([0, 1, 2]);
+    expect(getFibersIndices(parentA.getCurrent().alternate)).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent().alternate)).toEqual([0, 1, 2]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber().alternate)).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber().alternate)).toEqual([
+    expect(getFibersKeys(parentA.getCurrent().alternate)).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent().alternate)).toEqual([
       '1',
       '3',
       '4',
@@ -216,17 +362,17 @@ describe('How the ParentFiber works', () => {
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2]);
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['1', '3', '4']);
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '4']);
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber().alternate)).toEqual([0]);
+    expect(getFibersIndices(parentA.getCurrent().alternate)).toEqual([0]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber().alternate)).toEqual(['2']);
+    expect(getFibersKeys(parentA.getCurrent().alternate)).toEqual(['2']);
     // Expect that the alternate of the sent fiber has been removed.
-    expect(findChildFiber(parentB.getFiber(), '1').alternate).toBe(null);
+    expect(findChildFiber(parentB.getCurrent(), '1').alternate).toBe(null);
     // The children are in the correct order.
     expect(
       Array.from(wrapperA.getDOMNode().children).map((child) =>
@@ -257,15 +403,15 @@ describe('How the ParentFiber works', () => {
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2]);
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['1', '3', '4']);
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '4']);
     // The indices are updated.
-    expect(getFibersIndices(parentB.getFiber().alternate)).toEqual([0, 1]);
+    expect(getFibersIndices(parentB.getCurrent().alternate)).toEqual([0, 1]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentB.getFiber().alternate)).toEqual(['3', '4']);
+    expect(getFibersKeys(parentB.getCurrent().alternate)).toEqual(['3', '4']);
     // The children are in the correct order.
     expect(
       Array.from(wrapperA.getDOMNode().children).map((child) =>
@@ -279,139 +425,245 @@ describe('How the ParentFiber works', () => {
     ).toEqual(['1', '3', '4']);
   });
 
-  test('(Provide a not valid child index) Not send the child', () => {
-    const position = parentA.send(5, parentB, '4');
-    // The position is correct.
-    expect(position).toBe(-1);
-    // Warning calls.
-    expect(warn).toHaveBeenCalled();
-    // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0, 1]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1]);
-    // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['1', '2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['3', '4']);
-    // The children are in the correct order.
-    expect(
-      Array.from(wrapperA.getDOMNode().children).map((child) =>
-        child.getAttribute('id')
-      )
-    ).toEqual(['1', '2']);
-    expect(
-      Array.from(wrapperB.getDOMNode().children).map((child) =>
-        child.getAttribute('id')
-      )
-    ).toEqual(['3', '4']);
-  });
+  test('(Load alternates A and B) (Re-render after reparenting) Send the child with the key "1" in the position of the current first child', () => {
+    // Generate the alternate with a re-render.
+    wrapperA.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="1" id="1" />
+          <div key="2" id="2" />
+        </Parent>
+      ),
+    });
+    wrapperB.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="3" id="3" />
+          <div key="4" id="4" />
+        </Parent>
+      ),
+    });
 
-  test('(Provide a not valid child key) Not send the child', () => {
-    const position = parentA.send('5', parentB, '4');
-    // The position is correct.
-    expect(position).toBe(-1);
-    // Warning calls.
-    expect(warn).toHaveBeenCalled();
-    // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0, 1]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1]);
-    // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['1', '2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['3', '4']);
-    // The children are in the correct order.
-    expect(
-      Array.from(wrapperA.getDOMNode().children).map((child) =>
-        child.getAttribute('id')
-      )
-    ).toEqual(['1', '2']);
-    expect(
-      Array.from(wrapperB.getDOMNode().children).map((child) =>
-        child.getAttribute('id')
-      )
-    ).toEqual(['3', '4']);
-  });
+    // Send the fiber.
+    const position = parentA.send('1', parentB, 0);
 
-  test('(Provide a not valid position index) The child is added at the bottom', () => {
-    const position = parentA.send(0, parentB, 5);
-    // The position is correct.
-    expect(position).toBe(2);
-    // Warning calls.
-    expect(warn).toHaveBeenCalled();
-    // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2]);
-    // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['3', '4', '1']);
-    // The children are in the correct order.
-    expect(
-      Array.from(wrapperA.getDOMNode().children).map((child) =>
-        child.getAttribute('id')
-      )
-    ).toEqual(['2']);
-    expect(
-      Array.from(wrapperB.getDOMNode().children).map((child) =>
-        child.getAttribute('id')
-      )
-    ).toEqual(['3', '4', '1']);
-  });
+    // Re-render
+    wrapperA.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="2" id="2" />
+        </Parent>
+      ),
+    });
+    wrapperB.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="1" id="1" />
+          <div key="3" id="3" />
+          <div key="4" id="4" />
+        </Parent>
+      ),
+    });
 
-  test('(Provide a not valid position key) The child is added at the bottom', () => {
-    const position = parentA.send(0, parentB, '5');
-    // The position is correct.
-    expect(position).toBe(2);
-    // Warning calls.
-    expect(warn).toHaveBeenCalled();
-    // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2]);
-    // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['3', '4', '1']);
-    // The children are in the correct order.
-    expect(
-      Array.from(wrapperA.getDOMNode().children).map((child) =>
-        child.getAttribute('id')
-      )
-    ).toEqual(['2']);
-    expect(
-      Array.from(wrapperB.getDOMNode().children).map((child) =>
-        child.getAttribute('id')
-      )
-    ).toEqual(['3', '4', '1']);
-  });
-
-  test('(Enable skipUpdate option) The DOM is not updated', () => {
-    const position = parentA.send(0, parentB, 0, true);
     // The position is correct.
     expect(position).toBe(0);
     // Warning calls.
     expect(warn).not.toHaveBeenCalled();
     // The indices are updated.
-    expect(getFibersIndices(parentA.getFiber())).toEqual([0]);
-    expect(getFibersIndices(parentB.getFiber())).toEqual([0, 1, 2]);
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
     // The keys are in the correct order.
-    expect(getFibersKeys(parentA.getFiber())).toEqual(['2']);
-    expect(getFibersKeys(parentB.getFiber())).toEqual(['1', '3', '4']);
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '4']);
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent().alternate)).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent().alternate)).toEqual([0, 1, 2]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent().alternate)).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent().alternate)).toEqual([
+      '1',
+      '3',
+      '4',
+    ]);
     // The children are in the correct order.
     expect(
       Array.from(wrapperA.getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
-    ).toEqual(['1', '2']);
+    ).toEqual(['2']);
     expect(
       Array.from(wrapperB.getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
-    ).toEqual(['3', '4']);
-
-    // Send back the fiber to avoid errors on unMounting.
-    parentB.send(0, parentA, 0, true);
+    ).toEqual(['1', '3', '4']);
   });
 
-  test('The methods throw an error if the fiber is not setted', () => {
-    parentA.clear();
+  test('(Load alternate A) (Re-render after reparenting) Send the child with the key "1" in the position of the current first child', () => {
+    // Generate the alternate with a re-render.
+    wrapperA.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="1" id="1" />
+          <div key="2" id="2" />
+        </Parent>
+      ),
+    });
 
-    expect(() => {
-      parentA.send('1', parentB, 0);
-    }).toThrow(Invariant);
+    // Send the fiber.
+    const position = parentA.send('1', parentB, 0);
+
+    // Re-render
+    wrapperA.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="2" id="2" />
+        </Parent>
+      ),
+    });
+    wrapperB.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="1" id="1" />
+          <div key="3" id="3" />
+          <div key="4" id="4" />
+        </Parent>
+      ),
+    });
+
+    // The position is correct.
+    expect(position).toBe(0);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '4']);
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent().alternate)).toEqual([0]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent().alternate)).toEqual(['2']);
+    // Expect that the alternate of the sent fiber has been created.
+    expect(findChildFiber(parentB.getCurrent(), '1').alternate).not.toBe(null);
+    // The children are in the correct order.
+    expect(
+      Array.from(wrapperA.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['2']);
+    expect(
+      Array.from(wrapperB.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['1', '3', '4']);
+  });
+
+  test('(Load alternate B) (Re-render after reparenting) Send the child with the key "1" in the position of the current first child', () => {
+    // Generate the alternate with a re-render.
+    wrapperB.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="3" id="3" />
+          <div key="4" id="4" />
+        </Parent>
+      ),
+    });
+
+    // Send the fiber.
+    const position = parentA.send('1', parentB, 0);
+
+    // Re-render
+    wrapperA.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="2" id="2" />
+        </Parent>
+      ),
+    });
+    wrapperB.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="1" id="1" />
+          <div key="3" id="3" />
+          <div key="4" id="4" />
+        </Parent>
+      ),
+    });
+
+    // The position is correct.
+    expect(position).toBe(0);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '4']);
+    // The indices are updated.
+    expect(getFibersIndices(parentB.getCurrent().alternate)).toEqual([0, 1, 2]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentB.getCurrent().alternate)).toEqual([
+      '1',
+      '3',
+      '4',
+    ]);
+    // The children are in the correct order.
+    expect(
+      Array.from(wrapperA.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['2']);
+    expect(
+      Array.from(wrapperB.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['1', '3', '4']);
+  });
+
+  test('(Load alternates A and B) Send all the children after the child with the key "4"', () => {
+    // Generate the alternate with a re-render.
+    wrapperA.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="1" id="1" />
+          <div key="2" id="2" />
+        </Parent>
+      ),
+    });
+    wrapperB.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <div key="3" id="3" />
+          <div key="4" id="4" />
+        </Parent>
+      ),
+    });
+
+    const position1 = parentA.send(0, parentB, '4');
+    const position2 = parentA.send(0, parentB, '4');
+    // The position is correct.
+    expect(position1).toBe(1);
+    expect(position2).toBe(2);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2, 3]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent())).toEqual([]);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['3', '1', '2', '4']);
+    // The children are in the correct order.
+    expect(
+      Array.from(wrapperA.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual([]);
+    expect(
+      Array.from(wrapperB.getDOMNode().children).map((child) =>
+        child.getAttribute('id')
+      )
+    ).toEqual(['3', '1', '2', '4']);
   });
 });

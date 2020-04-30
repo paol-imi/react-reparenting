@@ -117,7 +117,7 @@ describe('How <Reparentable> works', () => {
   test('Get a warning about wrong <Reparentable> id', () => {
     const {send} = map;
     // No <Reparentable> has id 'C'.
-    const position = send('A', 'C', '1', 0);
+    const position = send('C', 'D', '1', 0);
     // The position is correct.
     expect(position).toBe(-1);
     // Warning calls.

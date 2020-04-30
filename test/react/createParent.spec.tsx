@@ -80,6 +80,8 @@ describe('How createParent( ) works', () => {
     expect(parent.fiber).not.toBe(null);
     // The lifecycle method is called.
     expect(cdm).toHaveBeenCalledTimes(1);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
 
     // Remove lifecycle method.
     delete Parent.prototype.componentDidMount;
@@ -95,6 +97,8 @@ describe('How createParent( ) works', () => {
     expect(parent.fiber).toBe(null);
     // The lifecycle method is called.
     expect(cwu).toHaveBeenCalledTimes(1);
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
 
     // Remove lifecycle method.
     delete Parent.prototype.componentWillUnmount;
@@ -116,6 +120,9 @@ describe('How createParent( ) works', () => {
     // The lifecycle methods are called.
     expect(cdm).toHaveBeenCalledTimes(1);
     expect(cwu).toHaveBeenCalledTimes(1);
+
+    // Warning calls.
+    expect(warn).not.toHaveBeenCalled();
 
     // Remove lifecycle method.
     delete Parent.prototype.componentDidMount;

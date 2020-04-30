@@ -92,9 +92,9 @@ describe('How the reparented child lifecycle works', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -154,10 +154,10 @@ describe('How the reparented child lifecycle works', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="3" {...child3Mocks} />,
-          <Child key="1" {...child1Mocks} />,
-          <Child key="2" {...child2Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="3" {...child3Mocks} />
+          <Child key="1" {...child1Mocks} />
+          <Child key="2" {...child2Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -220,9 +220,9 @@ describe('How the state is manteined after reparenting', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -232,24 +232,24 @@ describe('How the state is manteined after reparenting', () => {
 });
 
 describe('Reparenting after the some re-renders', () => {
-  test('Rerender A and B before reparenting', () => {
+  test('Re-render A and B before reparenting', () => {
     const [state1, state2] = wrapperA.find(Child).map((child) => child.state());
     const [state3, state4] = wrapperB.find(Child).map((child) => child.state());
 
-    // Rerender.
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="2" {...child2Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="2" {...child2Mocks} />
         </Parent>
       ),
     });
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -267,9 +267,9 @@ describe('Reparenting after the some re-renders', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -314,24 +314,24 @@ describe('Reparenting after the some re-renders', () => {
     expect(child4Mocks.onRender).toHaveBeenCalledTimes(3);
   });
 
-  test('Rerender A and B before and after reparenting', () => {
+  test('Re-render A and B before and after reparenting', () => {
     const [state1, state2] = wrapperA.find(Child).map((child) => child.state());
     const [state3, state4] = wrapperB.find(Child).map((child) => child.state());
 
-    // Rerender.
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="2" {...child2Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="2" {...child2Mocks} />
         </Parent>
       ),
     });
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -349,14 +349,14 @@ describe('Reparenting after the some re-renders', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
 
-    // Rerender.
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
@@ -367,9 +367,9 @@ describe('Reparenting after the some re-renders', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -414,16 +414,16 @@ describe('Reparenting after the some re-renders', () => {
     expect(child4Mocks.onRender).toHaveBeenCalledTimes(4);
   });
 
-  test('Rerender A before reparenting, rerender A and B after reparenting', () => {
+  test('Re-render A before reparenting, re-render A and B after reparenting', () => {
     const [state1, state2] = wrapperA.find(Child).map((child) => child.state());
     const [state3, state4] = wrapperB.find(Child).map((child) => child.state());
 
-    // Rerender.
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="2" {...child2Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="2" {...child2Mocks} />
         </Parent>
       ),
     });
@@ -441,14 +441,14 @@ describe('Reparenting after the some re-renders', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
 
-    // Rerender.
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
@@ -459,9 +459,9 @@ describe('Reparenting after the some re-renders', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -506,16 +506,16 @@ describe('Reparenting after the some re-renders', () => {
     expect(child4Mocks.onRender).toHaveBeenCalledTimes(3);
   });
 
-  test('Rerender B before reparenting, rerender A and B after reparenting', () => {
+  test('Re-render B before reparenting, re-render A and B after reparenting', () => {
     const [state1, state2] = wrapperA.find(Child).map((child) => child.state());
     const [state3, state4] = wrapperB.find(Child).map((child) => child.state());
 
-    // Rerender.
+    // Re-render.
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -533,14 +533,14 @@ describe('Reparenting after the some re-renders', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
 
-    // rerender.
+    // re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
@@ -551,9 +551,9 @@ describe('Reparenting after the some re-renders', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -614,11 +614,11 @@ describe('Reparenting and adding other children', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="A" id="A" />,
-          <Child key="1" {...child1Mocks} />,
-          <Child key="B" id="B" />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="A" id="A" />
+          <Child key="1" {...child1Mocks} />
+          <Child key="B" id="B" />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -636,21 +636,21 @@ describe('Reparenting and adding other children', () => {
     ).toEqual(['A', '1', 'B', '3', '4']);
   });
 
-  test('Rerender A and B before reparenting', () => {
-    // Rerender.
+  test('Re-render A and B before reparenting', () => {
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="2" {...child2Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="2" {...child2Mocks} />
         </Parent>
       ),
     });
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -668,11 +668,11 @@ describe('Reparenting and adding other children', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="A" id="A" />,
-          <Child key="1" {...child1Mocks} />,
-          <Child key="B" id="B" />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="A" id="A" />
+          <Child key="1" {...child1Mocks} />
+          <Child key="B" id="B" />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -690,21 +690,21 @@ describe('Reparenting and adding other children', () => {
     ).toEqual(['A', '1', 'B', '3', '4']);
   });
 
-  test('Rerender A and B before and after reparenting', () => {
-    // Rerender.
+  test('Re-render A and B before and after reparenting', () => {
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="2" {...child2Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="2" {...child2Mocks} />
         </Parent>
       ),
     });
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -722,16 +722,16 @@ describe('Reparenting and adding other children', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="A" id="A" />,
-          <Child key="1" {...child1Mocks} />,
-          <Child key="B" id="B" />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="A" id="A" />
+          <Child key="1" {...child1Mocks} />
+          <Child key="B" id="B" />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
 
-    // Rerender.
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
@@ -742,11 +742,11 @@ describe('Reparenting and adding other children', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="A" id="A" />,
-          <Child key="1" {...child1Mocks} />,
-          <Child key="B" id="B" />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="A" id="A" />
+          <Child key="1" {...child1Mocks} />
+          <Child key="B" id="B" />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -764,13 +764,13 @@ describe('Reparenting and adding other children', () => {
     ).toEqual(['A', '1', 'B', '3', '4']);
   });
 
-  test('Rerender A before reparenting, rerender A and B after reparenting', () => {
-    // Rerender.
+  test('Re-render A before reparenting, re-render A and B after reparenting', () => {
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
-          <Child key="1" {...child1Mocks} />,
-          <Child key="2" {...child2Mocks} />,
+          <Child key="1" {...child1Mocks} />
+          <Child key="2" {...child2Mocks} />
         </Parent>
       ),
     });
@@ -788,16 +788,16 @@ describe('Reparenting and adding other children', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="A" id="A" />,
-          <Child key="1" {...child1Mocks} />,
-          <Child key="B" id="B" />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="A" id="A" />
+          <Child key="1" {...child1Mocks} />
+          <Child key="B" id="B" />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
 
-    // Rerender.
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
@@ -808,11 +808,11 @@ describe('Reparenting and adding other children', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="A" id="A" />,
-          <Child key="1" {...child1Mocks} />,
-          <Child key="B" id="B" />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="A" id="A" />
+          <Child key="1" {...child1Mocks} />
+          <Child key="B" id="B" />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -830,13 +830,13 @@ describe('Reparenting and adding other children', () => {
     ).toEqual(['A', '1', 'B', '3', '4']);
   });
 
-  test('Rerender B before reparenting, rerender A and B after reparenting', () => {
-    // Rerender.
+  test('Re-render B before reparenting, re-render A and B after reparenting', () => {
+    // Re-render.
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -854,16 +854,16 @@ describe('Reparenting and adding other children', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="A" id="A" />,
-          <Child key="1" {...child1Mocks} />,
-          <Child key="B" id="B" />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="A" id="A" />
+          <Child key="1" {...child1Mocks} />
+          <Child key="B" id="B" />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
 
-    // Rerender.
+    // Re-render.
     wrapperA.setProps({
       children: (
         <Parent parentRef={parentARef}>
@@ -874,11 +874,11 @@ describe('Reparenting and adding other children', () => {
     wrapperB.setProps({
       children: (
         <Parent parentRef={parentBRef}>
-          <Child key="A" id="A" />,
-          <Child key="1" {...child1Mocks} />,
-          <Child key="B" id="B" />,
-          <Child key="3" {...child3Mocks} />,
-          <Child key="4" {...child4Mocks} />,
+          <Child key="A" id="A" />
+          <Child key="1" {...child1Mocks} />
+          <Child key="B" id="B" />
+          <Child key="3" {...child3Mocks} />
+          <Child key="4" {...child4Mocks} />
         </Parent>
       ),
     });
@@ -898,35 +898,39 @@ describe('Reparenting and adding other children', () => {
 });
 
 describe('Reparenting with context', () => {
-  test('Without re-render', () => {
+  test('The context is changed', () => {
     const Context = createContext<string>('');
     let valueA: string;
     let valueB: string;
 
     wrapperA = mount(
-      <Context.Provider value="A">
-        <Parent parentRef={parentARef}>
-          <Context.Consumer key="1">
-            {(value): null => {
-              valueA = value;
-              return null;
-            }}
-          </Context.Consumer>
-        </Parent>
-      </Context.Provider>
+      <div>
+        <Context.Provider value="A">
+          <Parent parentRef={parentARef}>
+            <Context.Consumer key="1">
+              {(value): null => {
+                valueA = value;
+                return null;
+              }}
+            </Context.Consumer>
+          </Parent>
+        </Context.Provider>
+      </div>
     );
 
     wrapperB = mount(
-      <Context.Provider value="B">
-        <Parent parentRef={parentBRef}>
-          <Context.Consumer key="2">
-            {(value): null => {
-              valueB = value;
-              return null;
-            }}
-          </Context.Consumer>
-        </Parent>
-      </Context.Provider>
+      <div>
+        <Context.Provider value="B">
+          <Parent parentRef={parentBRef}>
+            <Context.Consumer key="2">
+              {(value): null => {
+                valueB = value;
+                return null;
+              }}
+            </Context.Consumer>
+          </Parent>
+        </Context.Provider>
+      </div>
     );
 
     expect(valueA).toBe('A');
@@ -936,20 +940,22 @@ describe('Reparenting with context', () => {
 
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
-          <Context.Consumer key="1">
-            {(value): null => {
-              valueA = value;
-              return null;
-            }}
-          </Context.Consumer>
-          <Context.Consumer key="2">
-            {(value): null => {
-              valueB = value;
-              return null;
-            }}
-          </Context.Consumer>
-        </Parent>
+        <Context.Provider value="B">
+          <Parent parentRef={parentBRef}>
+            <Context.Consumer key="1">
+              {(value): null => {
+                valueA = value;
+                return null;
+              }}
+            </Context.Consumer>
+            <Context.Consumer key="2">
+              {(value): null => {
+                valueB = value;
+                return null;
+              }}
+            </Context.Consumer>
+          </Parent>
+        </Context.Provider>
       ),
     });
 
