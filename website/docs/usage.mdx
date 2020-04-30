@@ -10,9 +10,9 @@ The key points to be followed to implement reparenting are explained below.
 
 In each implementation you have to define mainly 3 things:
 
-- Who are the `Child` components that can be transferred.
-- Who are the `Parent` components who can hold these children.
-- Which components need to `trigger` reparenting.
+- What are the `Child` components that can be transferred.
+- What are the `Parent` components that can hold these children.
+- What are the components that will to `trigger` reparenting.
 
 Parent components will need some small setup, child components won't need it. Any component can be used as a child, however it is your responsibility to provide them with unique `keys` _(don't use [indexes as keys](https://medium.com/@robinpokorny/index-as-a-key-is-an-anti-pattern-e0349aece318))_.
 
@@ -49,7 +49,7 @@ Choose the right tool for you, they are all independent of each other:
 
   - _Use a custom parent (recommended)_ - [**guide**](./reparentable)
 
-* **I need more flexibility**
+- **I need more flexibility**
 
   - _Use a custom parent_ - [**guide**](./parent)
   - _Use your class component_ - [**guide**](./createparent)

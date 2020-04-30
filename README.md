@@ -9,7 +9,7 @@
 [![npm](https://img.shields.io/npm/v/react-reparenting.svg?style=flat-square)](http://npm.im/react-reparenting)
 [![React: Tools](https://img.shields.io/badge/React-Tools-26C9FF?style=flat-square&logo=react)](http://npm.im/react-reparenting)
 [![Build: Trevis](https://img.shields.io/travis/paol-imi/react-reparenting.svg?style=flat-square)](https://travis-ci.com/github/Paol-imi/react-reparenting)
-[![Codecov](https://codecov.io/gh/Paol-imi/react-reparenting/branch/master/graph/badge.svg)](https://codecov.io/gh/Paol-imi/react-reparenting)
+[![Codecov](https://img.shields.io/codecov/c/github/paol-imi/react-reparenting?color=44cc11&logo=codecov&style=flat-square)](https://codecov.io/gh/Paol-imi/react-reparenting)
 [![Code style: Prettier](https://img.shields.io/badge/Code_style-Prettier-ff69b4.svg?style=flat-square&logo=prettier)](https://prettier.io/)
 [![Types: Typescript](https://img.shields.io/badge/Types-Typescript-red?style=flat-square&logo=typescript)](https://www.typescriptlang.org/)
 

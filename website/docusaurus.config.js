@@ -13,7 +13,7 @@ module.exports = {
         '⭐️ If you like React-reparenting, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/paol-imi/react-reparenting">GitHub</a>! ⭐️',
     },
     algolia: {
-      apiKey: 'cc417223ab762185c5fb6de237deaba0',
+      apiKey: 'bf27e780526eef047832332f8c5a2af2',
       indexName: 'react-reparenting',
     },
     navbar: {

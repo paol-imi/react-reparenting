@@ -6,10 +6,10 @@ The default configuration is designed to work with ReactDOM.
 If you want to try implementing React-reparenting with other `renderers` you can try to `instruct` the package to manage the types of nodes you are working with, in order to automate the process as happens with ReactDOM.
 
 ```js
-import {config} from 'react-reparenting';
+import {configure} from 'react-reparenting';
 
 // The default configuration that works with ReactDOM.
-config({
+configure({
   appendChildToContainer(container, child) {
     container.appendChild(child);
   },
@@ -24,3 +24,5 @@ config({
   },
 });
 ```
+
+If you have successfully implemented reparenting with React Native or with your custom renderer, feel free to share your solution by opening an issue on [Github](https://github.com/Paol-imi/react-reparenting/labels/implementation%20%F0%9F%8E%89).

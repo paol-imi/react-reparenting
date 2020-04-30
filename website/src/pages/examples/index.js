@@ -11,13 +11,13 @@ const examples = [
     type: 'Example',
     name: 'Reparentable',
     id: 'rvfi4',
-    description: 'Example showing how to implement reparenting.'
+    description: 'Example showing how to implement reparenting.',
   },
   {
     type: 'Example',
     name: 'React-DnD',
     id: '5u458',
-    description: 'Drag and drop implementation with React-DnD.'
+    description: 'Drag and drop implementation with React-DnD.',
   },
 ].map((example) => ({
   type: example.type,
