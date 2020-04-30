@@ -41,7 +41,7 @@ export default [
     external: (id) => !id.startsWith('.') && !id.startsWith('/'),
     plugins: [
       resolve({extensions}),
-      replace({'process.env.NODE_ENV': JSON.stringify('development')}),
+      replace({__DEV__: JSON.stringify(true)}),
       babel(getBabelOptions({useESModules: false})),
     ],
   },
@@ -58,7 +58,7 @@ export default [
     external: (id) => !id.startsWith('.') && !id.startsWith('/'),
     plugins: [
       resolve({extensions}),
-      replace({'process.env.NODE_ENV': JSON.stringify('production')}),
+      replace({__DEV__: JSON.stringify(false)}),
       babel(getBabelOptions({useESModules: false})),
       strip({
         include: extensions.map((ex) => '**/*'.concat(ex)),
@@ -76,7 +76,7 @@ export default [
     external: (id) => !id.startsWith('.') && !id.startsWith('/'),
     plugins: [
       resolve({extensions}),
-      replace({'process.env.NODE_ENV': JSON.stringify('production')}),
+      replace({__DEV__: JSON.stringify(false)}),
       babel(getBabelOptions({useESModules: true})),
       strip({
         include: extensions.map((ex) => '**/*'.concat(ex)),
