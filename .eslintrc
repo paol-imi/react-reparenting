@@ -18,6 +18,7 @@
     "import",
     "@typescript-eslint"
   ],
+  "globals": {"__DEV__": false},
   "env": {"browser": true, "node": true, "jest": true, "es6": true},
   "settings": {"import/resolver": {"typescript": {"alwaysTryTypes": true}}},
   "rules": {
@@ -29,10 +30,10 @@
     "import/prefer-default-export": 0,
     "import/extensions": 0,
     /** Disabled. */
-    "no-underscore-dangle": "off",
+    "no-underscore-dangle": 0,
     "no-param-reassign": 0,
     "no-multi-assign": 0,
-    "no-plusplus": 0,
+    "no-undef": 0,
     "func-names": 0,
     "max-classes-per-file": 0,
     "lines-between-class-members": [
