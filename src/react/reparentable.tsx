@@ -1,8 +1,8 @@
-import React, {Component, createContext, useContext, ContextType} from 'react';
-import type {ReactNode, MutableRefObject, RefCallback} from 'react';
+import React, {Component, createContext, useContext} from 'react';
+import type {Ref, ReactNode, ReactElement, ContextType} from 'react';
 import type {Fiber} from 'react-reconciler'; // eslint-disable-line
 import {ParentFiber} from '../core/parentFiber';
-import {getFiberFromClassInstance} from '../utils/getFiber';
+import {getFiberFromClassInstance} from '../fiber/get';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 
@@ -10,26 +10,17 @@ import {warning} from '../warning';
 export const ReparentableContext = createContext<ReparentableMap | null>(null);
 ReparentableContext.displayName = 'Reparentable';
 
-/** Reparentable hook. */
-export const useReparentable = function (): ReparentableMap {
-  const context = useContext(ReparentableContext);
-  invariant(
-    context !== null,
-    'It looks like you have not used a <Reparentable.Provider> in the top of your app'
-  );
-
-  return context;
-};
-
 /** Reparentable map. */
 export class ReparentableMap extends Map<string, ParentFiber> {
   set = (key: string, value: ParentFiber): this => {
-    // Warnings are removed in production.
-    warning(
-      !this.has(key),
-      `It seems that a new <Reparentable> component has been mounted with the id: "${key}", ` +
-        `while there is another <Reparentable> component with that id`
-    );
+    if (__DEV__) {
+      if (this.has(key)) {
+        warning(
+          `It seems that a new <Reparentable> has been mounted with the id: '${key}', while there is another <Reparentable> with that id`
+        );
+      }
+    }
+
     return super.set(key, value);
   };
 
@@ -62,18 +53,19 @@ export class ReparentableMap extends Map<string, ParentFiber> {
     const fromParent = this.get(fromParentId);
     const toParent = this.get(toParentId);
 
-    // Warnings are removed in production.
-    warning(
-      fromParent !== undefined,
-      `Cannot find a <Reparentable> with the id: "${fromParentId}"`
-    );
-    // Warnings are removed in production.
-    warning(
-      toParent !== undefined,
-      `Cannot find a <Reparentable> with the id: "${toParentId}"`
-    );
+    if (__DEV__) {
+      if (fromParent === undefined) {
+        warning(`Cannot find a <Reparentable> with the id: '${fromParentId}'`);
+      }
+      if (toParent === undefined) {
+        warning(`Cannot find a <Reparentable> with the id: '${toParentId}'`);
+      }
+    }
 
-    if (fromParent === undefined || toParent === undefined) return -1;
+    // Parent ids not valid.
+    if (fromParent === undefined || toParent === undefined) {
+      return -1;
+    }
 
     // Send the child.
     return fromParent.send(child, toParent, position, skipUpdate);
@@ -91,12 +83,18 @@ export class ReparentableProvider extends Component<ReparentableProviderProps> {
 
   componentDidMount(): void {
     const {reparentableMapRef} = this.props;
-    if (reparentableMapRef === null) return;
 
     // Set the ref.
-    if (typeof reparentableMapRef === 'function') reparentableMapRef(this.map);
-    if (typeof reparentableMapRef === 'object')
+    if (typeof reparentableMapRef === 'function') {
+      reparentableMapRef(this.map);
+    }
+    if (typeof reparentableMapRef === 'object' && reparentableMapRef !== null) {
+      // TODO: Not so pretty solution,
+      // when I will have time I'll try and implement the interface MutableRefObject.
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
       reparentableMapRef.current = this.map;
+    }
   }
 
   render(): ReactNode {
@@ -150,9 +148,9 @@ export class Reparentable extends Component<ReparentableProps> {
 
     // Set the fiber.
     if (typeof findFiber === 'function') {
-      this.parent.setFiber(findFiber(fiber));
+      this.parent.set(findFiber(fiber));
     } else {
-      this.parent.setFiber(fiber);
+      this.parent.set(fiber);
     }
 
     // Set the ParentFiber instance in context map.
@@ -182,18 +180,30 @@ export class Reparentable extends Component<ReparentableProps> {
    * In this way the component (and therefore its fiber)
    * will be the direct parent of the children.
    */
-  render(): ReactNode {
+  render(): ReparentableProps['children'] {
     const {children} = this.props;
     return children;
   }
 }
+
+/** Reparentable hook. */
+export const useReparentable = function (): ReparentableMap {
+  const context = useContext(ReparentableContext);
+
+  invariant(
+    context !== null,
+    'It looks like you have not used a <Reparentable.Provider> in the top of your app'
+  );
+
+  return context;
+};
 
 /* Reparentable props. */
 export interface ReparentableProps {
   /** The reparentable id. */
   id: string;
   /** The children. */
-  children?: ReactNode;
+  children?: ReactElement[] | ReactElement | null;
   /** Find fiber. */
   findFiber?: (fiber: Fiber) => Fiber;
 }
@@ -201,9 +211,7 @@ export interface ReparentableProps {
 /* Reparentable Provider props. */
 export interface ReparentableProviderProps {
   /** The children. */
-  children?: ReactNode;
+  children: ReactNode;
   /** ReparentableMap ref. */
-  reparentableMapRef?:
-    | MutableRefObject<ReparentableMap>
-    | RefCallback<ReparentableMap>;
+  reparentableMapRef?: Ref<ReparentableMap>;
 }

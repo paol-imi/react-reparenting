@@ -62,6 +62,6 @@ export const ENV: HostENV<Element> = {
  *
  * @param configuration - The configuration.
  */
-export function config<T>(configuration: Partial<HostENV<T>>): void {
+export function configure<T>(configuration: Partial<HostENV<T>>): void {
   Object.assign(ENV, configuration);
 }

@@ -1,8 +1,8 @@
-import {useRef, useEffect, useState} from 'react';
+import {useRef, useEffect} from 'react';
 import type {RefObject} from 'react';
 import type {Fiber} from 'react-reconciler'; // eslint-disable-line
 import {ParentFiber} from '../core/parentFiber';
-import {getFiberFromElementInstance} from '../utils/getFiber';
+import {getFiberFromElementInstance} from '../fiber/get';
 import {invariant} from '../invariant';
 
 /**
@@ -17,9 +17,21 @@ export function useParent<T>(
   findFiber?: (fiber: Fiber) => Fiber
 ): [ParentFiber, RefObject<T>] {
   // The parent instance.
-  const [parent] = useState<ParentFiber>(() => new ParentFiber());
+  const parentRef = useRef<ParentFiber>(null);
   // The element ref.
   const ref = useRef<T>(null);
+
+  // Generate the instance.
+  if (parentRef.current === null) {
+    // TODO: Not so pretty solution,
+    // when I will have time I'll try and implement the interface MutableRefObject.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    parentRef.current = new ParentFiber();
+  }
+
+  // Get a reference.
+  const parent = parentRef.current;
 
   // When the component is mounted the fiber is setted.
   useEffect(() => {
@@ -27,14 +39,16 @@ export function useParent<T>(
       ref.current !== null,
       'You must set the ref returned by the useParent hook'
     );
+    invariant(parentRef.current !== null);
+
     // The element fiber.
-    const elementFiber = getFiberFromElementInstance(ref.current);
+    const elementFiber = getFiberFromElementInstance<T>(ref.current);
 
     // Set the fiber.
     if (typeof findFiber === 'function') {
-      parent.setFiber(findFiber(elementFiber));
+      parent.set(findFiber(elementFiber));
     } else {
-      parent.setFiber(elementFiber);
+      parent.set(elementFiber);
     }
 
     // Clean up.

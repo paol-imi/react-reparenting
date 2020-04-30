@@ -1,5 +1,5 @@
 import { Component } from 'react';
-import type { ReactNode, MutableRefObject, RefCallback } from 'react';
+import type { ReactNode, Ref } from 'react';
 import type { Fiber } from 'react-reconciler';
 import { ParentFiber } from '../core/parentFiber';
 /**
@@ -30,9 +30,9 @@ export declare class Parent extends Component<ParentProps> {
 }
 export interface ParentProps {
     /** The children. */
-    children?: ReactNode;
+    children: ReactNode;
     /** The ref to the parentFiber. */
-    parentRef: MutableRefObject<ParentFiber> | RefCallback<ParentFiber>;
+    parentRef: Ref<ParentFiber>;
     /** Find fiber. */
     findFiber?: (fiber: Fiber) => Fiber;
 }

@@ -1,12 +1,11 @@
 import type { Fiber } from 'react-reconciler';
-import type { HostENV } from '../core/hostENV';
+import type { HostENV } from '../core/ENV';
 /**
- * Returns the child fiber in the given index.
- * If the paremt has no children, or the index provided is
- * greater than the number of children null is returned.
+ * Returns the child fiber in the given index or if the paremt has no children.
+ * If the index provided is greater than the number of children the last child is returned.
  *
  * @param parent - The parent fiber.
- * @param index - The index of the fiber to find.
+ * @param index - The index of the child fiber to find.
  * @returns - The fiber found or null.
  */
 export declare function findChildFiberAt(parent: Fiber, index: number): Fiber | null;
@@ -14,7 +13,7 @@ export declare function findChildFiberAt(parent: Fiber, index: number): Fiber | 
  * Returns the child fiber with the given key or null if it is not found.
  *
  * @param parent - The parent fiber.
- * @param key - The key of the child fiber.
+ * @param key - The key of the child fiber to find.
  * @returns - The fiber found or null.
  */
 export declare function findChildFiber(parent: Fiber, key: string): Fiber | null;
@@ -28,14 +27,14 @@ export declare function findChildFiber(parent: Fiber, key: string): Fiber | null
  */
 export declare function findPreviousFiber(parent: Fiber, key: string): Fiber | null;
 /**
- * Return the first instance found in the parent fibers.
+ * Returns the first instance found in the parent fibers.
  *
  * @param fiber - The fiber.
- * @returns - The instance or null.
+ * @returns - The container instance or null.
  */
 export declare function findContainerInstanceFiber<T>(fiber: Fiber | null, isElement: HostENV<T>['isElement']): InstanceFiber<T> | null;
 /**
- * Return the first instance found in the parent fibers.
+ * Returns the first instance found in the parent fibers.
  *
  * @param fiber - The fiber.
  * @returns - The instance or null.

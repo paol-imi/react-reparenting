@@ -1,7 +1,6 @@
 /**
- * Prints a warning in the console if the condition fails.
+ * Prints a warning in the console.
  *
- * @param condition - The condition.
- * @param message - The message.
+ * @param message - The warning message.
  */
-export declare function warning(condition: boolean, message: string): void;
+export declare function warning(message: string): void;

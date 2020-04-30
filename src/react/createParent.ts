@@ -1,7 +1,7 @@
 import type {Component} from 'react';
 import type {Fiber} from 'react-reconciler'; // eslint-disable-line
 import {ParentFiber} from '../core/parentFiber';
-import {getFiberFromClassInstance} from '../utils/getFiber';
+import {getFiberFromClassInstance} from '../fiber/get';
 
 /**
  * Generate a ParentFiber instance given a class instance of a component.
@@ -24,9 +24,9 @@ export function createParent(
     const fiber = getFiberFromClassInstance(instance);
     // Set the fiber.
     if (typeof findFiber === 'function') {
-      parent.setFiber(findFiber(fiber));
+      parent.set(findFiber(fiber));
     } else {
-      parent.setFiber(fiber);
+      parent.set(fiber);
     }
 
     // Call the original method.

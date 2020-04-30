@@ -1,8 +1,8 @@
 import {Component} from 'react';
-import type {ReactNode, MutableRefObject, RefCallback} from 'react';
+import type {ReactNode, Ref} from 'react';
 import type {Fiber} from 'react-reconciler'; // eslint-disable-line
 import {ParentFiber} from '../core/parentFiber';
-import {getFiberFromClassInstance} from '../utils/getFiber';
+import {getFiberFromClassInstance} from '../fiber/get';
 import {invariant} from '../invariant';
 
 /**
@@ -26,21 +26,29 @@ export class Parent extends Component<ParentProps> {
 
     // Ensure a ref is passed.
     invariant(
-      parentRef &&
+      parentRef !== null &&
         (typeof parentRef === 'function' || typeof parentRef === 'object'),
       'You must provide a parentRef to the <Parent> component'
     );
 
     // Set the fiber.
     if (typeof findFiber === 'function') {
-      this.parent.setFiber(findFiber(fiber));
+      this.parent.set(findFiber(fiber));
     } else {
-      this.parent.setFiber(fiber);
+      this.parent.set(fiber);
     }
 
     // Set the ref.
-    if (typeof parentRef === 'function') parentRef(this.parent);
-    if (typeof parentRef === 'object') parentRef.current = this.parent;
+    if (typeof parentRef === 'function') {
+      parentRef(this.parent);
+    }
+    if (typeof parentRef === 'object' && parentRef !== null) {
+      // TODO: Not so pretty solution,
+      // when I will have time I'll try and implement the interface MutableRefObject.
+      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+      // @ts-ignore
+      parentRef.current = this.parent;
+    }
   }
 
   /**
@@ -64,9 +72,9 @@ export class Parent extends Component<ParentProps> {
 /* Parent props. */
 export interface ParentProps {
   /** The children. */
-  children?: ReactNode;
+  children: ReactNode;
   /** The ref to the parentFiber. */
-  parentRef: MutableRefObject<ParentFiber> | RefCallback<ParentFiber>;
+  parentRef: Ref<ParentFiber>;
   /** Find fiber. */
   findFiber?: (fiber: Fiber) => Fiber;
 }

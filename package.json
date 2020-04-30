@@ -1,6 +1,6 @@
 {
   "name": "react-reparenting",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "The reparenting tools for React",
   "main": "dist/react-reparenting.cjs.js",
   "module": "dist/react-reparenting.esm.js",
@@ -25,6 +25,7 @@
     "react",
     "reparenting",
     "reparentable",
+    "portals",
     "portal",
     "fibers",
     "fiber"

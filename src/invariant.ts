@@ -18,11 +18,11 @@ export function invariant(
 ): asserts condition {
   if (condition) return;
 
-  if (process.env.NODE_ENV === 'production') {
-    // In production we strip the message but still throw.
-    throw new Invariant(prefix);
-  } else {
+  if (__DEV__) {
     // When not in production we allow the message to pass through.
     throw new Invariant(`${prefix}: ${message || ''}`);
+  } else {
+    // In production we strip the message but still throw.
+    throw new Invariant(prefix);
   }
 }

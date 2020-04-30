@@ -17,7 +17,7 @@ export declare class ParentFiber {
      *
      * @param fiber - The parent fiber to manage.
      */
-    setFiber(fiber: Fiber): void;
+    set(fiber: Fiber): void;
     /**
      * Parent fiber getter.
      * This is necessary to always get the
@@ -25,7 +25,7 @@ export declare class ParentFiber {
      *
      * @returns - The current parent fiber.
      */
-    getFiber(): Fiber;
+    getCurrent(): Fiber;
     /**
      * Add a child fiber in the parent and return the index in which it is added.
      * The position can be chosen by providing a key (string) or by providing an index (number).

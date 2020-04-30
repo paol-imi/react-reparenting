@@ -1,12 +1,10 @@
-import type {Fiber} from 'react-reconciler'; // eslint-disable-line
-import {ENV} from './hostENV';
-import {addChildFiberAt, addChildFiberBefore} from '../utils/addFiber';
-import {removeChildFiber, removeChildFiberAt} from '../utils/removeFiber';
-import {getCurrentFiber} from '../utils/getFiber';
-import {
-  findContainerInstanceFiber,
-  findInstanceFiber,
-} from '../utils/findFiber';
+import type {Fiber} from 'react-reconciler';
+import {ENV} from './ENV';
+import {getCurrentFiber} from '../fiber/get';
+import {addChildFiberAt, addChildFiberBefore} from '../fiber/add';
+import {removeChildFiber, removeChildFiberAt} from '../fiber/remove';
+import {updateFibersIndices, updateFiberDebugFields} from '../fiber/update';
+import {findContainerInstanceFiber, findInstanceFiber} from '../fiber/find';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 
@@ -24,7 +22,7 @@ export class ParentFiber {
    * @param fiber - The parent fiber to manage.
    */
   constructor(fiber?: Fiber) {
-    if (fiber) this.setFiber(fiber);
+    if (fiber) this.set(fiber);
   }
 
   /**
@@ -32,9 +30,12 @@ export class ParentFiber {
    *
    * @param fiber - The parent fiber to manage.
    */
-  setFiber(fiber: Fiber): void {
-    // Warnings are removed in production.
-    warning(fiber !== null, 'The fiber you have provided is null');
+  set(fiber: Fiber): void {
+    if (__DEV__) {
+      if (!fiber) {
+        warning('The fiber you have provided is null');
+      }
+    }
     this.fiber = fiber;
   }
 
@@ -45,7 +46,7 @@ export class ParentFiber {
    *
    * @returns - The current parent fiber.
    */
-  getFiber(): Fiber {
+  getCurrent(): Fiber {
     invariant(
       this.fiber !== null,
       'Cannot call Parent methods before it is initialized'
@@ -66,7 +67,7 @@ export class ParentFiber {
    * @returns - The index in which the child is added.
    */
   add(child: Fiber, position: string | number): number {
-    const parentFiber = this.getFiber();
+    const parentFiber = this.getCurrent();
     let index;
 
     // Add the fiber.
@@ -74,6 +75,12 @@ export class ParentFiber {
       index = addChildFiberAt(parentFiber, child, position);
     } else {
       index = addChildFiberBefore(parentFiber, child, position);
+    }
+
+    // Update fiber properties.
+    updateFibersIndices(child, index);
+    if (__DEV__) {
+      updateFiberDebugFields(child, parentFiber);
     }
 
     // If There is no alternate we can return here.
@@ -89,6 +96,12 @@ export class ParentFiber {
       addChildFiberBefore(parentFiber.alternate, child.alternate, position);
     }
 
+    // Update fiber properties.
+    updateFibersIndices(child.alternate, index);
+    if (__DEV__) {
+      updateFiberDebugFields(child.alternate, parentFiber);
+    }
+
     return index;
   }
 
@@ -102,7 +115,7 @@ export class ParentFiber {
    * @returns - The removed child or null.
    */
   remove(child: string | number): Fiber | null {
-    const parentFiber = this.getFiber();
+    const parentFiber = this.getCurrent();
     let fiber = null;
 
     // Remove the fiber.
@@ -113,18 +126,39 @@ export class ParentFiber {
     }
 
     // If the fiber is not found return null.
-    if (fiber === null) return null;
+    if (fiber === null) {
+      return null;
+    }
+
+    // If there are siblings their indices need to be adjusted.
+    if (fiber.sibling !== null) {
+      updateFibersIndices(fiber.sibling, fiber.index);
+    }
 
     // If There is no alternate we can return here.
     if (fiber.alternate === null || parentFiber.alternate === null) {
       return fiber;
     }
 
+    // If we are here we can handle the alternate.
+    let alternate = null;
+
     // Remove the alternate.
     if (typeof child === 'number') {
-      removeChildFiberAt(parentFiber.alternate, child);
+      alternate = removeChildFiberAt(parentFiber.alternate, child);
     } else {
-      removeChildFiber(parentFiber.alternate, child);
+      alternate = removeChildFiber(parentFiber.alternate, child);
+    }
+
+    // If the fiber is not found return null.
+    invariant(
+      alternate !== null,
+      'The alternate has not been removed. This is a bug in React-reparenting, please file an issue'
+    );
+
+    // If there are siblings their indices need to be adjusted.
+    if (alternate.sibling !== null) {
+      updateFibersIndices(alternate.sibling, alternate.index);
     }
 
     return fiber;
@@ -161,55 +195,67 @@ export class ParentFiber {
     // Add the fiber.
     const index = toParent.add(fiber, position);
 
-    if (!skipUpdate) {
-      // Container instances
-      const fromContainer = findContainerInstanceFiber<Element>(
-        this.fiber,
-        ENV.isElement
-      );
-      const toContainer = findContainerInstanceFiber<Element>(
-        toParent.fiber,
-        ENV.isElement
-      );
+    if (skipUpdate) return index;
 
-      // Warnings are removed in production.
-      warning(
-        fromContainer !== null && toContainer !== null,
-        'Cannot find a container element, neither the parent nor any component before it seems to generate an element instance. ' +
-          'You should manually send the element and use the "skipUpdate" option'
-      );
+    // Container instances
+    const fromContainer = findContainerInstanceFiber<Element>(
+      this.fiber,
+      ENV.isElement
+    );
+    const toContainer = findContainerInstanceFiber<Element>(
+      toParent.fiber,
+      ENV.isElement
+    );
 
-      // Container not found.
-      if (fromContainer === null || toContainer === null) return index;
-
-      // Elements instances.
-      const element = findInstanceFiber<Element>(fiber, ENV.isElement);
-      const sibling = findInstanceFiber<Element>(fiber.sibling, ENV.isElement);
-
-      // Warnings are removed in production.
-      warning(
-        element !== null && (fiber.sibling === null || sibling !== null),
-        'Cannot find the child element instance. ' +
-          'You should manually move the elements you are trying to send and use the "skipUpdate" option.'
-      );
-
-      // Elements not found.
-      if (element === null || (fiber.sibling !== null && sibling === null))
-        return index;
-
-      // Remove the element instance.
-      ENV.removeChildFromContainer(fromContainer.stateNode, element.stateNode);
-
-      // Add the element instance
-      if (sibling === null) {
-        ENV.appendChildToContainer(toContainer.stateNode, element.stateNode);
-      } else {
-        ENV.insertInContainerBefore(
-          toContainer.stateNode,
-          element.stateNode,
-          sibling.stateNode
+    // Container not found.
+    if (fromContainer === null || toContainer === null) {
+      if (__DEV__) {
+        warning(
+          "Cannot find the container element, neither the parent nor any component before it seems to generate an element instance. You should manually send the element and use the 'skipUpdate' option"
         );
       }
+
+      return index;
+    }
+
+    // Elements instances.
+    const element = findInstanceFiber<Element>(fiber, ENV.isElement);
+
+    // Elements not found.
+    if (element === null) {
+      if (__DEV__) {
+        warning(
+          "Cannot find the child element. You should manually move the elements you are trying to send and use the 'skipUpdate' option"
+        );
+      }
+
+      return index;
+    }
+
+    // Remove the element instance.
+    ENV.removeChildFromContainer(fromContainer.stateNode, element.stateNode);
+
+    if (fiber.sibling === null) {
+      ENV.appendChildToContainer(toContainer.stateNode, element.stateNode);
+    } else {
+      const sibling = findInstanceFiber<Element>(fiber.sibling, ENV.isElement);
+
+      // Elements not found.
+      if (sibling === null) {
+        if (__DEV__) {
+          warning(
+            "Cannot find the sibling element. You should manually move the elements you are trying to send and use the 'skipUpdate' option"
+          );
+        }
+
+        return index;
+      }
+
+      ENV.insertInContainerBefore(
+        toContainer.stateNode,
+        element.stateNode,
+        sibling.stateNode
+      );
     }
 
     return index;

@@ -1,5 +1,5 @@
 /**
-* React-reparenting v0.1.0
+* React-reparenting v0.2.0
 * https://paol-imi.github.io/react-reparenting
 * Copyright (c) 2020-present, Paol-imi
 * Released under the MIT license
@@ -25,7 +25,6 @@ var _wrapNativeSuper = _interopDefault(require('@babel/runtime/helpers/wrapNativ
 var React = require('react');
 var React__default = _interopDefault(React);
 var _get = _interopDefault(require('@babel/runtime/helpers/get'));
-var _slicedToArray = _interopDefault(require('@babel/runtime/helpers/slicedToArray'));
 
 /**
  * The host environment.
@@ -51,435 +50,8 @@ var ENV = {
  * @param configuration - The configuration.
  */
 
-function config(configuration) {
+function configure(configuration) {
   Object.assign(ENV, configuration);
-}
-
-/**
- * Prints a warning in the console if the condition fails.
- *
- * @param condition - The condition.
- * @param message - The message.
- */
-function warning(condition, message) {
-  // condition passed: do not log.
-  if (condition) {
-    return;
-  } // Condition not passed.
-
-
-  var text = "Warning: ".concat(message); // check console for IE9 support which provides console
-  // only with open devtools.
-
-  if (typeof console !== 'undefined') {
-    // eslint-disable-next-line
-    console.error(text);
-  } // Throwing an error and catching it immediately
-  // to improve debugging.
-  // A consumer can use 'pause on caught exceptions'
-  // https://github.com/facebook/react/issues/4216
-
-
-  try {
-    throw Error(text);
-  } catch (x) {} // eslint-disable-line
-
-}
-
-// eslint-disable-line
-/**
- * Returns the child fiber in the given index.
- * If the paremt has no children, or the index provided is
- * greater than the number of children null is returned.
- *
- * @param parent - The parent fiber.
- * @param index - The index of the fiber to find.
- * @returns - The fiber found or null.
- */
-
-function findChildFiberAt(parent, index) {
-  // The warnings are removed in production.
-  warning(index >= -1, 'The index of the fiber to find must be >= -1, the last child is returned'); // The first child.
-
-  var child = parent.child; // The warnings are removed in production.
-
-  warning(index === -1 || child !== null, 'The parent fiber has no children'); // If the parent has no child return null.
-
-  if (child === null) return null;
-
-  if (index === -1) {
-    // Find the last child.
-    while (child.sibling) {
-      child = child.sibling;
-    }
-  } else {
-    // Find the child in index.
-    while (child && index-- > 0) {
-      child = child.sibling;
-    }
-  } // The warnings are removed in production.
-
-
-  warning(child !== null, 'The index provided is greater than the number of children, null is returned');
-  return child;
-}
-/**
- * Returns the child fiber with the given key or null if it is not found.
- *
- * @param parent - The parent fiber.
- * @param key - The key of the child fiber.
- * @returns - The fiber found or null.
- */
-
-function findChildFiber(parent, key) {
-  var child = parent.child; // The warnings are removed in production.
-
-  warning(child !== null, 'The parent fiber has no children'); // Find the child with the given key.
-
-  while (child && child.key !== key) {
-    child = child.sibling;
-  } // The warnings are removed in production.
-
-
-  warning(child !== null, "No child found with the key: '".concat(key, "'"));
-  return child;
-}
-/**
- * Returns the fiber before the one with the given key or null if it is not found.
- * If the fiber with the given key is the first child of the parent, the parent is returned.
- *
- * @param parent - The parent fiber.
- * @param key - The key of the child fiber.
- * @returns - The fiber found or null.
- */
-
-function findPreviousFiber(parent, key) {
-  var child = parent.child;
-  var sibling; // The warnings are removed in production.
-
-  warning(child !== null, 'The parent fiber has no children'); // If the parent has no child return null.
-
-  if (child === null) return null; // Return the parent if the fiber to find is the first one.
-
-  if (child.key === key) return parent; // Find the previous sibling.
-
-  while (child) {
-    sibling = child.sibling;
-    if (sibling && sibling.key === key) return child;
-    child = sibling;
-  } // The warnings are removed in production.
-
-
-  warning(child !== null, "No child found with the key: '".concat(key, "'"));
-  return child;
-}
-/**
- * Return the first instance found in the parent fibers.
- *
- * @param fiber - The fiber.
- * @returns - The instance or null.
- */
-
-function findContainerInstanceFiber(fiber, isElement) {
-  while (fiber) {
-    if (isElement(fiber.elementType, fiber.stateNode)) {
-      return fiber;
-    } // Search in the next parent.
-
-
-    fiber = fiber["return"];
-  }
-
-  warning(true, 'Cannot find the container instance');
-  return null;
-}
-/**
- * Return the first instance found in the parent fibers.
- *
- * @param fiber - The fiber.
- * @returns - The instance or null.
- */
-
-function findInstanceFiber(fiber, isElement) {
-  while (fiber) {
-    // If this fiber contains the instance.
-    if (isElement(fiber.elementType, fiber.stateNode)) {
-      return fiber;
-    } // Search in the next descendant.
-
-
-    fiber = fiber.child; // The descendants before the instance must be single children.
-
-    warning(fiber === null || fiber.sibling === null, 'The structure of the child component does not allow to determine the child instance with certainty');
-  }
-
-  warning(true, 'Cannot find the instance');
-  return null;
-}
-/** Fiber of an Instance. */
-
-// eslint-disable-line
-
-/**
- * Update the indices of a fiber and its next siblings.
- *
- * @param fiber - The fiber.
- * @param index - The index of the fiber.
- */
-function updateFibersIndices(fiber, index) {
-  while (fiber) {
-    fiber.index = index;
-    fiber = fiber.sibling;
-    index += 1;
-  }
-}
-/**
- * Update the debug owner.
- * I have not yet inquired about how the _debugOwner is chosen.
- * For now it is updated only if there is at least one sibling from which to copy this property.
- * This method is removed in production.
- *
- * @param child - The child fiber.
- * @param parent - The parent fiber.
- */
-
-function updateFiberDebugOwner(child, parent) {
-  if (parent === null) return; // Try to find a sibling with the debug owner.
-
-  if (parent.child === child) {
-    var sibling = child.sibling;
-
-    if (sibling !== null) {
-      child._debugOwner = sibling._debugOwner;
-    }
-  } else {
-    child._debugOwner = parent.child && parent.child._debugOwner;
-  }
-}
-
-// eslint-disable-line
-/**
- * Add a child fiber in the parent at the given index.
- * If index is -1 the fiber is added at the bottom.
- * If the index provided is greater than the number of children available
- * the fiber is added at the bottom.
- *
- * @param parent - The parent fiber.
- * @param child - The child fiber.
- * @param index - The index in which to add the fiber.
- * @param skipUpdate - Whether to skip updating computed properties.
- * @returns - The index in which the fiber is added.
- */
-
-function addChildFiberAt(parent, child, index, skipUpdate) {
-  // If the fiber is not found add the fiber at the bottom.
-  if (index === -1) return appendChildFiber(parent, child, skipUpdate); // Add the fiber in the first index.
-
-  if (index === 0) return prependChildFiber(parent, child, skipUpdate); // Find the previous sibling.
-  // At this point we are sure that the index is greater than 0.
-
-  var previousFiber = findChildFiberAt(parent, index - 1); // Warning if the fiber is not found.
-  // The warnings are removed in production.
-
-  warning(previousFiber !== null, "The fiber cannot be added at index: '".concat(index, "', it is added at the bottom")); // If the fiber is not found add the fiber at the bottom.
-
-  if (previousFiber === null) {
-    return appendChildFiber(parent, child, skipUpdate);
-  } // Add the fiber as sibling of the previous one.
-
-
-  return addSiblingFiber(previousFiber, child, skipUpdate);
-}
-/**
- * Add the child fiber in the parent before the fiber with the given key.
- * If the key is not found the fiber is added at the bottom.
- *
- * @param parent - The parent fiber.
- * @param child - The child fiber.
- * @param key - The key of the previous fiber.
- * @param skipUpdate - Whether to skip updating computed properties.
- * @returns - The index in which the fiber is added.
- */
-
-function addChildFiberBefore(parent, child, key, skipUpdate) {
-  // Find the previous fiber.
-  var previousFiber = findPreviousFiber(parent, key); // Warning if the fiber was not found.
-  // The warnings are removed in production.
-
-  warning(previousFiber !== null, "No fiber with the key: '".concat(key, "' has been found, the fiber is added at the bottom")); // If the fiber is not found add the fiber at the bottom.
-
-  if (previousFiber === null) {
-    return appendChildFiber(parent, child, skipUpdate);
-  } // If The fiber with the given key is the first one.
-
-
-  if (previousFiber === parent) {
-    return prependChildFiber(parent, child, skipUpdate);
-  } // Add the fiber as sibling of the previous one.
-
-
-  return addSiblingFiber(previousFiber, child, skipUpdate);
-}
-/**
- * Add the fiber at the bottom.
- *
- * @param parent - The parent fiber.
- * @param child - The child fiber.
- * @param skipUpdate - Whether to skip updating computed properties.
- * @returns - The index in which the fiber is added.
- */
-
-function appendChildFiber(parent, child, skipUpdate) {
-  var previousFiber = findChildFiberAt(parent, -1); // The parent has no children.
-
-  if (previousFiber === null) {
-    return prependChildFiber(parent, child, skipUpdate);
-  }
-
-  return addSiblingFiber(previousFiber, child, skipUpdate);
-}
-/**
- * Add the fiber after the given sibling fiber.
- *
- * @param fiber - The fiber.
- * @param sibling - The fiber to add as sibling.
- * @param skipUpdate - Whether to skip updating computed properties.
- * @returns - The index in which the fiber is added.
- */
-
-function addSiblingFiber(fiber, sibling, skipUpdate) {
-  var oldSibling = fiber.sibling;
-  var index = fiber.index + 1; // Update fiber references.
-
-  fiber.sibling = sibling;
-  sibling.sibling = oldSibling;
-  sibling["return"] = fiber["return"]; // Update computed fiber properties.
-
-  if (!skipUpdate) {
-    updateFibersIndices(sibling, index); // Removed in production.
-
-    updateFiberDebugOwner(sibling, fiber["return"]);
-  }
-
-  return index;
-}
-/**
- * Add the fiber as first child.
- *
- * @param parent - The parent fiber.
- * @param child - The child fiber.
- * @returns - The index in which the fiber is added.
- */
-
-function prependChildFiber(parent, child, skipUpdate) {
-  var oldFirstChild = parent.child; // Update fiber references.
-
-  parent.child = child;
-  child.sibling = oldFirstChild;
-  child["return"] = parent; // Update computed fiber properties.
-
-  if (!skipUpdate) {
-    updateFibersIndices(child, 0); // Removed in production.
-
-    updateFiberDebugOwner(child, parent);
-  }
-
-  return 0;
-}
-
-// eslint-disable-line
-/**
- * Remove the child fiber at the given index and return it or null if it not exists.
- *
- * @param parent - The parent fiber.
- * @param index - The index of the fiber.
- * @param skipUpdate - Whether to skip updating computed properties.
- * @returns - The removed fiber or null.
- */
-
-function removeChildFiberAt(parent, index, skipUpdate) {
-  // The warnings are removed in production.
-  warning(index >= 0, "The index provided to find the fiber must be >= of 0, found '".concat(index, "'")); // Invalid index.
-
-  if (index < 0) return null; // Remove the first child fiber.
-
-  if (index === 0) return removeFirstChildFiber(parent, skipUpdate); // Find the previous fiber.
-  // At this point we are shure that index > 0.
-
-  var previousFiber = findChildFiberAt(parent, index - 1); // The warnings are removed in production.
-
-  warning(previousFiber !== null, "Cannot find and remove the fiber at index: '".concat(index, "'")); // If the fiber is not found.
-
-  if (previousFiber === null) return null; // Remove the sibling.
-
-  return removeSiblingFiber(previousFiber, skipUpdate);
-}
-/**
- * Remove the child fiber with the given key and return it or null if it not exists.
- *
- * @param parent - The parent fiber.
- * @param key - The key of the fiber.
- * @param skipUpdate - Whether to skip updating computed properties.
- * @returns - The removed fiber or null.
- */
-
-function removeChildFiber(parent, key, skipUpdate) {
-  // Find the previous fiber.
-  var previousFiber = findPreviousFiber(parent, key); // The warnings are removed in production.
-
-  warning(previousFiber !== null, "No fiber with the key: '".concat(key, "' has been found, the fiber cannot be removed")); // If the fiber is not found.
-
-  if (previousFiber === null) return null; // If The fiber with the given key is the first one.
-
-  if (previousFiber === parent) return removeFirstChildFiber(parent, skipUpdate); // Add the fiber as sibling of the previous one.
-
-  return removeSiblingFiber(previousFiber, skipUpdate);
-}
-/**
- * Remove the next sibling from a fiber and return it or null if it not exist.
- *
- * @param fiber - The fiber.
- * @param skipUpdate - Whether to skip updating computed properties.
- * @returns - The removed sibling or null.
- */
-
-function removeSiblingFiber(fiber, skipUpdate) {
-  var removed = fiber.sibling; // If the fiber has no sibling return null.
-
-  if (removed === null) return null; // Update fiber references.
-
-  fiber.sibling = removed.sibling;
-  removed["return"] = null;
-  removed.sibling = null; // Update computed fiber properties.
-
-  if (!skipUpdate) {
-    updateFibersIndices(fiber, fiber.index);
-  }
-
-  return removed;
-}
-/**
- * Remove the first child fiber of the given parent and return it or null if it not exists.
- *
- * @param parent - The parent fiber.
- * @param skipUpdate - Whether to skip updating computed properties.
- * @returns - The removed fiber or null.
- */
-
-function removeFirstChildFiber(parent, skipUpdate) {
-  var removed = parent.child; // If the parent has no children return null.
-
-  if (removed === null) return null; // Update the child
-
-  parent.child = removed.sibling;
-  removed["return"] = null;
-  removed.sibling = null; // Update computed fiber properties.
-
-  if (!skipUpdate) {
-    updateFibersIndices(parent.child, 0);
-  }
-
-  return removed;
 }
 
 function _createSuper(Derived) { return function () { var Super = _getPrototypeOf(Derived), result; if (_isNativeReflectConstruct()) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
@@ -530,7 +102,9 @@ function invariant(condition, message) {
 
 /**
  * The fiber could be in the current tree or in the work-in-progress tree.
- * Return the fiber in the current tree, it could be the given fiber or its alternate.
+ * Returns the fiber in the current tree, it could be the given fiber or its alternate.
+ * For now, no special cases are handled:
+ * - It doesn't make sense to manage portals as this package was created to avoid them.
  *
  * @param fiber - The fiber.
  * @returns - The current fiber.
@@ -538,22 +112,26 @@ function invariant(condition, message) {
 
 function getCurrentFiber(fiber) {
   // If there is no alternate we are shure that it is the current fiber.
-  if (!fiber.alternate) return fiber; // Get the top fiber.
+  if (!fiber.alternate) {
+    return fiber;
+  } // Get the top fiber.
+
 
   var topFiber = fiber;
 
   while (topFiber["return"]) {
     topFiber = topFiber["return"];
-  } // Fibers.
+  } // The top fiber must be an HoostRoot.
 
 
+  invariant(topFiber.stateNode !== null && 'current' in topFiber.stateNode, 'Unable to find node on an unmounted component');
   var rootFiber = topFiber.stateNode;
   var topCurrentFiber = rootFiber.current; // If true we are in the current tree.
 
   return topCurrentFiber === topFiber ? fiber : fiber.alternate;
 }
 /**
- * Get the fiber of the given element.
+ * Returns the fiber of the given element (for now limited to DOM nodes).
  *
  * @param element - The element.
  * @returns - The fiber.
@@ -563,25 +141,495 @@ function getFiberFromElementInstance(element) {
   var internalKey = Object.keys(element).find(function (key) {
     return key.startsWith('__reactInternalInstance$');
   });
-  invariant(typeof internalKey === 'string', 'Cannot find the __reactInternalInstance$'); // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  invariant(typeof internalKey === 'string', 'Cannot find the __reactInternalInstance$. This is a problem with React-reparenting, please file an issue.'); // __reactInternalInstance$* is not present in the types definition.
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
-  // The __reactInternalInstance$* is not present in the types definition.
 
   return element[internalKey];
 }
 /**
- * Get the fiber of the given class component instance.
+ * Returns the fiber of the given class component instance.
  *
  * @param instance - The class component instance.
  * @returns - The fiber.
  */
 
 function getFiberFromClassInstance(instance) {
-  invariant(_typeof(instance) === 'object' && '_reactInternalFiber' in instance, 'Cannot find the _reactInternalFiber'); // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+  invariant(_typeof(instance) === 'object' && '_reactInternalFiber' in instance, 'Cannot find the _reactInternalFiber. This is a problem with React-reparenting, please file an issue.'); // _reactInternalFiber is not present in the types definition.
+  // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
   // @ts-ignore
-  // The _reactInternalFiber is not present in the types definition.
 
   return instance._reactInternalFiber;
+}
+
+/**
+ * Prints a warning in the console.
+ *
+ * @param message - The warning message.
+ */
+function warning(message) {
+  // Condition not passed.
+  var text = "Warning: ".concat(message); // check console for IE9 support which provides console
+  // only with open devtools.
+
+  if (typeof console !== 'undefined') {
+    // eslint-disable-next-line no-console
+    console.error(text);
+  } // Throwing an error and catching it immediately
+  // to improve debugging.
+  // A consumer can use 'pause on caught exceptions'
+  // https://github.com/facebook/react/issues/4216
+
+
+  try {
+    throw Error(text);
+  } catch (x) {} // eslint-disable-line no-empty
+
+}
+
+/**
+ * Returns the child fiber in the given index or if the paremt has no children.
+ * If the index provided is greater than the number of children the last child is returned.
+ *
+ * @param parent - The parent fiber.
+ * @param index - The index of the child fiber to find.
+ * @returns - The fiber found or null.
+ */
+
+function findChildFiberAt(parent, index) {
+  invariant(index >= -1, "The index of the fiber to find must be >= -1, found: ".concat(index)); // The first child.
+
+  var child = parent.child;
+
+  {
+    if (index !== -1 && child === null) {
+      warning('The parent fiber has no children');
+    }
+  } // If the parent has no children.
+
+
+  if (child === null) {
+    return null;
+  }
+
+  if (index === -1) {
+    var _child = child,
+        sibling = _child.sibling; // Find the last child.
+
+    while (sibling) {
+      child = sibling;
+      sibling = child.sibling;
+    }
+  } else {
+    var _child2 = child,
+        _sibling = _child2.sibling; // Find the child at the given index.
+
+    while (_sibling && index > 0) {
+      index -= 1;
+      child = _sibling;
+      _sibling = child.sibling;
+    }
+  }
+
+  {
+    if (index > 0) {
+      warning('The index provided is greater than the number of children, the last child is returned');
+    }
+  }
+
+  return child;
+}
+/**
+ * Returns the child fiber with the given key or null if it is not found.
+ *
+ * @param parent - The parent fiber.
+ * @param key - The key of the child fiber to find.
+ * @returns - The fiber found or null.
+ */
+
+function findChildFiber(parent, key) {
+  var child = parent.child;
+
+  {
+    if (child === null) {
+      warning('The parent fiber has no children');
+    }
+  } // Find the child with the given key.
+
+
+  while (child && child.key !== key) {
+    child = child.sibling;
+  }
+
+  {
+    if (child === null) {
+      warning("No child with the key: '".concat(key, "' has been found"));
+    }
+  }
+
+  return child;
+}
+/**
+ * Returns the fiber before the one with the given key or null if it is not found.
+ * If the fiber with the given key is the first child of the parent, the parent is returned.
+ *
+ * @param parent - The parent fiber.
+ * @param key - The key of the child fiber.
+ * @returns - The fiber found or null.
+ */
+
+function findPreviousFiber(parent, key) {
+  var child = parent.child; // If the parent has no child.
+
+  if (child === null) {
+    {
+      warning('The parent fiber has no children');
+    }
+
+    return null;
+  } // If the fiber to find is the first one.
+
+
+  if (child.key === key) {
+    return parent;
+  }
+
+  var _child3 = child,
+      sibling = _child3.sibling; // Find the previous sibling.
+
+  while (sibling) {
+    // If the fiber is found.
+    if (sibling.key === key) {
+      return child;
+    }
+
+    child = sibling;
+    sibling = child.sibling;
+  }
+
+  {
+    warning("No child found with the key: '".concat(key, "'"));
+  }
+
+  return null;
+}
+/**
+ * Returns the first instance found in the parent fibers.
+ *
+ * @param fiber - The fiber.
+ * @returns - The container instance or null.
+ */
+
+function findContainerInstanceFiber(fiber, isElement) {
+  while (fiber) {
+    if (isElement(fiber.elementType, fiber.stateNode)) {
+      return fiber;
+    } // Search in the next parent.
+
+
+    fiber = fiber["return"];
+  }
+
+  {
+    warning('Cannot find the container instance');
+  }
+
+  return null;
+}
+/**
+ * Returns the first instance found in the parent fibers.
+ *
+ * @param fiber - The fiber.
+ * @returns - The instance or null.
+ */
+
+function findInstanceFiber(fiber, isElement) {
+  while (fiber) {
+    // If this fiber contains the instance.
+    if (isElement(fiber.elementType, fiber.stateNode)) {
+      return fiber;
+    }
+
+    {
+      if (fiber.sibling !== null) warning('The structure of the child component does not allow to determine the instance with certainty, The descendants before the instance should be only children');
+    } // Search in the next descendant.
+
+
+    fiber = fiber.child;
+  }
+
+  {
+    warning('Cannot find the instance');
+  }
+
+  return null;
+}
+/** Fiber of an Instance. */
+
+/**
+ * Add a child fiber in the parent at the given index and return its index.
+ * If the index is -1 the fiber is added at the bottom.
+ * If the index provided is greater than the number of children available the fiber is added at the bottom.
+ *
+ * @param parent - The parent fiber.
+ * @param child - The child fiber.
+ * @param index - The index in which to add the fiber.
+ * @returns - The index in which the fiber is added.
+ */
+
+function addChildFiberAt(parent, child, index) {
+  // If the fiber is not found add the fiber at the bottom.
+  if (index === -1) return appendChildFiber(parent, child); // Add the fiber in the first index.
+
+  if (index === 0) return prependChildFiber(parent, child); // Find the previous sibling.
+  // At this point we are sure that the index is greater than 0.
+
+  var previousSibling = findChildFiberAt(parent, index - 1); // If the fiber is not found add the fiber at the bottom.
+
+  if (previousSibling === null) {
+    {
+      warning("The parent has no children, the child is added as the only child");
+    }
+
+    return appendChildFiber(parent, child);
+  }
+
+  {
+    if (previousSibling.index !== index - 1) {
+      warning("The child cannot be added at index: '".concat(index, "', the child is added at the bottom. Its index is ").concat(previousSibling.index + 1));
+    }
+  } // Add the fiber as sibling of the previous one.
+
+
+  return addSiblingFiber(previousSibling, child);
+}
+/**
+ * Add the child fiber in the parent before the fiber with the given key and return its index.
+ * If the key is not found the fiber is added at the bottom.
+ *
+ * @param parent - The parent fiber.
+ * @param child - The child fiber.
+ * @param key - The key of the previous fiber.
+ * @returns - The index in which the fiber is added.
+ */
+
+function addChildFiberBefore(parent, child, key) {
+  // Find the previous fiber.
+  var previousFiber = findPreviousFiber(parent, key); // If the fiber is not found add the fiber at the bottom.
+
+  if (previousFiber === null) {
+    {
+      warning("No child with the key: '".concat(key, "' has been found, the child is added at the bottom"));
+    }
+
+    return appendChildFiber(parent, child);
+  } // If The fiber with the given key is the first one.
+
+
+  if (previousFiber === parent) {
+    return prependChildFiber(parent, child);
+  } // Add the fiber as sibling of the previous one.
+
+
+  return addSiblingFiber(previousFiber, child);
+}
+/**
+ * Add the fiber at the bottom and return its index.
+ *
+ * @param parent - The parent fiber.
+ * @param child - The child fiber.
+ * @returns - The index in which the fiber is added.
+ */
+
+function appendChildFiber(parent, child) {
+  var previousFiber = findChildFiberAt(parent, -1); // The parent has no children.
+
+  if (previousFiber === null) {
+    return prependChildFiber(parent, child);
+  }
+
+  return addSiblingFiber(previousFiber, child);
+}
+/**
+ * Add the fiber after the given sibling and return its index.
+ *
+ * @param fiber - The fiber.
+ * @param sibling - The fiber to add as sibling.
+ * @returns - The index in which the fiber is added.
+ */
+
+function addSiblingFiber(fiber, sibling) {
+  var oldSibling = fiber.sibling;
+  var index = fiber.index + 1; // Update fiber references.
+
+  fiber.sibling = sibling;
+  sibling.sibling = oldSibling;
+  sibling["return"] = fiber["return"];
+  return index;
+}
+/**
+ * Add the fiber as first child and retun 0.
+ *
+ * @param parent - The parent fiber.
+ * @param child - The child fiber.
+ * @returns - The index in which the fiber is added.
+ */
+
+function prependChildFiber(parent, child) {
+  var oldFirstChild = parent.child; // Update fiber references.
+
+  parent.child = child;
+  child.sibling = oldFirstChild;
+  child["return"] = parent;
+  return 0;
+}
+
+/**
+ * Remove the child fiber at the given index and return it or null if it not exists.
+ *
+ * @param parent - The parent fiber.
+ * @param index - The index of the child fiber to remove.
+ * @returns - The removed fiber or null.
+ */
+
+function removeChildFiberAt(parent, index) {
+  invariant(index >= 0, "The index provided to find the child must be >= 0, found: ".concat(index)); // Remove the first child fiber.
+
+  if (index === 0) {
+    return removeFirstChildFiber(parent);
+  } // Find the previous fiber.
+  // At this point we are shure that index > 0.
+
+
+  var previousFiber = findChildFiberAt(parent, index - 1); // If the fiber is not found.
+
+  if (previousFiber === null) {
+    {
+      warning("Cannot find and remove the child at index: ".concat(index));
+    }
+
+    return null;
+  } // Remove the sibling.
+
+
+  return removeSiblingFiber(previousFiber);
+}
+/**
+ * Remove the child fiber with the given key and return it or null if it not exists.
+ *
+ * @param parent - The parent fiber.
+ * @param key - The key of the child fiber to remove.
+ * @returns - The removed fiber or null.
+ */
+
+function removeChildFiber(parent, key) {
+  // Find the previous fiber.
+  var previousFiber = findPreviousFiber(parent, key); // If the fiber is not found.
+
+  if (previousFiber === null) {
+    {
+      warning("No child with the key: '".concat(key, "' has been found, the child cannot be removed"));
+    }
+
+    return null;
+  } // If The fiber with the given key is the first one.
+
+
+  if (previousFiber === parent) {
+    return removeFirstChildFiber(parent);
+  } // Add the fiber as sibling of the previous one.
+
+
+  return removeSiblingFiber(previousFiber);
+}
+/**
+ * Remove the next sibling from a fiber and return it or null if it not exist.
+ *
+ * @param fiber - The fiber.
+ * @returns - The removed sibling fiber or null.
+ */
+
+function removeSiblingFiber(fiber) {
+  var removed = fiber.sibling; // If the fiber has no sibling return null.
+
+  if (removed === null) {
+    {
+      warning('The child has no sibling');
+    }
+
+    return null;
+  } // Update fiber references.
+
+
+  fiber.sibling = removed.sibling;
+  return removed;
+}
+/**
+ * Remove the first child fiber of the given parent and return it or null if it not exists.
+ *
+ * @param parent - The parent fiber.
+ * @returns - The removed child fiber or null.
+ */
+
+function removeFirstChildFiber(parent) {
+  var removed = parent.child; // If the parent has no children return null.
+
+  if (removed === null) {
+    {
+      warning('The parent has no children');
+    }
+
+    return null;
+  } // Update fiber references.
+
+
+  parent.child = removed.sibling;
+  return removed;
+}
+
+/**
+ * Update the indices of a fiber and its next siblings.
+ *
+ * @param fiber - The fiber.
+ * @param index - The index of the fiber.
+ * @returns - The last sibling index.
+ */
+function updateFibersIndices(fiber, index) {
+  while (fiber) {
+    fiber.index = index;
+    fiber = fiber.sibling;
+    index += 1;
+  }
+
+  return index - 1;
+}
+/**
+ * Update the debug owner.
+ * I have not yet inquired about how the _debug fields are chosen.
+ * For now only the debug owner and source if there is at least one sibling from which to copy those properties.
+ * TODO:
+ * - _debugID - does it need to be changed?
+ * - _debugSource - is it ok like this?
+ * - _debugOwner - is it ok like this?
+ * - _debugHookTypes - does it need to be changed?
+ *
+ * @param child - The child fiber.
+ * @param parent - The parent fiber.
+ */
+
+function updateFiberDebugFields(child, parent) {
+  var fiberToCopy; // Try to find a sibling.
+
+  if (parent.child === child && child.sibling !== null) {
+    fiberToCopy = child.sibling;
+  } else if (parent.child !== null) {
+    fiberToCopy = parent.child;
+  } else {
+    fiberToCopy = parent;
+  }
+
+  child._debugOwner = fiberToCopy._debugOwner;
+  child._debugSource = fiberToCopy._debugSource;
 }
 
 /**
@@ -602,7 +650,7 @@ var ParentFiber = /*#__PURE__*/function () {
 
     _defineProperty(this, "fiber", null);
 
-    if (fiber) this.setFiber(fiber);
+    if (fiber) this.set(fiber);
   }
   /**
    * Parent fiber setter.
@@ -612,10 +660,14 @@ var ParentFiber = /*#__PURE__*/function () {
 
 
   _createClass(ParentFiber, [{
-    key: "setFiber",
-    value: function setFiber(fiber) {
-      // Warnings are removed in production.
-      warning(fiber !== null, 'The fiber you have provided is null');
+    key: "set",
+    value: function set(fiber) {
+      {
+        if (!fiber) {
+          warning('The fiber you have provided is null');
+        }
+      }
+
       this.fiber = fiber;
     }
     /**
@@ -627,8 +679,8 @@ var ParentFiber = /*#__PURE__*/function () {
      */
 
   }, {
-    key: "getFiber",
-    value: function getFiber() {
+    key: "getCurrent",
+    value: function getCurrent() {
       invariant(this.fiber !== null, 'Cannot call Parent methods before it is initialized');
       return getCurrentFiber(this.fiber);
     }
@@ -648,13 +700,20 @@ var ParentFiber = /*#__PURE__*/function () {
   }, {
     key: "add",
     value: function add(child, position) {
-      var parentFiber = this.getFiber();
+      var parentFiber = this.getCurrent();
       var index; // Add the fiber.
 
       if (typeof position === 'number') {
         index = addChildFiberAt(parentFiber, child, position);
       } else {
         index = addChildFiberBefore(parentFiber, child, position);
+      } // Update fiber properties.
+
+
+      updateFibersIndices(child, index);
+
+      {
+        updateFiberDebugFields(child, parentFiber);
       } // If There is no alternate we can return here.
 
 
@@ -668,6 +727,13 @@ var ParentFiber = /*#__PURE__*/function () {
         addChildFiberAt(parentFiber.alternate, child.alternate, position);
       } else {
         addChildFiberBefore(parentFiber.alternate, child.alternate, position);
+      } // Update fiber properties.
+
+
+      updateFibersIndices(child.alternate, index);
+
+      {
+        updateFiberDebugFields(child.alternate, parentFiber);
       }
 
       return index;
@@ -685,7 +751,7 @@ var ParentFiber = /*#__PURE__*/function () {
   }, {
     key: "remove",
     value: function remove(child) {
-      var parentFiber = this.getFiber();
+      var parentFiber = this.getCurrent();
       var fiber = null; // Remove the fiber.
 
       if (typeof child === 'number') {
@@ -695,17 +761,34 @@ var ParentFiber = /*#__PURE__*/function () {
       } // If the fiber is not found return null.
 
 
-      if (fiber === null) return null; // If There is no alternate we can return here.
+      if (fiber === null) {
+        return null;
+      } // If there are siblings their indices need to be adjusted.
+
+
+      if (fiber.sibling !== null) {
+        updateFibersIndices(fiber.sibling, fiber.index);
+      } // If There is no alternate we can return here.
+
 
       if (fiber.alternate === null || parentFiber.alternate === null) {
         return fiber;
-      } // Remove the alternate.
+      } // If we are here we can handle the alternate.
 
+
+      var alternate = null; // Remove the alternate.
 
       if (typeof child === 'number') {
-        removeChildFiberAt(parentFiber.alternate, child);
+        alternate = removeChildFiberAt(parentFiber.alternate, child);
       } else {
-        removeChildFiber(parentFiber.alternate, child);
+        alternate = removeChildFiber(parentFiber.alternate, child);
+      } // If the fiber is not found return null.
+
+
+      invariant(alternate !== null, 'The alternate has not been removed. This is a bug in React-reparenting, please file an issue'); // If there are siblings their indices need to be adjusted.
+
+      if (alternate.sibling !== null) {
+        updateFibersIndices(alternate.sibling, alternate.index);
       }
 
       return fiber;
@@ -738,30 +821,47 @@ var ParentFiber = /*#__PURE__*/function () {
       if (fiber === null) return -1; // Add the fiber.
 
       var index = toParent.add(fiber, position);
+      if (skipUpdate) return index; // Container instances
 
-      if (!skipUpdate) {
-        // Container instances
-        var fromContainer = findContainerInstanceFiber(this.fiber, ENV.isElement);
-        var toContainer = findContainerInstanceFiber(toParent.fiber, ENV.isElement); // Warnings are removed in production.
+      var fromContainer = findContainerInstanceFiber(this.fiber, ENV.isElement);
+      var toContainer = findContainerInstanceFiber(toParent.fiber, ENV.isElement); // Container not found.
 
-        warning(fromContainer !== null && toContainer !== null, 'Cannot find a container element, neither the parent nor any component before it seems to generate an element instance. ' + 'You should manually send the element and use the "skipUpdate" option'); // Container not found.
+      if (fromContainer === null || toContainer === null) {
+        {
+          warning("Cannot find the container element, neither the parent nor any component before it seems to generate an element instance. You should manually send the element and use the 'skipUpdate' option");
+        }
 
-        if (fromContainer === null || toContainer === null) return index; // Elements instances.
+        return index;
+      } // Elements instances.
 
-        var element = findInstanceFiber(fiber, ENV.isElement);
-        var sibling = findInstanceFiber(fiber.sibling, ENV.isElement); // Warnings are removed in production.
 
-        warning(element !== null && (fiber.sibling === null || sibling !== null), 'Cannot find the child element instance. ' + 'You should manually move the elements you are trying to send and use the "skipUpdate" option.'); // Elements not found.
+      var element = findInstanceFiber(fiber, ENV.isElement); // Elements not found.
 
-        if (element === null || fiber.sibling !== null && sibling === null) return index; // Remove the element instance.
+      if (element === null) {
+        {
+          warning("Cannot find the child element. You should manually move the elements you are trying to send and use the 'skipUpdate' option");
+        }
 
-        ENV.removeChildFromContainer(fromContainer.stateNode, element.stateNode); // Add the element instance
+        return index;
+      } // Remove the element instance.
+
+
+      ENV.removeChildFromContainer(fromContainer.stateNode, element.stateNode);
+
+      if (fiber.sibling === null) {
+        ENV.appendChildToContainer(toContainer.stateNode, element.stateNode);
+      } else {
+        var sibling = findInstanceFiber(fiber.sibling, ENV.isElement); // Elements not found.
 
         if (sibling === null) {
-          ENV.appendChildToContainer(toContainer.stateNode, element.stateNode);
-        } else {
-          ENV.insertInContainerBefore(toContainer.stateNode, element.stateNode, sibling.stateNode);
+          {
+            warning("Cannot find the sibling element. You should manually move the elements you are trying to send and use the 'skipUpdate' option");
+          }
+
+          return index;
         }
+
+        ENV.insertInContainerBefore(toContainer.stateNode, element.stateNode, sibling.stateNode);
       }
 
       return index;
@@ -800,9 +900,9 @@ function createParent(instance, findFiber) {
     var fiber = getFiberFromClassInstance(instance); // Set the fiber.
 
     if (typeof findFiber === 'function') {
-      parent.setFiber(findFiber(fiber));
+      parent.set(findFiber(fiber));
     } else {
-      parent.setFiber(fiber);
+      parent.set(fiber);
     } // Call the original method.
 
 
@@ -870,17 +970,26 @@ var Parent = /*#__PURE__*/function (_Component) {
           findFiber = _this$props.findFiber;
       var fiber = getFiberFromClassInstance(this); // Ensure a ref is passed.
 
-      invariant(parentRef && (typeof parentRef === 'function' || _typeof(parentRef) === 'object'), 'You must provide a parentRef to the <Parent> component'); // Set the fiber.
+      invariant(parentRef !== null && (typeof parentRef === 'function' || _typeof(parentRef) === 'object'), 'You must provide a parentRef to the <Parent> component'); // Set the fiber.
 
       if (typeof findFiber === 'function') {
-        this.parent.setFiber(findFiber(fiber));
+        this.parent.set(findFiber(fiber));
       } else {
-        this.parent.setFiber(fiber);
+        this.parent.set(fiber);
       } // Set the ref.
 
 
-      if (typeof parentRef === 'function') parentRef(this.parent);
-      if (_typeof(parentRef) === 'object') parentRef.current = this.parent;
+      if (typeof parentRef === 'function') {
+        parentRef(this.parent);
+      }
+
+      if (_typeof(parentRef) === 'object' && parentRef !== null) {
+        // TODO: Not so pretty solution,
+        // when I will have time I'll try and implement the interface MutableRefObject.
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        parentRef.current = this.parent;
+      }
     }
     /**
      * Clear on unmount.
@@ -916,13 +1025,6 @@ function _isNativeReflectConstruct$2() { if (typeof Reflect === "undefined" || !
 
 var ReparentableContext = React.createContext(null);
 ReparentableContext.displayName = 'Reparentable';
-/** Reparentable hook. */
-
-var useReparentable = function useReparentable() {
-  var context = React.useContext(ReparentableContext);
-  invariant(context !== null, 'It looks like you have not used a <Reparentable.Provider> in the top of your app');
-  return context;
-};
 /** Reparentable map. */
 
 var ReparentableMap = /*#__PURE__*/function (_Map) {
@@ -942,21 +1044,35 @@ var ReparentableMap = /*#__PURE__*/function (_Map) {
     _this = _super.call.apply(_super, [this].concat(args));
 
     _defineProperty(_assertThisInitialized(_this), "set", function (key, value) {
-      // Warnings are removed in production.
-      warning(!_this.has(key), "It seems that a new <Reparentable> component has been mounted with the id: \"".concat(key, "\", ") + "while there is another <Reparentable> component with that id");
+      {
+        if (_this.has(key)) {
+          warning("It seems that a new <Reparentable> has been mounted with the id: '".concat(key, "', while there is another <Reparentable> with that id"));
+        }
+      }
+
       return _get(_getPrototypeOf(ReparentableMap.prototype), "set", _assertThisInitialized(_this)).call(_assertThisInitialized(_this), key, value);
     });
 
     _defineProperty(_assertThisInitialized(_this), "send", function (fromParentId, toParentId, child, position, skipUpdate) {
       var fromParent = _this.get(fromParentId);
 
-      var toParent = _this.get(toParentId); // Warnings are removed in production.
+      var toParent = _this.get(toParentId);
+
+      {
+        if (fromParent === undefined) {
+          warning("Cannot find a <Reparentable> with the id: '".concat(fromParentId, "'"));
+        }
+
+        if (toParent === undefined) {
+          warning("Cannot find a <Reparentable> with the id: '".concat(toParentId, "'"));
+        }
+      } // Parent ids not valid.
 
 
-      warning(fromParent !== undefined, "Cannot find a <Reparentable> with the id: \"".concat(fromParentId, "\"")); // Warnings are removed in production.
+      if (fromParent === undefined || toParent === undefined) {
+        return -1;
+      } // Send the child.
 
-      warning(toParent !== undefined, "Cannot find a <Reparentable> with the id: \"".concat(toParentId, "\""));
-      if (fromParent === undefined || toParent === undefined) return -1; // Send the child.
 
       return fromParent.send(child, toParent, position, skipUpdate);
     });
@@ -996,11 +1112,19 @@ var ReparentableProvider = /*#__PURE__*/function (_Component) {
   _createClass(ReparentableProvider, [{
     key: "componentDidMount",
     value: function componentDidMount() {
-      var reparentableMapRef = this.props.reparentableMapRef;
-      if (reparentableMapRef === null) return; // Set the ref.
+      var reparentableMapRef = this.props.reparentableMapRef; // Set the ref.
 
-      if (typeof reparentableMapRef === 'function') reparentableMapRef(this.map);
-      if (_typeof(reparentableMapRef) === 'object') reparentableMapRef.current = this.map;
+      if (typeof reparentableMapRef === 'function') {
+        reparentableMapRef(this.map);
+      }
+
+      if (_typeof(reparentableMapRef) === 'object' && reparentableMapRef !== null) {
+        // TODO: Not so pretty solution,
+        // when I will have time I'll try and implement the interface MutableRefObject.
+        // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+        // @ts-ignore
+        reparentableMapRef.current = this.map;
+      }
     }
   }, {
     key: "render",
@@ -1063,9 +1187,9 @@ var Reparentable = /*#__PURE__*/function (_Component2) {
       invariant(typeof id === 'string', 'You must provide an id to the <Reparentable> component'); // Set the fiber.
 
       if (typeof findFiber === 'function') {
-        this.parent.setFiber(findFiber(fiber));
+        this.parent.set(findFiber(fiber));
       } else {
-        this.parent.setFiber(fiber);
+        this.parent.set(fiber);
       } // Set the ParentFiber instance in context map.
 
 
@@ -1102,13 +1226,20 @@ var Reparentable = /*#__PURE__*/function (_Component2) {
 
   return Reparentable;
 }(React.Component);
-/* Reparentable props. */
+/** Reparentable hook. */
 
 _defineProperty(Reparentable, "Context", ReparentableContext);
 
 _defineProperty(Reparentable, "Provider", ReparentableProvider);
 
 _defineProperty(Reparentable, "contextType", ReparentableContext);
+
+var useReparentable = function useReparentable() {
+  var context = React.useContext(ReparentableContext);
+  invariant(context !== null, 'It looks like you have not used a <Reparentable.Provider> in the top of your app');
+  return context;
+};
+/* Reparentable props. */
 
 /**
  * An hook to easily use a ParentFiber inside a function component.
@@ -1121,24 +1252,31 @@ _defineProperty(Reparentable, "contextType", ReparentableContext);
 
 function useParent(findFiber) {
   // The parent instance.
-  var _useState = React.useState(function () {
-    return new ParentFiber();
-  }),
-      _useState2 = _slicedToArray(_useState, 1),
-      parent = _useState2[0]; // The element ref.
+  var parentRef = React.useRef(null); // The element ref.
+
+  var ref = React.useRef(null); // Generate the instance.
+
+  if (parentRef.current === null) {
+    // TODO: Not so pretty solution,
+    // when I will have time I'll try and implement the interface MutableRefObject.
+    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+    // @ts-ignore
+    parentRef.current = new ParentFiber();
+  } // Get a reference.
 
 
-  var ref = React.useRef(null); // When the component is mounted the fiber is setted.
+  var parent = parentRef.current; // When the component is mounted the fiber is setted.
 
   React.useEffect(function () {
-    invariant(ref.current !== null, 'You must set the ref returned by the useParent hook'); // The element fiber.
+    invariant(ref.current !== null, 'You must set the ref returned by the useParent hook');
+    invariant(parentRef.current !== null); // The element fiber.
 
     var elementFiber = getFiberFromElementInstance(ref.current); // Set the fiber.
 
     if (typeof findFiber === 'function') {
-      parent.setFiber(findFiber(elementFiber));
+      parent.set(findFiber(elementFiber));
     } else {
-      parent.setFiber(elementFiber);
+      parent.set(elementFiber);
     } // Clean up.
 
 
@@ -1160,7 +1298,7 @@ exports.addChildFiberAt = addChildFiberAt;
 exports.addChildFiberBefore = addChildFiberBefore;
 exports.addSiblingFiber = addSiblingFiber;
 exports.appendChildFiber = appendChildFiber;
-exports.config = config;
+exports.configure = configure;
 exports.createParent = createParent;
 exports.findChildFiber = findChildFiber;
 exports.findChildFiberAt = findChildFiberAt;
@@ -1175,7 +1313,7 @@ exports.removeChildFiber = removeChildFiber;
 exports.removeChildFiberAt = removeChildFiberAt;
 exports.removeFirstChildFiber = removeFirstChildFiber;
 exports.removeSiblingFiber = removeSiblingFiber;
-exports.updateFiberDebugOwner = updateFiberDebugOwner;
+exports.updateFiberDebugFields = updateFiberDebugFields;
 exports.updateFibersIndices = updateFibersIndices;
 exports.useParent = useParent;
 exports.useReparentable = useReparentable;

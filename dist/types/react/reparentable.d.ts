@@ -1,11 +1,9 @@
-import React, { Component, ContextType } from 'react';
-import type { ReactNode, MutableRefObject, RefCallback } from 'react';
+import React, { Component } from 'react';
+import type { Ref, ReactNode, ReactElement, ContextType } from 'react';
 import type { Fiber } from 'react-reconciler';
 import { ParentFiber } from '../core/parentFiber';
 /** Reparentable context. */
 export declare const ReparentableContext: React.Context<ReparentableMap | null>;
-/** Reparentable hook. */
-export declare const useReparentable: () => ReparentableMap;
 /** Reparentable map. */
 export declare class ReparentableMap extends Map<string, ParentFiber> {
     set: (key: string, value: ParentFiber) => this;
@@ -70,19 +68,21 @@ export declare class Reparentable extends Component<ReparentableProps> {
      * In this way the component (and therefore its fiber)
      * will be the direct parent of the children.
      */
-    render(): ReactNode;
+    render(): ReparentableProps['children'];
 }
+/** Reparentable hook. */
+export declare const useReparentable: () => ReparentableMap;
 export interface ReparentableProps {
     /** The reparentable id. */
     id: string;
     /** The children. */
-    children?: ReactNode;
+    children?: ReactElement[] | ReactElement | null;
     /** Find fiber. */
     findFiber?: (fiber: Fiber) => Fiber;
 }
 export interface ReparentableProviderProps {
     /** The children. */
-    children?: ReactNode;
+    children: ReactNode;
     /** ReparentableMap ref. */
-    reparentableMapRef?: MutableRefObject<ReparentableMap> | RefCallback<ReparentableMap>;
+    reparentableMapRef?: Ref<ReparentableMap>;
 }

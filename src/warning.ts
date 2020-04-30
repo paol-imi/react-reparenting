@@ -1,22 +1,16 @@
 /**
- * Prints a warning in the console if the condition fails.
+ * Prints a warning in the console.
  *
- * @param condition - The condition.
- * @param message - The message.
+ * @param message - The warning message.
  */
-export function warning(condition: boolean, message: string): void {
-  // condition passed: do not log.
-  if (condition) {
-    return;
-  }
-
+export function warning(message: string): void {
   // Condition not passed.
   const text = `Warning: ${message}`;
 
   // check console for IE9 support which provides console
   // only with open devtools.
   if (typeof console !== 'undefined') {
-    // eslint-disable-next-line
+    // eslint-disable-next-line no-console
     console.error(text);
   }
 
@@ -26,5 +20,5 @@ export function warning(condition: boolean, message: string): void {
   // https://github.com/facebook/react/issues/4216
   try {
     throw Error(text);
-  } catch (x) {} // eslint-disable-line
+  } catch (x) {} // eslint-disable-line no-empty
 }

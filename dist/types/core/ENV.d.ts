@@ -40,4 +40,4 @@ export declare const ENV: HostENV<Element>;
  *
  * @param configuration - The configuration.
  */
-export declare function config<T>(configuration: Partial<HostENV<T>>): void;
+export declare function configure<T>(configuration: Partial<HostENV<T>>): void;
