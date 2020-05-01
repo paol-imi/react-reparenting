@@ -27,7 +27,7 @@ React does not yet offer specific APIs to solve this problem, in many cases we t
 
 This process is more related to the DOM (or to the current environment), at `"React level"` the Child is still part of the same Parent. This is where `React-reparenting` intervenes.
 
-This package offers `easy` and `intuitive` tools to solve this problem. With a few lines of code you will be able to re-render your app and transfer your children, without being re-mounted or losing their internal state.
+This package offers `easy` and `intuitive` tools to solve this problem. With a few lines of code you will be able to transfer your components, without them being re-mounted or losing their internal state.
 
 ## Documentation 📖
 

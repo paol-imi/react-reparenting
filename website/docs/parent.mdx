@@ -10,17 +10,16 @@ import {Parent} from 'react-reparenting';
 
 ## Setup ⚙️
 
-Once you have chosen who the parent components are, use a `<Parent>` component within them. That component **must** be the direct parent of the children who can be transferred. You also need to access the internal instance to use the `send` method.
+Once you have chosen who the parent components are, use a `<Parent>` component within them. That component **must** be the direct parent of the children who can be transferred. You also have to access the internal parent instance to use the `send` method.
 
 ```jsx
-const MyParent = ({id, children}) => {
+const MyParent = ({children}) => {
   const parentRef = useRef();
 
   return (
     <div className="parent">
-      {/* <Parent> must be the direct parent  
-          of the children and have an unique id. 
-          You can render what you want before. */}
+      {/* <Parent> must be the direct parent of the
+          children. You can render what you want before. */}
       <Parent parentRef={parentRef}>{children}</Reparentable>
     </div>
   );

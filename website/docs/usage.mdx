@@ -12,7 +12,7 @@ In each implementation you have to define mainly 3 things:
 
 - What are the `Child` components that can be transferred.
 - What are the `Parent` components that can hold these children.
-- What are the components that will to `trigger` reparenting.
+- What are the components that will `trigger` reparenting.
 
 Parent components will need some small setup, child components won't need it. Any component can be used as a child, however it is your responsibility to provide them with unique `keys` _(don't use [indexes as keys](https://medium.com/@robinpokorny/index-as-a-key-is-an-anti-pattern-e0349aece318))_.
 
