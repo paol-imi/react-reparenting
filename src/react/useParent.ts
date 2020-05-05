@@ -39,7 +39,6 @@ export function useParent<T>(
       ref.current !== null,
       'You must set the ref returned by the useParent hook'
     );
-    invariant(parentRef.current !== null);
 
     // The element fiber.
     const elementFiber = getFiberFromElementInstance<T>(ref.current);

@@ -7,7 +7,7 @@ export function warning(message: string): void {
   // Condition not passed.
   const text = `Warning: ${message}`;
 
-  // check console for IE9 support which provides console
+  // Check console for IE9 support which provides console
   // only with open devtools.
   if (typeof console !== 'undefined') {
     // eslint-disable-next-line no-console
