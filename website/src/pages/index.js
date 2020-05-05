@@ -9,7 +9,7 @@ import styles from './styles.module.css';
 const features = [
   {
     title: <>Easy to Use</>,
-    imageUrl: 'images/work.png',
+    imageUrl: 'images/bulb.png',
     description: (
       <>
         Tiny, simple and intuitive. React-reparenting is <code>designed</code>{' '}
@@ -20,7 +20,7 @@ const features = [
   },
   {
     title: <>React tools</>,
-    imageUrl: 'images/react.png',
+    imageUrl: 'images/plug.png',
     description: (
       <>
         Custom <code>components</code> and <code>hooks</code> allow you to
@@ -31,7 +31,7 @@ const features = [
   },
   {
     title: <>Developer friendly</>,
-    imageUrl: 'images/tree.png',
+    imageUrl: 'images/pc.png',
     description: (
       <>
         Safely design your app thanks to many useful <code>warnings</code>{' '}
