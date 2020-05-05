@@ -169,7 +169,7 @@ function getFiberFromClassInstance(instance) {
  */
 function warning(message) {
   // Condition not passed.
-  var text = "Warning: ".concat(message); // check console for IE9 support which provides console
+  var text = "Warning: ".concat(message); // Check console for IE9 support which provides console
   // only with open devtools.
 
   if (typeof console !== 'undefined') {
@@ -1268,8 +1268,7 @@ function useParent(findFiber) {
   var parent = parentRef.current; // When the component is mounted the fiber is setted.
 
   React.useEffect(function () {
-    invariant(ref.current !== null, 'You must set the ref returned by the useParent hook');
-    invariant(parentRef.current !== null); // The element fiber.
+    invariant(ref.current !== null, 'You must set the ref returned by the useParent hook'); // The element fiber.
 
     var elementFiber = getFiberFromElementInstance(ref.current); // Set the fiber.
 

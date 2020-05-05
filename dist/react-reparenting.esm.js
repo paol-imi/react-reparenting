@@ -1132,8 +1132,7 @@ function useParent(findFiber) {
   var parent = parentRef.current; // When the component is mounted the fiber is setted.
 
   useEffect(function () {
-    invariant(ref.current !== null);
-    invariant(parentRef.current !== null); // The element fiber.
+    invariant(ref.current !== null); // The element fiber.
 
     var elementFiber = getFiberFromElementInstance(ref.current); // Set the fiber.
 
