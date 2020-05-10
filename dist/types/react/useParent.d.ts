@@ -1,6 +1,6 @@
 import type { RefObject } from 'react';
 import type { Fiber } from 'react-reconciler';
-import { ParentFiber } from '../core/parentFiber';
+import { ParentFiber } from './parentFiber';
 /**
  * An hook to easily use a ParentFiber inside a function component.
  * The ref returned must reference the element that is the parent

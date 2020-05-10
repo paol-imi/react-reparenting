@@ -1,128 +1,68 @@
-import React, {Component, createContext, useContext} from 'react';
-import type {Ref, ReactNode, ReactElement, ContextType} from 'react';
-import type {Fiber} from 'react-reconciler'; // eslint-disable-line
-import {ParentFiber} from '../core/parentFiber';
+import {Component} from 'react';
+import type {ReactElement} from 'react';
+import type {Fiber} from 'react-reconciler';
+import {ParentFiber} from './parentFiber';
 import {getFiberFromClassInstance} from '../fiber/get';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 
-/** Reparentable context. */
-export const ReparentableContext = createContext<ReparentableMap | null>(null);
-ReparentableContext.displayName = 'Reparentable';
-
 /** Reparentable map. */
-export class ReparentableMap extends Map<string, ParentFiber> {
-  set = (key: string, value: ParentFiber): this => {
-    if (__DEV__) {
-      if (this.has(key)) {
-        warning(
-          `It seems that a new <Reparentable> has been mounted with the id: '${key}', while there is another <Reparentable> with that id`
-        );
-      }
+export const ReparentableMap = new Map<string, ParentFiber>();
+
+/**
+ * Remove a child fiber from a <Reparentable> component and add it to another <Reparentable> component.
+ * Return the index in which the child is added or -1 if the child is not found.
+ * The child to remove can be chosen by providing its key (string) or by providing its index (number).
+ * The position can be chosen by providing a key (string) or by providing an index (number).
+ * If a key (string) is provided the child will be added after the one with that key.
+ * The child is added at the bottom if none of the children have that key.
+ * If an index (number) is provided the child will be added in that position.
+ * The child is added at the bottom if -1 is provided or the index is greater than the number of children.
+ * The method will also try to send the elements connected to the fibers (e.g. DOM elements),
+ * to disable this function you can use the skipUpdate parameter.
+ *
+ * @param fromParentId  - The id of the <Reparentable> from whuch to remove the child.
+ * @param toParentId    - The id of the <Reparentable> in which to add the child.
+ * @param childSelector - The child fiber selector.
+ * @param position      - The position in which to add the child fiber.
+ * @param skipUpdate    - Whether to send or not the elements.
+ * @returns             - The position in which the child fiber is sent or -1.
+ */
+export function sendReparentableChild(
+  fromParentId: string,
+  toParentId: string,
+  childSelector: string | number,
+  position: string | number,
+  skipUpdate?: boolean
+): number {
+  // Get the ParetFiber instances.
+  const fromParent = ReparentableMap.get(fromParentId);
+  const toParent = ReparentableMap.get(toParentId);
+
+  if (__DEV__) {
+    if (fromParent === undefined) {
+      warning(`Cannot find a <Reparentable> with the id: '${fromParentId}'.`);
     }
-
-    return super.set(key, value);
-  };
-
-  /**
-   * Remove a child from a <Reparentable> component and add it to a new <Reparentable> component.
-   * Return the index in which the child is added (or -1).
-   * The child to remove can be chosen by providing its key (string) or by providing its index (number).
-   * Return -1 if the child is not found.
-   * The position can be chosen by providing a key (string) or by providing an index (number).
-   * If a key (string) is provided the child will be added after the one with that key.
-   * - The child is added at the bottom if none of the children have that key.
-   * If an index (number) is provided the child will be added in that position.
-   * - The child is added at the bottom if -1 is provided or the index is greater than the number of children.
-   * If skipUpdate is not used, this method will also send the element instance.
-   *
-   * @param fromParentId - The id of the current parent.
-   * @param toParentId - The id of the next parent.
-   * @param child - The child identifier.
-   * @param position - The position to send the child to.
-   * @param skipUpdate - Whether to send or not the element instance.
-   * @returns - The position in which the fiber is sent or -1.
-   */
-  send = (
-    fromParentId: string,
-    toParentId: string,
-    child: string | number,
-    position: string | number,
-    skipUpdate?: boolean
-  ): number => {
-    const fromParent = this.get(fromParentId);
-    const toParent = this.get(toParentId);
-
-    if (__DEV__) {
-      if (fromParent === undefined) {
-        warning(`Cannot find a <Reparentable> with the id: '${fromParentId}'`);
-      }
-      if (toParent === undefined) {
-        warning(`Cannot find a <Reparentable> with the id: '${toParentId}'`);
-      }
-    }
-
-    // Parent ids not valid.
-    if (fromParent === undefined || toParent === undefined) {
-      return -1;
-    }
-
-    // Send the child.
-    return fromParent.send(child, toParent, position, skipUpdate);
-  };
-
-  remove = (key: string): boolean => {
-    return this.delete(key);
-  };
-}
-
-/** Reparentable Provider. */
-export class ReparentableProvider extends Component<ReparentableProviderProps> {
-  /** ParentFibers map. */
-  map = new ReparentableMap();
-
-  componentDidMount(): void {
-    const {reparentableMapRef} = this.props;
-
-    // Set the ref.
-    if (typeof reparentableMapRef === 'function') {
-      reparentableMapRef(this.map);
-    }
-    if (typeof reparentableMapRef === 'object' && reparentableMapRef !== null) {
-      // TODO: Not so pretty solution,
-      // when I will have time I'll try and implement the interface MutableRefObject.
-      // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      reparentableMapRef.current = this.map;
+    if (toParent === undefined) {
+      warning(`Cannot find a <Reparentable> with the id: '${toParentId}'.`);
     }
   }
 
-  render(): ReactNode {
-    const {children} = this.props;
-    return (
-      <ReparentableContext.Provider value={this.map}>
-        {children}
-      </ReparentableContext.Provider>
-    );
+  // Parents ids not valid.
+  if (fromParent === undefined || toParent === undefined) {
+    return -1;
   }
+
+  // Send the child.
+  return fromParent.sendChild(toParent, childSelector, position, skipUpdate);
 }
 
 /**
- * Parent component.
- *
  * It is a simple wrapper that generate internally a
  * ParentFiber and allow to access it through a global provided map.
  * The children in which to enable reparenting must belong to this component.
  */
 export class Reparentable extends Component<ReparentableProps> {
-  /** Reparentable Context. */
-  static Context = ReparentableContext;
-  /** Reparentable Provider. */
-  static Provider = ReparentableProvider;
-  /** Reparentable context type. */
-  static contextType = ReparentableContext;
-  /** (Typescript) context type. */
-  context: ContextType<typeof ReparentableContext> = null;
   /** The ParentFiber instance. */
   parent: ParentFiber = new ParentFiber();
 
@@ -131,46 +71,46 @@ export class Reparentable extends Component<ReparentableProps> {
    * only after the component did mount.
    */
   componentDidMount(): void {
-    invariant(
-      this.context !== null,
-      'It looks like you have not used a <Reparentable.Provider> in the top of your app'
-    );
-
-    const {set} = this.context;
     const {id, findFiber} = this.props;
     const fiber = getFiberFromClassInstance(this);
 
     // Ensure the id is a string.
     invariant(
       typeof id === 'string',
-      'You must provide an id to the <Reparentable> component'
+      'You must provide an id to the <Reparentable> component.'
     );
 
     // Set the fiber.
-    if (typeof findFiber === 'function') {
-      this.parent.set(findFiber(fiber));
-    } else {
-      this.parent.set(fiber);
+    this.parent.setFiber(fiber);
+    this.parent.setFinder(findFiber);
+
+    if (__DEV__) {
+      if (ReparentableMap.has(id)) {
+        warning(
+          `It seems that a new <Reparentable> has been mounted with the id: '${id}', ` +
+            `while there is another <Reparentable> with that id.`
+        );
+      }
     }
 
-    // Set the ParentFiber instance in context map.
-    set(id, this.parent);
+    // Set the ParentFiber instance in the map.
+    ReparentableMap.set(id, this.parent);
+  }
+
+  /** Update the findFiber method. */
+  componentDidUpdate(): void {
+    const {findFiber} = this.props;
+    this.parent.setFinder(findFiber);
   }
 
   /**
    * Clear on unmount.
    */
   componentWillUnmount(): void {
-    invariant(
-      this.context !== null,
-      'It looks like you have not used a <Reparentable.Provider> in the top of your app'
-    );
-
-    const {remove} = this.context;
     const {id} = this.props;
 
-    // Remove the ParentFiber instance from the context map.
-    remove(id);
+    // Remove the ParentFiber instance from the map.
+    ReparentableMap.delete(id);
     // Clear the ParentFiber instance.
     this.parent.clear();
   }
@@ -180,38 +120,18 @@ export class Reparentable extends Component<ReparentableProps> {
    * In this way the component (and therefore its fiber)
    * will be the direct parent of the children.
    */
-  render(): ReparentableProps['children'] {
+  render(): ReactElement[] | ReactElement | null {
     const {children} = this.props;
     return children;
   }
 }
-
-/** Reparentable hook. */
-export const useReparentable = function (): ReparentableMap {
-  const context = useContext(ReparentableContext);
-
-  invariant(
-    context !== null,
-    'It looks like you have not used a <Reparentable.Provider> in the top of your app'
-  );
-
-  return context;
-};
 
 /* Reparentable props. */
 export interface ReparentableProps {
   /** The reparentable id. */
   id: string;
   /** The children. */
-  children?: ReactElement[] | ReactElement | null;
+  children: ReactElement[] | ReactElement | null;
   /** Find fiber. */
   findFiber?: (fiber: Fiber) => Fiber;
-}
-
-/* Reparentable Provider props. */
-export interface ReparentableProviderProps {
-  /** The children. */
-  children: ReactNode;
-  /** ReparentableMap ref. */
-  reparentableMapRef?: Ref<ReparentableMap>;
 }

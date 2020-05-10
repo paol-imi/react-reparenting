@@ -1,4 +1,4 @@
-export interface HostENV<Instance> {
+export interface ENV<Instance> {
     /**
      * Append a child inside a container.
      *
@@ -34,10 +34,10 @@ export interface HostENV<Instance> {
  * The host environment.
  * Default configuration to work with ReactDOM renderer.
  */
-export declare const ENV: HostENV<Element>;
+export declare const Env: ENV<any>;
 /**
  * Configure the host environment.
  *
  * @param configuration - The configuration.
  */
-export declare function configure<T>(configuration: Partial<HostENV<T>>): void;
+export declare function configure<T>(configuration: Partial<ENV<T>>): void;

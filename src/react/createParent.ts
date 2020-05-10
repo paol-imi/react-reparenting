@@ -1,6 +1,6 @@
 import type {Component} from 'react';
-import type {Fiber} from 'react-reconciler'; // eslint-disable-line
-import {ParentFiber} from '../core/parentFiber';
+import type {Fiber} from 'react-reconciler';
+import {ParentFiber} from './parentFiber';
 import {getFiberFromClassInstance} from '../fiber/get';
 
 /**
@@ -8,9 +8,9 @@ import {getFiberFromClassInstance} from '../fiber/get';
  * If the class component is not the parent, it is possible to provide
  * a function to get the correct parent given the class component fiber.
  *
- * @param instance - The class instance.
+ * @param instance  - The class instance.
  * @param findFiber - Get a different parent fiber.
- * @returns - The ParentFiber instance.
+ * @returns         - The ParentFiber instance.
  */
 export function createParent(
   instance: Component,
@@ -22,12 +22,10 @@ export function createParent(
   // Wrap the componentDidMount method.
   instance.componentDidMount = function (): void {
     const fiber = getFiberFromClassInstance(instance);
+
     // Set the fiber.
-    if (typeof findFiber === 'function') {
-      parent.set(findFiber(fiber));
-    } else {
-      parent.set(fiber);
-    }
+    parent.setFiber(fiber);
+    parent.setFinder(findFiber);
 
     // Call the original method.
     if (typeof componentDidMount === 'function') {

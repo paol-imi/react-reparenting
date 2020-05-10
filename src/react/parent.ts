@@ -1,13 +1,11 @@
 import {Component} from 'react';
 import type {ReactNode, Ref} from 'react';
-import type {Fiber} from 'react-reconciler'; // eslint-disable-line
-import {ParentFiber} from '../core/parentFiber';
+import type {Fiber} from 'react-reconciler';
+import {ParentFiber} from './parentFiber';
 import {getFiberFromClassInstance} from '../fiber/get';
 import {invariant} from '../invariant';
 
 /**
- * Parent component.
- *
  * It is a simple wrapper that generate internally a
  * ParentFiber and allow to access it through a React.Ref.
  * The children in which to enable reparenting must belong to this component.
@@ -18,7 +16,7 @@ export class Parent extends Component<ParentProps> {
 
   /**
    * The class instance contains the fiber data
-   * only after the component did mount.
+   * only after the component is mounted.
    */
   componentDidMount(): void {
     const {parentRef, findFiber} = this.props;
@@ -28,27 +26,30 @@ export class Parent extends Component<ParentProps> {
     invariant(
       parentRef !== null &&
         (typeof parentRef === 'function' || typeof parentRef === 'object'),
-      'You must provide a parentRef to the <Parent> component'
+      'You must provide a parentRef to the <Parent> component.'
     );
 
     // Set the fiber.
-    if (typeof findFiber === 'function') {
-      this.parent.set(findFiber(fiber));
-    } else {
-      this.parent.set(fiber);
-    }
+    this.parent.setFiber(fiber);
+    this.parent.setFinder(findFiber);
 
     // Set the ref.
     if (typeof parentRef === 'function') {
       parentRef(this.parent);
     }
     if (typeof parentRef === 'object' && parentRef !== null) {
-      // TODO: Not so pretty solution,
-      // when I will have time I'll try and implement the interface MutableRefObject.
+      // TODO: Not so pretty solution with @ts-ignore,
+      // maybe I should try the MutableRefObject interface.
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
       parentRef.current = this.parent;
     }
+  }
+
+  /** Update the findFiber method. */
+  componentDidUpdate(): void {
+    const {findFiber} = this.props;
+    this.parent.setFinder(findFiber);
   }
 
   /**

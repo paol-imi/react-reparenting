@@ -1,11 +1,12 @@
 import type {Fiber} from 'react-reconciler';
+import {invariant} from '../invariant';
 
 /**
- * Update the indices of a fiber and its next siblings.
+ * Update the indices of a fiber and its next siblings and return the last sibling index.
  *
- * @param fiber - The fiber.
- * @param index - The index of the fiber.
- * @returns - The last sibling index.
+ * @param fiber   - The fiber.
+ * @param index   - The index of the fiber.
+ * @returns       - The last sibling index.
  */
 export function updateFibersIndices(fiber: Fiber, index: number): number {
   while (fiber) {
@@ -18,28 +19,31 @@ export function updateFibersIndices(fiber: Fiber, index: number): number {
 }
 
 /**
- * Update the debug owner.
+ * Update the debug fields.
  * I have not yet inquired about how the _debug fields are chosen.
- * For now only the debug owner and source if there is at least one sibling from which to copy those properties.
+ * For now only the owner and source are set based on the siblings/parent fields.
  * TODO:
  * - _debugID - does it need to be changed?
  * - _debugSource - is it ok like this?
  * - _debugOwner - is it ok like this?
  * - _debugHookTypes - does it need to be changed?
  *
- * @param child - The child fiber.
- * @param parent - The parent fiber.
+ * @param child   - The child fiber.
+ * @param parent  - The parent fiber.
  */
 export function updateFiberDebugFields(child: Fiber, parent: Fiber): void {
-  let fiberToCopy;
+  invariant(parent.child !== null);
+  let fiberToCopy: Fiber;
 
   // Try to find a sibling.
-  if (parent.child === child && child.sibling !== null) {
-    fiberToCopy = child.sibling;
-  } else if (parent.child !== null) {
-    fiberToCopy = parent.child;
+  if (parent.child === child) {
+    if (child.sibling === null) {
+      fiberToCopy = parent;
+    } else {
+      fiberToCopy = child.sibling;
+    }
   } else {
-    fiberToCopy = parent;
+    fiberToCopy = parent.child;
   }
 
   child._debugOwner = fiberToCopy._debugOwner;

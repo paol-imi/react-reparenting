@@ -1,6 +1,6 @@
 {
   "name": "react-reparenting",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "The reparenting tools for React",
   "main": "dist/react-reparenting.cjs.js",
   "module": "dist/react-reparenting.esm.js",

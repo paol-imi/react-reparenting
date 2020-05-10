@@ -1,4 +1,4 @@
-export interface HostENV<Instance> {
+export interface ENV<Instance> {
   /**
    * Append a child inside a container.
    *
@@ -6,7 +6,6 @@ export interface HostENV<Instance> {
    * @param child - The child instance.
    */
   appendChildToContainer(container: Instance, child: Instance): void;
-
   /**
    * Insert a child in a container before another child.
    *
@@ -19,7 +18,6 @@ export interface HostENV<Instance> {
     child: Instance,
     before: Instance
   ): void;
-
   /**
    * Remove a child from a container.
    *
@@ -27,7 +25,6 @@ export interface HostENV<Instance> {
    * @param child - The child instance.
    */
   removeChildFromContainer(container: Instance, child: Instance): void;
-
   /**
    * Get if the given element is a valid instance.
    *
@@ -42,7 +39,7 @@ export interface HostENV<Instance> {
  * The host environment.
  * Default configuration to work with ReactDOM renderer.
  */
-export const ENV: HostENV<Element> = {
+export const Env: ENV<any> = {
   appendChildToContainer(container, child) {
     container.appendChild(child);
   },
@@ -62,6 +59,6 @@ export const ENV: HostENV<Element> = {
  *
  * @param configuration - The configuration.
  */
-export function configure<T>(configuration: Partial<HostENV<T>>): void {
-  Object.assign(ENV, configuration);
+export function configure<T>(configuration: Partial<ENV<T>>): void {
+  Object.assign(Env, configuration);
 }

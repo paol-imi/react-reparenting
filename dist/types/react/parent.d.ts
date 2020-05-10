@@ -1,10 +1,8 @@
 import { Component } from 'react';
 import type { ReactNode, Ref } from 'react';
 import type { Fiber } from 'react-reconciler';
-import { ParentFiber } from '../core/parentFiber';
+import { ParentFiber } from './parentFiber';
 /**
- * Parent component.
- *
  * It is a simple wrapper that generate internally a
  * ParentFiber and allow to access it through a React.Ref.
  * The children in which to enable reparenting must belong to this component.
@@ -14,9 +12,11 @@ export declare class Parent extends Component<ParentProps> {
     parent: ParentFiber;
     /**
      * The class instance contains the fiber data
-     * only after the component did mount.
+     * only after the component is mounted.
      */
     componentDidMount(): void;
+    /** Update the findFiber method. */
+    componentDidUpdate(): void;
     /**
      * Clear on unmount.
      */
