@@ -2,7 +2,7 @@ import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
-import {ErrorBoundary, warn} from '../__shared__';
+import {ErrorBoundary} from '../__shared__';
 import {Parent, ParentFiber} from '../../src';
 import {Invariant} from '../../src/invariant';
 
@@ -24,32 +24,23 @@ beforeEach(() => {
 
   // Parent.
   parent = parentRef.current;
-
-  // Clear the mock.
-  warn.mockClear();
 });
 
 describe('How <Parent> works', () => {
   test('The component provide a ParentFiber instance', () => {
     // The ParentFiber instance is provided.
     expect(parent).toBeInstanceOf(ParentFiber);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The ParentFiber is initialized after mounting the component', () => {
     // The fiber is set.
     expect(parent.fiber).not.toBe(null);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The fiber reference is removed after unMount', () => {
     wrapper.unmount();
     // The fiber is removed.
     expect(parent.fiber).toBe(null);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The findFiber prop', () => {
@@ -59,12 +50,10 @@ describe('How <Parent> works', () => {
       </Parent>
     );
     // The correct fiber is set.
-    expect(parentRef.current.fiber.key).toBe('1');
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
+    expect(parentRef.current.getCurrent().key).toBe('1');
   });
 
-  test('Pass a function as ParentRef', () => {
+  test('Pass a function as parentRef', () => {
     mount(
       <Parent
         parentRef={(p): void => {
@@ -75,8 +64,6 @@ describe('How <Parent> works', () => {
     );
     // The ParentFiber instance is provided.
     expect(parent).toBeInstanceOf(ParentFiber);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('Throw if parentRef is not passed', () => {
@@ -91,7 +78,5 @@ describe('How <Parent> works', () => {
     expect((wrapper.state() as ErrorBoundary['state']).error).toBeInstanceOf(
       Invariant
     );
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 });

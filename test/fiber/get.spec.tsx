@@ -5,12 +5,12 @@ import React, {
   RefCallback,
 } from 'react';
 import {mount} from 'enzyme';
-import {warn} from '../__shared__';
 import {
   getFiberFromElementInstance,
   getCurrentFiber,
   getFiberFromClassInstance,
 } from '../../src';
+import {Invariant} from '../../src/invariant';
 
 // Custom class component.
 class ClassComponent extends Component<{
@@ -28,13 +28,8 @@ class ClassComponent extends Component<{
   }
 }
 
-beforeEach(() => {
-  // Clear the mock.
-  warn.mockClear();
-});
-
 describe('How getCurrentFiber( ) works', () => {
-  test('The current fiber is the given fiber or its alternate', () => {
+  test('The current fiber is the same as the one provided', () => {
     // Setup.
     const parentRef = createRef<HTMLDivElement>();
     mount(<div ref={parentRef} />);
@@ -42,11 +37,31 @@ describe('How getCurrentFiber( ) works', () => {
 
     // The current fiber.
     const fiber = getCurrentFiber(parentFiber);
-    expect(
-      fiber === parentFiber || fiber === parentFiber.alternate
-    ).toBeTruthy();
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
+    expect(fiber).toBe(parentFiber);
+  });
+
+  test('(Re-render the component) The current fiber is the alternate of the one provided', () => {
+    // Setup.
+    const parentRef = createRef<HTMLDivElement>();
+    mount(<div ref={parentRef} />).setProps({});
+    const parentFiber = getFiberFromElementInstance(parentRef.current);
+
+    // The current fiber.
+    const fiber = getCurrentFiber(parentFiber);
+    expect(fiber).toBe(parentFiber.alternate);
+  });
+
+  test('(Re-render the component 2 times) The current fiber is the same as the one provided', () => {
+    // Setup.
+    const parentRef = createRef<HTMLDivElement>();
+    mount(<div ref={parentRef} />)
+      .setProps({})
+      .setProps({});
+    const parentFiber = getFiberFromElementInstance(parentRef.current);
+
+    // The current fiber.
+    const fiber = getCurrentFiber(parentFiber);
+    expect(fiber).toBe(parentFiber);
   });
 });
 
@@ -65,8 +80,6 @@ describe('How getFiberFromElementInstance( ) works', () => {
     expect(fiber).not.toBe(null);
     // The key is correct.
     expect(fiber.key).toBe('1');
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 });
 
@@ -85,8 +98,6 @@ describe('How getFiberFromClassInstance( ) works', () => {
     expect(fiber).not.toBe(null);
     // the key is correct
     expect(fiber.key).toBe('1');
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('Throw if the component is not mounted', () => {
@@ -98,12 +109,10 @@ describe('How getFiberFromClassInstance( ) works', () => {
           instanceRef={(instance): void => {
             expect(() => {
               getFiberFromClassInstance(instance);
-            }).toThrow();
+            }).toThrow(Invariant);
           }}
         />
       </>
     );
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 });

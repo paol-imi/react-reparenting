@@ -16,10 +16,13 @@ export class ErrorBoundary extends Component<
   }
 
   static getDerivedStateFromError(error): {error: Error} {
-    // eslint-disable-next-line no-console
-    console.error = consoleError;
     // Update state so the next render will show the fallback UI.
     return {error};
+  }
+
+  componentDidUpdate(): void {
+    // eslint-disable-next-line no-console
+    console.error = consoleError;
   }
 
   render(): ReactNode {

@@ -2,7 +2,7 @@ import React from 'react';
 import {mount} from 'enzyme';
 import type {Fiber} from 'react-reconciler';
 import type {ReactWrapper} from 'enzyme';
-import {ErrorBoundary, warn} from '../__shared__';
+import {ErrorBoundary} from '../__shared__';
 import {useParent, ParentFiber} from '../../src';
 import {Invariant} from '../../src/invariant';
 
@@ -21,40 +21,29 @@ const Parent = ({findFiber}: {findFiber?: (fiber: Fiber) => Fiber}): any => {
 beforeEach(() => {
   // Mount the component.
   wrapper = mount(<Parent />);
-
-  // Clear the mock.
-  warn.mockClear();
 });
 
 describe('How useParent( ) works', () => {
   test('The hook provide a ParentFiber instance', () => {
     // The ParentFiber instance is provided.
     expect(parent).toBeInstanceOf(ParentFiber);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The ParentFiber is initialized after mounting the component', () => {
     // The fiber is set.
     expect(parent.fiber).not.toBe(null);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The fiber reference is removed after unMount', () => {
     wrapper.unmount();
     // The fiber is removed.
     expect(parent.fiber).toBe(null);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The findFiber prop', () => {
     mount(<Parent findFiber={(fiber): Fiber => fiber.return} />);
     // The correct fiber is set.
-    expect(parent.fiber.elementType).toBe(Parent);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
+    expect(parent.getCurrent().elementType).toBe(Parent);
   });
 
   test('Throw if the ref is not set', () => {
@@ -68,23 +57,16 @@ describe('How useParent( ) works', () => {
         <WrongParent />
       </ErrorBoundary>
     );
-
     // The hook throw.
     expect((wrapper.state() as ErrorBoundary['state']).error).toBeInstanceOf(
       Invariant
     );
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The parent is the same after a re-render', () => {
     const currentParent = parent;
-
     wrapper.setProps({children: null});
-
     // The hook throw.
     expect(currentParent).toBe(parent);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 });

@@ -1,22 +1,23 @@
-import type {Fiber} from 'react-reconciler'; // eslint-disable-line
+import type {Fiber} from 'react-reconciler';
 
 /**
  * Returns an array containing the ordered indices of the fibers children (cycling the siblings).
  *
- * @param parent - The parent fiber.
- * @returns - The indices.
+ * @param parent  - The parent fiber.
+ * @returns       - The indices.
  */
 export function getFibersIndices(parent: Fiber): number[] {
   let {child} = parent;
 
-  const keys: number[] = [];
+  // Fibers indices.
+  const indices: number[] = [];
 
-  if (child === null) return keys;
+  if (child === null) return indices;
 
   while (child) {
-    keys.push(child.index);
+    indices.push(child.index);
     child = child.sibling;
   }
 
-  return keys;
+  return indices;
 }

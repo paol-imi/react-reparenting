@@ -1,4 +1,4 @@
-import {ENV, configure} from '../../src';
+import {Env, configure} from '../../src';
 
 describe('How configure works', () => {
   test('The component provide a ParentFiber instance', () => {
@@ -19,6 +19,6 @@ describe('How configure works', () => {
 
     configure(configuration);
 
-    expect(Object.keys(configuration)).toEqual(Object.keys(ENV));
+    expect(Object.keys(configuration)).toEqual(Object.keys(Env));
   });
 });

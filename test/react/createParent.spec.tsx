@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import type {Fiber} from 'react-reconciler';
 import type {ReactWrapper} from 'enzyme';
 import {mount} from 'enzyme';
-import {warn} from '../__shared__';
 import {createParent, ParentFiber} from '../../src';
 
 // Wrapper.
@@ -26,32 +25,23 @@ class Parent extends Component<{findFiber?: (fiber: Fiber) => Fiber}> {
 beforeEach(() => {
   // Mount the component.
   wrapper = mount(<Parent />);
-
-  // Clear the mock.
-  warn.mockClear();
 });
 
 describe('How createParent( ) works', () => {
   test('The method provide a ParentFiber instance', () => {
     // The ParentFiber instance is provided.
     expect(parent).toBeInstanceOf(ParentFiber);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The ParentFiber is initialized after mounting the component', () => {
     // The fiber is set.
     expect(parent.fiber).not.toBe(null);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The fiber reference is removed after unMount', () => {
     wrapper.unmount();
     // The fiber is removed.
     expect(parent.fiber).toBe(null);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
   });
 
   test('The findFiber prop', () => {
@@ -65,9 +55,7 @@ describe('How createParent( ) works', () => {
     );
 
     // The fiber is correct.
-    expect(parent.fiber.key).toBe('1');
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
+    expect(parent.getCurrent().key).toBe('1');
   });
 
   test('(With componentDidMount) The ParentFiber is initialized after mounting the component', () => {
@@ -80,8 +68,6 @@ describe('How createParent( ) works', () => {
     expect(parent.fiber).not.toBe(null);
     // The lifecycle method is called.
     expect(cdm).toHaveBeenCalledTimes(1);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
 
     // Remove lifecycle method.
     delete Parent.prototype.componentDidMount;
@@ -97,8 +83,6 @@ describe('How createParent( ) works', () => {
     expect(parent.fiber).toBe(null);
     // The lifecycle method is called.
     expect(cwu).toHaveBeenCalledTimes(1);
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
 
     // Remove lifecycle method.
     delete Parent.prototype.componentWillUnmount;
@@ -113,16 +97,13 @@ describe('How createParent( ) works', () => {
     wrapper = mount(<Parent />);
     // The lifecycle methods are called.
     expect(cdm).toHaveBeenCalledTimes(1);
-    expect(cwu).toHaveBeenCalledTimes(0);
+    expect(cwu).not.toHaveBeenCalled();
 
     // Unmount the component.
     wrapper.unmount();
     // The lifecycle methods are called.
     expect(cdm).toHaveBeenCalledTimes(1);
     expect(cwu).toHaveBeenCalledTimes(1);
-
-    // Warning calls.
-    expect(warn).not.toHaveBeenCalled();
 
     // Remove lifecycle method.
     delete Parent.prototype.componentDidMount;
