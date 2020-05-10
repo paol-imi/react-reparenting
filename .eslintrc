@@ -33,9 +33,8 @@
     "no-underscore-dangle": 0,
     "no-param-reassign": 0,
     "no-multi-assign": 0,
-    "no-undef": 0,
+    "no-lonely-if": 0,
     "func-names": 0,
-    "max-classes-per-file": 0,
     "lines-between-class-members": [
       "error",
       "always",
