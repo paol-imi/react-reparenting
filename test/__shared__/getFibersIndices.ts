@@ -12,6 +12,7 @@ export function getFibersIndices(parent: Fiber): number[] {
   // Fibers indices.
   const indices: number[] = [];
 
+  // Return an empty array if the parent has no children.
   if (child === null) return indices;
 
   while (child) {

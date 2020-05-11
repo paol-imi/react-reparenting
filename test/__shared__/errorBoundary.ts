@@ -10,22 +10,18 @@ export class ErrorBoundary extends Component<
   {children: ReactNode},
   {error: Error | null}
 > {
-  constructor(props) {
-    super(props);
-    this.state = {error: null};
-  }
+  /** State. */
+  state = {error: null};
 
   static getDerivedStateFromError(error): {error: Error} {
+    // eslint-disable-next-line no-console
+    console.error = consoleError;
     // Update state so the next render will show the fallback UI.
     return {error};
   }
 
-  componentDidUpdate(): void {
-    // eslint-disable-next-line no-console
-    console.error = consoleError;
-  }
-
   render(): ReactNode {
+    // Remove the console to avoid the error logs.
     // eslint-disable-next-line no-console
     console.error = noop;
 

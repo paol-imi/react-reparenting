@@ -13,6 +13,7 @@ export function getFibersKeys(parent: Fiber): Key[] {
   // Fibers keys.
   const keys: Key[] = [];
 
+  // Return an empty array if the parent has no children.
   if (child === null) return keys;
 
   while (child) {
