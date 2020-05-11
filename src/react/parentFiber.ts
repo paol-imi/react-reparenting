@@ -85,7 +85,7 @@ export class ParentFiber {
   }
 
   /**
-   * Remove a child fiber from this instance and add it to another parent fiber.
+   * Remove a child fiber from this instance and add it to another ParentFiber instance.
    * Return the index in which the child is added or -1 if the child is not found.
    * The child to remove can be chosen by providing its key (string) or by providing its index (number).
    * The position can be chosen by providing a key (string) or by providing an index (number).
@@ -96,21 +96,21 @@ export class ParentFiber {
    * The method will also try to send the elements connected to the fibers (e.g. DOM elements),
    * to disable this function you can use the skipUpdate parameter.
    *
-   * @param parent        - The ParentFiber instance in which to add the child fiber.
+   * @param toParentFiber - The ParentFiber instance in which to send the child fiber.
    * @param childSelector - The child fiber selector.
    * @param position      - The position in which to add the child fiber.
    * @param skipUpdate    - Whether to send or not the elements.
    * @returns             - The position in which the child fiber is sent or -1.
    */
   sendChild(
-    parent: ParentFiber,
+    toParentFiber: ParentFiber,
     childSelector: string | number,
     position: string | number,
     skipUpdate?: boolean
   ): number {
     return sendChild(
       this.getCurrent(),
-      parent.getCurrent(),
+      toParentFiber.getCurrent(),
       childSelector,
       position,
       skipUpdate

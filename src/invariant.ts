@@ -10,7 +10,7 @@ export class Invariant extends Error {
  * The message is tripped in production.
  *
  * @param condition - The condition.
- * @param message - The error message.
+ * @param message   - The error message.
  */
 export function invariant(
   condition: boolean,
