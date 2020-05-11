@@ -26,6 +26,7 @@
     "react/static-property-placement": 0,
     "react/jsx-props-no-spreading": 0,
     "react/jsx-filename-extension": 0,
+    "react/state-in-constructor": 0,
     /** Import. */
     "import/prefer-default-export": 0,
     "import/extensions": 0,
