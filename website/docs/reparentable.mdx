@@ -5,22 +5,12 @@ title: Reparentable
 Get the [Reparentable](./tools#reparentable--%EF%B8%8F) component from the package.
 
 ```jsx
-import {Reparentable} from 'react-reparenting';
+import {Reparentable, sendReparentableChild} from 'react-reparenting';
 ```
 
 ## Setup ⚙️
 
-Wrap your app with a `<Reparentable.Provider>` component.
-
-```jsx
-ReactDOM.render(
-  <Reparentable.Provider>
-    <App />
-  </Reparentable.Provider>
-);
-```
-
-Once you have chosen who the parent components are, use a `<Reparentable>` component within them. That component **must** be the direct parent of the children who can be transferred, and it **must** have a unique id that differentiates it from other `<Reparentable>`s in your app.
+Once you have chosen who the parent components are, use the `<Reparentable>` component within them. That component **must** be the direct parent of the children who can be transferred, and it **must** have a unique id that differentiates it from other `<Reparentable>`s in your app.
 
 ```jsx
 const MyParent = ({id, children}) => {
@@ -32,16 +22,6 @@ const MyParent = ({id, children}) => {
       <Reparentable id={id}>{children}</Reparentable>
     </div>
   );
-};
-```
-
-Finally you can access the send method through the `Reparentable.Context` to transfer your components.
-
-```jsx
-// Function component.
-const App = () => {
-  const {send} = useReparentable();
-  // ...
 };
 ```
 
@@ -84,17 +64,15 @@ const App = () => {
 };
 ```
 
-Now we can reparent anywhere in our app using the send method.
+Now we can reparent anywhere in our app using the `sendReparentableChild` method.
 
 ```jsx
-const {send} = useReparentable();
-
 // Send the first Child ('c3') of 'parentB'
 // before the Child ('c2') of 'parentA'.
-send('parentB', 'parentA', 0, 'c2');
+sendReparentableChild('parentB', 'parentA', 0, 'c2');
 // Send the Child ('c1') of 'parentA'
 // in the first position of 'parentB'.
-send('parentA', 'parentB', 'c1', 0);
+sendReparentableChild('parentA', 'parentB', 'c1', 0);
 
 // Re-render the components with the changes.
 // The transferred children won't be re-mounted.

@@ -33,6 +33,10 @@ If you are interested, there are very valid sources in which to deepen the topic
 
 In any case, it is **not necessary** to know how React internals work to use this package.
 
+## React Native
+
+The default configuration is designed to work with ReactDOM. If you want to try implementing React-reparenting with other renderers, you can disable the `DOM nodes transfer` in the send method (since it wouldn't work without a DOM), and transfer manually the nodes you are working with. You can even try to [instruct](./renderer) the package to manage the types of nodes you are working with, in order to automate the process as happens with ReactDOM.
+
 ## Before continuing
 
 The `core` of this project implements a very simple logic, and the tests created try to simulate more possible use cases that can occur in an app.

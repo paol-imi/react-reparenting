@@ -77,10 +77,10 @@ const parentB = parentBRef.current;
 
 // Send the first Child ('c3') of 'parentB'
 // before the Child ('c2') of 'parentA'.
-parentB.send(parentA, 0, 'c2');
+parentB.sendChild(parentA, 0, 'c2');
 // Send the Child ('c1') of 'parentA'
 // in the first position of 'parentB'.
-parentA.send(parentB, 'c1', 0);
+parentA.sendChild(parentB, 'c1', 0);
 
 // Re-render the components with the changes.
 // The transferred children won't be re-mounted.
