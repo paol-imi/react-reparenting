@@ -1,4 +1,5 @@
 import React, {createRef, createContext} from 'react';
+import type {MutableRefObject, ReactElement} from 'react';
 import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
 import {Child, getFibersIndices, getFibersKeys} from './__shared__';
@@ -141,9 +142,11 @@ describe('How the reparented child lifecycle works', () => {
 });
 
 describe('How the state is manteined after reparenting', () => {
-  test('Send the child with the key "1" in the position of the current first child', () => {
+  test('Send a child', () => {
+    // The state is generated using Math.random().
     const randomlyCalculatedState = wrapperA.find(Child).first().state();
 
+    // Send the child.
     parentA.sendChild(parentB, '1', 0);
 
     // Update the children.
@@ -160,74 +163,224 @@ describe('How the state is manteined after reparenting', () => {
       ),
     });
 
+    // The state is manteined.
     expect(wrapperB.find(Child).first().state()).toBe(randomlyCalculatedState);
   });
 });
 
 describe('Reparenting with context', () => {
   test('The context is changed', () => {
+    // The the Context Consumer and Provider.
     const Context = createContext<string>('');
-    let valueA: string;
-    let valueB: string;
+    const {Provider} = Context;
+    const Consumer = (props: {
+      valueRef: MutableRefObject<string>;
+    }): ReactElement => (
+      <Context.Consumer>
+        {(value): null => {
+          props.valueRef.current = value;
+          return null;
+        }}
+      </Context.Consumer>
+    );
 
+    // Context values.
+    const valueARef: MutableRefObject<string> = createRef<string>();
+    const valueBRef: MutableRefObject<string> = createRef<string>();
+
+    // Mount the components.
     wrapperA = mount(
       <div>
-        <Context.Provider value="A">
+        <Provider value="A">
           <Parent parentRef={parentARef}>
-            <Context.Consumer key="1">
-              {(value): null => {
-                valueA = value;
-                return null;
-              }}
-            </Context.Consumer>
+            <Consumer key="1" valueRef={valueARef} />
           </Parent>
-        </Context.Provider>
+        </Provider>
+      </div>
+    );
+    wrapperB = mount(
+      <div>
+        <Provider value="B">
+          <Parent parentRef={parentBRef}>
+            <Consumer key="2" valueRef={valueBRef} />
+          </Parent>
+        </Provider>
+      </div>
+    );
+
+    expect(valueARef.current).toBe('A');
+    expect(valueBRef.current).toBe('B');
+    parentA.sendChild(parentB, 0, 0);
+
+    // Update the children.
+    wrapperB.setProps({
+      children: (
+        <Provider value="B">
+          <Parent parentRef={parentBRef}>
+            <Consumer key="1" valueRef={valueARef} />
+            <Consumer key="2" valueRef={valueBRef} />
+          </Parent>
+        </Provider>
+      ),
+    });
+
+    // The context is changed.
+    expect(valueARef.current).toBe('B');
+    expect(valueBRef.current).toBe('B');
+  });
+
+  test('Context is changed with memoization', () => {
+    // The the Context Consumer and Provider.
+    const Context = createContext<string>('');
+    const {Provider} = Context;
+    const MemoConsumer = (props: {
+      valueRef: MutableRefObject<string>;
+    }): ReactElement => (
+      <Context.Consumer>
+        {(value): null => {
+          props.valueRef.current = value;
+          return null;
+        }}
+      </Context.Consumer>
+    );
+
+    // Context values.
+    const valueARef: MutableRefObject<string> = createRef<string>();
+    const valueBRef: MutableRefObject<string> = createRef<string>();
+
+    // Mount the components.
+    wrapperA = mount(
+      <div>
+        <Provider value="A">
+          <Parent parentRef={parentARef}>
+            <MemoConsumer key="1" valueRef={valueARef} />
+          </Parent>
+        </Provider>
       </div>
     );
 
     wrapperB = mount(
       <div>
-        <Context.Provider value="B">
+        <Provider value="B">
           <Parent parentRef={parentBRef}>
-            <Context.Consumer key="2">
-              {(value): null => {
-                valueB = value;
-                return null;
-              }}
-            </Context.Consumer>
+            <MemoConsumer key="2" valueRef={valueBRef} />
           </Parent>
-        </Context.Provider>
+        </Provider>
       </div>
     );
 
-    expect(valueA).toBe('A');
-    expect(valueB).toBe('B');
-
+    expect(valueARef.current).toBe('A');
+    expect(valueBRef.current).toBe('B');
     parentA.sendChild(parentB, 0, 0);
 
+    // Update the children.
     wrapperB.setProps({
       children: (
-        <Context.Provider value="B">
+        <Provider value="B">
           <Parent parentRef={parentBRef}>
-            <Context.Consumer key="1">
-              {(value): null => {
-                valueA = value;
-                return null;
-              }}
-            </Context.Consumer>
-            <Context.Consumer key="2">
-              {(value): null => {
-                valueB = value;
-                return null;
-              }}
-            </Context.Consumer>
+            <MemoConsumer key="1" valueRef={valueARef} />
+            <MemoConsumer key="2" valueRef={valueBRef} />
           </Parent>
-        </Context.Provider>
+        </Provider>
       ),
     });
 
-    expect(valueA).toBe('B');
-    expect(valueB).toBe('B');
+    // The context is changed.
+    expect(valueARef.current).toBe('B');
+    expect(valueBRef.current).toBe('B');
+  });
+});
+
+describe('Reparenting with React.memo', () => {
+  test('The Child is not re-rendered after reparenting', () => {
+    // Children moks.
+    child1Mocks = {
+      id: '1',
+      onRender: jest.fn(),
+      onMount: jest.fn(),
+      onUnmount: jest.fn(),
+    };
+    // Children moks.
+    child2Mocks = {
+      id: '2',
+      onRender: jest.fn(),
+      onMount: jest.fn(),
+      onUnmount: jest.fn(),
+    };
+    // Children moks.
+    child3Mocks = {
+      id: '3',
+      onRender: jest.fn(),
+      onMount: jest.fn(),
+      onUnmount: jest.fn(),
+    };
+    // Children moks.
+    child4Mocks = {
+      id: '4',
+      onRender: jest.fn(),
+      onMount: jest.fn(),
+      onUnmount: jest.fn(),
+    };
+
+    const MemoChild = React.memo(Child);
+
+    // Mount the components.
+    wrapperA = mount(
+      <div ref={containerARef}>
+        <Parent parentRef={parentARef}>
+          <MemoChild key="1" {...child1Mocks} />
+          <MemoChild key="2" {...child2Mocks} />
+        </Parent>
+      </div>
+    );
+    wrapperB = mount(
+      <div ref={containerBRef}>
+        <Parent parentRef={parentBRef}>
+          <MemoChild key="3" {...child3Mocks} />
+          <MemoChild key="4" {...child4Mocks} />
+        </Parent>
+      </div>
+    );
+
+    // Parents.
+    parentA = parentARef.current;
+    parentB = parentBRef.current;
+    parentA.sendChild(parentB, '1', 0);
+
+    // Mount the components.
+    wrapperA.setProps({
+      children: (
+        <Parent parentRef={parentARef}>
+          <MemoChild key="2" {...child2Mocks} />
+        </Parent>
+      ),
+    });
+    wrapperB.setProps({
+      children: (
+        <Parent parentRef={parentBRef}>
+          <MemoChild key="1" {...child1Mocks} />
+          <MemoChild key="3" {...child3Mocks} />
+          <MemoChild key="4" {...child4Mocks} />
+        </Parent>
+      ),
+    });
+
+    // Child 1 lifecycle.
+    expect(child1Mocks.onMount).toHaveBeenCalledTimes(1);
+    expect(child1Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    expect(child1Mocks.onRender).toHaveBeenCalledTimes(1);
+    // Child 2 lifecycle.
+    expect(child2Mocks.onMount).toHaveBeenCalledTimes(1);
+    expect(child2Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    expect(child2Mocks.onRender).toHaveBeenCalledTimes(1);
+    // Child 3 lifecycle.
+    expect(child3Mocks.onMount).toHaveBeenCalledTimes(1);
+    expect(child3Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    expect(child3Mocks.onRender).toHaveBeenCalledTimes(1);
+    // Child 4 lifecycle.
+    expect(child4Mocks.onMount).toHaveBeenCalledTimes(1);
+    expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    expect(child4Mocks.onRender).toHaveBeenCalledTimes(1);
   });
 });
 
@@ -314,6 +467,28 @@ describe('Some possible scenarios', () => {
     expect(child4Mocks.onMount).toHaveBeenCalledTimes(1);
     expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(0);
     expect(child4Mocks.onRender).toHaveBeenCalledTimes(2);
+
+    wrapperA.unmount();
+
+    // Child 1 lifecycle.
+    expect(child1Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 2 lifecycle.
+    expect(child2Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 3 lifecycle.
+    expect(child3Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 4 lifecycle.
+    expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(0);
+
+    wrapperB.unmount();
+
+    // Child 1 lifecycle.
+    expect(child1Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 2 lifecycle.
+    expect(child2Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 3 lifecycle.
+    expect(child3Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 4 lifecycle.
+    expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(1);
   });
 
   test('Re-render A before reparenting, re-render A and B after reparenting', () => {
@@ -413,6 +588,28 @@ describe('Some possible scenarios', () => {
     expect(child4Mocks.onMount).toHaveBeenCalledTimes(1);
     expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(0);
     expect(child4Mocks.onRender).toHaveBeenCalledTimes(3);
+
+    wrapperA.unmount();
+
+    // Child 1 lifecycle.
+    expect(child1Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 2 lifecycle.
+    expect(child2Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 3 lifecycle.
+    expect(child3Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 4 lifecycle.
+    expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(0);
+
+    wrapperB.unmount();
+
+    // Child 1 lifecycle.
+    expect(child1Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 2 lifecycle.
+    expect(child2Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 3 lifecycle.
+    expect(child3Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 4 lifecycle.
+    expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(1);
   });
 
   test('Re-render A before reparenting, add a new child', () => {
@@ -515,6 +712,28 @@ describe('Some possible scenarios', () => {
     expect(child5Mocks.onMount).toHaveBeenCalledTimes(1);
     expect(child5Mocks.onUnmount).toHaveBeenCalledTimes(0);
     expect(child5Mocks.onRender).toHaveBeenCalledTimes(1);
+
+    wrapperA.unmount();
+
+    // Child 1 lifecycle.
+    expect(child1Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 2 lifecycle.
+    expect(child2Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 3 lifecycle.
+    expect(child3Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 4 lifecycle.
+    expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(0);
+
+    wrapperB.unmount();
+
+    // Child 1 lifecycle.
+    expect(child1Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 2 lifecycle.
+    expect(child2Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 3 lifecycle.
+    expect(child3Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 4 lifecycle.
+    expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(1);
   });
 
   test('Re-render A before reparenting, re-render A and B after reparenting, add a new child', () => {
@@ -635,5 +854,27 @@ describe('Some possible scenarios', () => {
     expect(child5Mocks.onMount).toHaveBeenCalledTimes(1);
     expect(child5Mocks.onUnmount).toHaveBeenCalledTimes(0);
     expect(child5Mocks.onRender).toHaveBeenCalledTimes(2);
+
+    wrapperA.unmount();
+
+    // Child 1 lifecycle.
+    expect(child1Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 2 lifecycle.
+    expect(child2Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 3 lifecycle.
+    expect(child3Mocks.onUnmount).toHaveBeenCalledTimes(0);
+    // Child 4 lifecycle.
+    expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(0);
+
+    wrapperB.unmount();
+
+    // Child 1 lifecycle.
+    expect(child1Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 2 lifecycle.
+    expect(child2Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 3 lifecycle.
+    expect(child3Mocks.onUnmount).toHaveBeenCalledTimes(1);
+    // Child 4 lifecycle.
+    expect(child4Mocks.onUnmount).toHaveBeenCalledTimes(1);
   });
 });

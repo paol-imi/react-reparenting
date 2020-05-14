@@ -65,7 +65,7 @@ describe('How useParent( ) works', () => {
 
   test('The parent is the same after a re-render', () => {
     const currentParent = parent;
-    wrapper.setProps({children: null});
+    wrapper.setProps({});
     // The hook throw.
     expect(currentParent).toBe(parent);
   });
