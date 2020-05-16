@@ -4,7 +4,6 @@
  * @param message - The warning message.
  */
 export function warning(message: string): void {
-  // Condition not passed.
   const text = `Warning: ${message}`;
 
   // Check console for IE9 support which provides console
