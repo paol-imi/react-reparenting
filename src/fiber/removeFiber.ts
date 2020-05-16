@@ -1,5 +1,5 @@
 import type {Fiber} from 'react-reconciler';
-import {findChildFiberAt, findPreviousFiber} from './find';
+import {findChildFiberAt, findPreviousFiber} from './findFIber';
 import {invariant} from '../invariant';
 
 /**

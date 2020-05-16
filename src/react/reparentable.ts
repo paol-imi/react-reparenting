@@ -2,7 +2,7 @@ import {Component} from 'react';
 import type {ReactElement} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {ParentFiber} from './parentFiber';
-import {getFiberFromClassInstance} from '../fiber/get';
+import {getFiberFromClassInstance} from '../fiber/getFIber';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 
@@ -97,7 +97,9 @@ export class Reparentable extends Component<ReparentableProps> {
     ReparentableMap.set(id, this.parent);
   }
 
-  /** Update the findFiber method. */
+  /**
+   * Update the findFiber method.
+   */
   componentDidUpdate(): void {
     const {findFiber} = this.props;
     this.parent.setFinder(findFiber);

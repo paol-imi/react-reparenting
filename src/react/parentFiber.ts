@@ -2,7 +2,7 @@ import type {Fiber} from 'react-reconciler';
 import {addChild} from '../core/addChild';
 import {removeChild} from '../core/removeChild';
 import {sendChild} from '../core/sendChild';
-import {getCurrentFiber} from '../fiber/get';
+import {getCurrentFiber} from '../fiber/getFIber';
 import {invariant} from '../invariant';
 
 /**

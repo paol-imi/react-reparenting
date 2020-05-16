@@ -2,7 +2,7 @@ import type {Fiber} from 'react-reconciler';
 import {addChild} from './addChild';
 import {removeChild} from './removeChild';
 import {Env} from '../env/env';
-import {searchFiber} from '../fiber/search';
+import {searchFiber} from '../fiber/searchFiber';
 import {warning} from '../warning';
 
 /**

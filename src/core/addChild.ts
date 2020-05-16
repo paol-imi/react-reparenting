@@ -1,8 +1,11 @@
 import type {Fiber} from 'react-reconciler';
-import {addChildFiberBefore, addChildFiberAt} from '../fiber/add';
-import {updateFibersIndices, updateFiberDebugFields} from '../fiber/update';
+import {addChildFiberBefore, addChildFiberAt} from '../fiber/addFiber';
+import {
+  updateFibersIndices,
+  updateFiberDebugFields,
+} from '../fiber/updateFiber';
 import {warning} from '../warning';
-import {findPreviousFiber} from '../fiber/find';
+import {findPreviousFiber} from '../fiber/findFIber';
 
 /**
  * Add a child fiber in a parent fiber and return the index in which it is added.

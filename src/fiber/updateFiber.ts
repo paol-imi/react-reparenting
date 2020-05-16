@@ -23,10 +23,10 @@ export function updateFibersIndices(fiber: Fiber, index: number): number {
  * I have not yet inquired about how the _debug fields are chosen.
  * For now only the owner and source are set based on the siblings/parent fields.
  * TODO:
- * - _debugID - does it need to be changed?
- * - _debugSource - is it ok like this?
- * - _debugOwner - is it ok like this?
- * - _debugHookTypes - does it need to be changed?
+ * - _debugID:        does it need to be changed?
+ * - _debugHookTypes: does it need to be changed?
+ * - _debugSource:    is it ok like this?
+ * - _debugOwner:     is it ok like this?
  *
  * @param child   - The child fiber.
  * @param parent  - The parent fiber.
@@ -35,7 +35,7 @@ export function updateFiberDebugFields(child: Fiber, parent: Fiber): void {
   invariant(parent.child !== null);
   let fiberToCopy: Fiber;
 
-  // Try to find a sibling.
+  // Try to find a fiber to copy.
   if (parent.child === child) {
     if (child.sibling === null) {
       fiberToCopy = parent;

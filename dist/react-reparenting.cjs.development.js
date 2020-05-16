@@ -274,7 +274,7 @@ var Invariant = /*#__PURE__*/function (_Error) {
  * The message is tripped in production.
  *
  * @param condition - The condition.
- * @param message - The error message.
+ * @param message   - The error message.
  */
 
 function invariant(condition, message) {
@@ -308,10 +308,10 @@ function updateFibersIndices(fiber, index) {
  * I have not yet inquired about how the _debug fields are chosen.
  * For now only the owner and source are set based on the siblings/parent fields.
  * TODO:
- * - _debugID - does it need to be changed?
- * - _debugSource - is it ok like this?
- * - _debugOwner - is it ok like this?
- * - _debugHookTypes - does it need to be changed?
+ * - _debugID:        does it need to be changed?
+ * - _debugHookTypes: does it need to be changed?
+ * - _debugSource:    is it ok like this?
+ * - _debugOwner:     is it ok like this?
  *
  * @param child   - The child fiber.
  * @param parent  - The parent fiber.
@@ -319,7 +319,7 @@ function updateFibersIndices(fiber, index) {
 
 function updateFiberDebugFields(child, parent) {
   invariant(parent.child !== null);
-  var fiberToCopy; // Try to find a sibling.
+  var fiberToCopy; // Try to find a fiber to copy.
 
   if (parent.child === child) {
     if (child.sibling === null) {
@@ -889,7 +889,7 @@ var ParentFiber = /*#__PURE__*/function () {
       return removeChild(this.getCurrent(), childSelector);
     }
     /**
-     * Remove a child fiber from this instance and add it to another parent fiber.
+     * Remove a child fiber from this instance and add it to another ParentFiber instance.
      * Return the index in which the child is added or -1 if the child is not found.
      * The child to remove can be chosen by providing its key (string) or by providing its index (number).
      * The position can be chosen by providing a key (string) or by providing an index (number).
@@ -900,7 +900,7 @@ var ParentFiber = /*#__PURE__*/function () {
      * The method will also try to send the elements connected to the fibers (e.g. DOM elements),
      * to disable this function you can use the skipUpdate parameter.
      *
-     * @param parent        - The ParentFiber instance in which to add the child fiber.
+     * @param toParentFiber - The ParentFiber instance in which to send the child fiber.
      * @param childSelector - The child fiber selector.
      * @param position      - The position in which to add the child fiber.
      * @param skipUpdate    - Whether to send or not the elements.
@@ -909,8 +909,8 @@ var ParentFiber = /*#__PURE__*/function () {
 
   }, {
     key: "sendChild",
-    value: function sendChild$1(parent, childSelector, position, skipUpdate) {
-      return sendChild(this.getCurrent(), parent.getCurrent(), childSelector, position, skipUpdate);
+    value: function sendChild$1(toParentFiber, childSelector, position, skipUpdate) {
+      return sendChild(this.getCurrent(), toParentFiber.getCurrent(), childSelector, position, skipUpdate);
     }
     /**
      * Clear the parent fiber.
@@ -1164,7 +1164,9 @@ var Reparentable = /*#__PURE__*/function (_Component) {
 
       ReparentableMap.set(id, this.parent);
     }
-    /** Update the findFiber method. */
+    /**
+     * Update the findFiber method.
+     */
 
   }, {
     key: "componentDidUpdate",

@@ -1,6 +1,6 @@
 import type {Fiber} from 'react-reconciler';
-import {removeChildFiber, removeChildFiberAt} from '../fiber/remove';
-import {updateFibersIndices} from '../fiber/update';
+import {removeChildFiber, removeChildFiberAt} from '../fiber/removeFiber';
+import {updateFibersIndices} from '../fiber/updateFiber';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 

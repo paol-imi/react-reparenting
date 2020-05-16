@@ -1,5 +1,5 @@
 import type {Fiber} from 'react-reconciler';
-import {findChildFiberAt, findPreviousFiber} from './find';
+import {findChildFiberAt, findPreviousFiber} from './findFIber';
 
 /**
  * Add a child fiber in a parent fiber at the given index and return the actual

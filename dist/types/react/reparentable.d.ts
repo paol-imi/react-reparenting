@@ -37,7 +37,9 @@ export declare class Reparentable extends Component<ReparentableProps> {
      * only after the component did mount.
      */
     componentDidMount(): void;
-    /** Update the findFiber method. */
+    /**
+     * Update the findFiber method.
+     */
     componentDidUpdate(): void;
     /**
      * Clear on unmount.

@@ -1,7 +1,7 @@
 import type {Component} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {ParentFiber} from './parentFiber';
-import {getFiberFromClassInstance} from '../fiber/get';
+import {getFiberFromClassInstance} from '../fiber/getFIber';
 
 /**
  * Generate a ParentFiber instance given a class instance of a component.

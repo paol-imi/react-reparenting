@@ -2,7 +2,7 @@ import {useRef, useEffect} from 'react';
 import type {RefObject} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {ParentFiber} from './parentFiber';
-import {getFiberFromElementInstance} from '../fiber/get';
+import {getFiberFromElementInstance} from '../fiber/getFIber';
 import {invariant} from '../invariant';
 
 /**
