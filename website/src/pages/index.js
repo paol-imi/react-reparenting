@@ -35,7 +35,7 @@ const features = [
     description: (
       <>
         Safely design your app thanks to many useful <code>warnings</code>{' '}
-        included in development builds. The package will recognize if you are
+        included in development build. The package will recognize if you are
         working in development or production mode.
       </>
     ),

@@ -8,11 +8,11 @@ A custom component to enable reparenting.
 
 #### Props
 
-| Name      | Type        | Description                                                                                        |
-| --------- | ----------- | -------------------------------------------------------------------------------------------------- |
-| id        | _string_    | The id of the component, it must be unique within a Reparentable.Provider. <br/><br/> **Required** |
-| children  | _ReactNode_ | The children that can be transferred.                                                              |
-| findFiber | _func_      | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber`        |
+| Name      | Type        | Description                                                                                               |
+| --------- | ----------- | --------------------------------------------------------------------------------------------------------- |
+| id        | _string_    | The id of the component it must be unique must be unique among all Reparentables. <br/><br/> **Required** |
+| children  | _ReactNode_ | The children that can be transferred.                                                                     |
+| findFiber | _func_      | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber`                |
 
 ### SendReparentableChild( fromParentId, toParentId, child, position, [skipUpdate] ): index ⚙️
 
@@ -61,10 +61,10 @@ A component that generate a ParentFiber instance.
 
 #### Props
 
-| Name      | Type                      | Description                                                                                 |
-| --------- | ------------------------- | ------------------------------------------------------------------------------------------- |
-| children  | _ReactNode_               | The children that can be transferred.                                                       |
-| parentRef | _React.Ref<ParentFiber\>_ | The ref of the parent fiber instance. <br/><br/> **Required**                               |
+| Name      | Type                      | Description                                                                                |
+| --------- | ------------------------- | ------------------------------------------------------------------------------------------ |
+| children  | _ReactNode_               | The children that can be transferred.                                                      |
+| parentRef | _React.Ref<ParentFiber\>_ | The ref of the ParentFiber instance. <br/><br/> **Required**                               |
 | findFiber | _func_                    | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
 
 ### createParent( instance, [findFiber] ): parent ⚙️
@@ -76,7 +76,7 @@ A method to generate a ParentFiber instance.
 | Name      | Type              | Description                                                                                         |
 | --------- | ----------------- | --------------------------------------------------------------------------------------------------- |
 | instance  | _React.Component_ | A class component instance, must be called before the component is mounted. <br/><br/> **Required** |
-| findFiber | _func_            | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber`         |
+| findFiber | _func_            | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber`          |
 
 #### returns
 
@@ -90,12 +90,12 @@ An hook to generate a ParentFiber instance.
 
 #### arguments
 
-| Name      | Type   | Description                                                                                 |
-| --------- | ------ | ------------------------------------------------------------------------------------------- |
+| Name      | Type   | Description                                                                                |
+| --------- | ------ | ------------------------------------------------------------------------------------------ |
 | findFiber | _func_ | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
 
 #### returns
 
-| Type                                       | Description                                                                                 |
-| ------------------------------------------ | ------------------------------------------------------------------------------------------- |
-| [_ParentFiber_, _React.ref<HTMLElement\>_] | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
+| Type                                       | Description                                   |
+| ------------------------------------------ | --------------------------------------------- |
+| [_ParentFiber_, _React.ref<HTMLElement\>_] | The ParentFiber instance and the element ref. |
