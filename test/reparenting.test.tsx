@@ -1,5 +1,5 @@
-import React, {createRef, createContext} from 'react';
-import type {MutableRefObject, ReactElement} from 'react';
+import React, {createRef, createContext, memo, useContext} from 'react';
+import type {MutableRefObject} from 'react';
 import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
 import {Child, getFibersIndices, getFibersKeys} from './__shared__';
@@ -173,16 +173,11 @@ describe('Reparenting with context', () => {
     // The the Context Consumer and Provider.
     const Context = createContext<string>('');
     const {Provider} = Context;
-    const Consumer = (props: {
-      valueRef: MutableRefObject<string>;
-    }): ReactElement => (
-      <Context.Consumer>
-        {(value): null => {
-          props.valueRef.current = value;
-          return null;
-        }}
-      </Context.Consumer>
-    );
+    const Consumer = (props: {valueRef: MutableRefObject<string>}): null => {
+      const {valueRef} = props;
+      valueRef.current = useContext(Context);
+      return null;
+    };
 
     // Context values.
     const valueARef: MutableRefObject<string> = createRef<string>();
@@ -229,19 +224,16 @@ describe('Reparenting with context', () => {
     expect(valueBRef.current).toBe('B');
   });
 
-  test('Context is changed with memoization', () => {
+  test('The context is changed with memoization', () => {
     // The the Context Consumer and Provider.
     const Context = createContext<string>('');
     const {Provider} = Context;
-    const MemoConsumer = (props: {
-      valueRef: MutableRefObject<string>;
-    }): ReactElement => (
-      <Context.Consumer>
-        {(value): null => {
-          props.valueRef.current = value;
-          return null;
-        }}
-      </Context.Consumer>
+    const MemoConsumer = memo(
+      (props: {valueRef: MutableRefObject<string>}): null => {
+        const {valueRef} = props;
+        valueRef.current = useContext(Context);
+        return null;
+      }
     );
 
     // Context values.
