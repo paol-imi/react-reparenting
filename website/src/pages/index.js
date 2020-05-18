@@ -83,7 +83,7 @@ function Home() {
               <img
                 alt="logo"
                 className={styles.heroImg}
-                src={useBaseUrl('logo/logo.png')}
+                src={useBaseUrl('logo/logo.svg')}
               />
             </div>
           </div>
