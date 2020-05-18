@@ -1,6 +1,6 @@
 <div align="center">
   
-<img src="https://raw.githubusercontent.com/Paol-imi/react-reparenting/master/website/static/logo/logo.png" width="28%" />
+<img src="https://raw.githubusercontent.com/Paol-imi/react-reparenting/master/website/static/logo/logo.png" width="25%" />
 
 <h1>React-reparenting</h1>
 
