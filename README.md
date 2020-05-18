@@ -1,6 +1,6 @@
 <div align="center">
   
-<img src="https://raw.githubusercontent.com/Paol-imi/react-reparenting/master/website/static/logo/logo.svg" width="28%" />
+<img src="https://raw.githubusercontent.com/Paol-imi/react-reparenting/master/website/static/logo/logo.png" width="25%" />
 
 <h1>React-reparenting</h1>
 
@@ -25,7 +25,7 @@ React does not yet offer specific APIs to solve this problem, in many cases we t
 
 > Portals provide a first-class way to render children into a DOM node that exists outside the DOM hierarchy of the parent component.
 
-This process is more related to the DOM (or to the current environment), at `"React level"` the Child is still part of the same Parent. This is where `React-reparenting` intervenes.
+This process is more related to the DOM, at `"React level"` the Child is still part of the same Parent. This is where `React-reparenting` intervenes.
 
 This package offers `easy` and `intuitive` tools to solve this problem. With a few lines of code you will be able to transfer your components, without them being re-mounted or losing their internal state.
 
