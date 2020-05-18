@@ -17,8 +17,4 @@ jobs:
 workflows:
   build-and-test:
     jobs:
-      - build-and-test:
-          filters:
-            branches:
-              ignore:
-                - gh-pages
+      - build-and-test
