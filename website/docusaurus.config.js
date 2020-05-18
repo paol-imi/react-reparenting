@@ -3,7 +3,7 @@ module.exports = {
   tagline: 'The reparenting tools for React',
   url: 'https://paol-imi.github.io',
   baseUrl: '/react-reparenting/',
-  favicon: 'logo/logo.svg',
+  favicon: 'logo/logo.png',
   organizationName: 'paol-imi',
   projectName: 'react-reparenting',
   themeConfig: {

@@ -44,3 +44,12 @@ Note that the send method should only be called before re-rendering.
 ## Check the guide
 
 Now you are ready to start. The component to interact with is the `<Reparentable>`, you can read the guide on how to use it [here](./reparentable).
+
+## Note for component library maintainers
+
+The `<Reparentable>` is the recommended component to use if you are developing an App, since it is ready to use and requires no configuration.
+If you are developing a library I suggest you take a look at these other tools, which require some configuration but allows you to have more flexibility:
+
+- Use a Parent Component - [here](./parent).
+- Use a custom Class Component - [here](./createparent).
+- Use a custom Function Component - [here](./useparent).
