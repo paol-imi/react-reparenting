@@ -10,19 +10,10 @@ import {Reparentable, sendReparentableChild} from 'react-reparenting';
 
 ## Setup ⚙️
 
-Once you have chosen who the parent components are, use the `<Reparentable>` component within them. That component **must** be the direct parent of the children who can be transferred, and it **must** have a unique id that differentiates it from other `<Reparentable>`s in your app.
+The `<Reparentable>` must be the **direct parent** of the children which can be transferred, and it must have an **unique id** that differentiates it from other `<Reparentable>`s in your app.
 
 ```jsx
-const MyParent = ({id, children}) => {
-  return (
-    <div className="parent">
-      {/* <Reparentable> must be the direct parent  
-          of the children and have an unique id. 
-          You can render what you want before. */}
-      <Reparentable id={id}>{children}</Reparentable>
-    </div>
-  );
-};
+<Reparentable id="id">{children}</Reparentable>
 ```
 
 ## Usage 📖
@@ -33,20 +24,20 @@ Let's define a very simple child component for the example.
 const Child = () => <div />;
 ```
 
-We define in our app two simple parent components, and insert within them the `<Reparentable>`s with their ids and children.
+We define in our app two simple parent components, and insert within them the `<Reparentable>`s.
 
 ```jsx
 const App = () => {
-  // The children's keys.
-  const [parent, setParent] = useState({
+  // The Parents.
+  const [parents, setParents] = useState({
     A: ['c1', 'c2'],
     B: ['c3'],
   });
 
-  // The child components.
+  // The Child components.
   const children = {
-    parentA: parent.A.map((key) => <Child key={key} />),
-    parentB: parent.B.map((key) => <Child key={key} />),
+    parentA: parents.A.map((key) => <Child key={key} />),
+    parentB: parents.B.map((key) => <Child key={key} />),
   };
 
   return (
@@ -76,7 +67,7 @@ sendReparentableChild('parentA', 'parentB', 'c1', 0);
 
 // Re-render the components with the changes.
 // The transferred children won't be re-mounted.
-setParent({
+setParents({
   A: ['c3', 'c2'],
   B: ['c1'],
 });

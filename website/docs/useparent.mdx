@@ -10,10 +10,10 @@ import {useParent} from 'react-reparenting';
 
 ## Setup ⚙️
 
-You can generate a parent instance to use the `send` method within a function component. You must set the ref in the DOM element which is the direct parent of the children who can be transferred.
+You can generate a parent instance to use the `send` method within a function component. You must set the ref in the DOM element which is the **direct parent** of the children which can be transferred.
 
 ```jsx
-const MyParent = ({children}) => {
+const Parent = ({children}) => {
   const [parent, ref] = useParent();
 
   return (
@@ -32,28 +32,28 @@ Let's define a very simple child component for the example.
 const Child = () => <div />;
 ```
 
-We define two parent components in the app as defined above and insert within them the children.
+We use two `<Parent>` components in the app as defined above.
 
 ```jsx
 const App = () => {
-  // The children's keys.
-  const [parent, setParent] = useState({
+  // The Parents.
+  const [parents, setParents] = useState({
     A: ['c1', 'c2'],
     B: ['c3'],
   });
 
-  // The child components.
+  // The Child components.
   const children = {
-    parentA: parent.A.map((key) => <Child key={key} />),
-    parentB: parent.B.map((key) => <Child key={key} />),
+    parentA: parents.A.map((key) => <Child key={key} />),
+    parentB: parents.B.map((key) => <Child key={key} />),
   };
 
   return (
     <>
       {/* Parent A */}
-      <MyParent>{children.parentA}</MyParent>
+      <Parent>{children.parentA}</Parent>
       {/* Parent B */}
-      <MyParent>{children.parentB}</MyParent>
+      <Parent>{children.parentB}</Parent>
     </>
   );
 };
@@ -71,7 +71,7 @@ parentA.sendChild(parentB, 'c1', 0);
 
 // Re-render the components with the changes.
 // The transferred children won't be re-mounted.
-setParent({
+setParents({
   A: ['c3', 'c2'],
   B: ['c1'],
 });

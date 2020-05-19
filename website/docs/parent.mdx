@@ -10,20 +10,10 @@ import {Parent} from 'react-reparenting';
 
 ## Setup ⚙️
 
-Once you have chosen who the parent components are, use a `<Parent>` component within them. That component **must** be the direct parent of the children who can be transferred. You also have to access the internal parent instance to use the `send` method.
+The `<Parent>` component must be the **direct parent** of the children which can be transferred. You also have to access the internal **parent instance** to use the `send` method.
 
 ```jsx
-const MyParent = ({children}) => {
-  const parentRef = useRef();
-
-  return (
-    <div className="parent">
-      {/* <Parent> must be the direct parent of the
-          children. You can render what you want before. */}
-      <Parent parentRef={parentRef}>{children}</Reparentable>
-    </div>
-  );
-};
+<Parent parentRef={parentRef}>{children}</Parent>
 ```
 
 ## Usage 📖
@@ -34,20 +24,20 @@ Let's define a very simple child component for the example.
 const Child = () => <div />;
 ```
 
-We define in our app two simple parent components, and insert within them the children.
+We define in our app two simple parent components, and insert within them the `<Parent>`s.
 
 ```jsx
 const App = () => {
-  // The children's keys.
-  const [parent, setParent] = useState({
+  // The Parents.
+  const [parents, setParents] = useState({
     A: ['c1', 'c2'],
     B: ['c3'],
   });
 
-  // The child components.
+  // The Child components.
   const children = {
-    parentA: parent.A.map((key) => <Child key={key} />),
-    parentB: parent.B.map((key) => <Child key={key} />),
+    parentA: parents.A.map((key) => <Child key={key} />),
+    parentB: parents.B.map((key) => <Child key={key} />),
   };
 
   // Parent instance refs.
@@ -58,11 +48,11 @@ const App = () => {
     <>
       {/* Parent A */}
       <div className="parent">
-        <Parent parentARef={parentARef}>{children.parentA}</Parent>
+        <Parent parentRef={parentARef}>{children.parentA}</Parent>
       </div>
       {/* Parent B */}
       <div className="parent">
-        <Parent parentARef={parentBRef}>{children.parentB}</Parent>
+        <Parent parentRef={parentBRef}>{children.parentB}</Parent>
       </div>
     </>
   );
@@ -84,7 +74,7 @@ parentA.sendChild(parentB, 'c1', 0);
 
 // Re-render the components with the changes.
 // The transferred children won't be re-mounted.
-setParent({
+setParents({
   A: ['c3', 'c2'],
   B: ['c1'],
 });
