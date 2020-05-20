@@ -66,7 +66,9 @@ function Home() {
         <div className="container">
           <div className="row">
             <div className={classnames('col col--5 col--offset-1')}>
-              <h1 className="hero__title">React<span>Reparenting</span></h1>
+              <h1 className="hero__title">
+                React<span>Reparenting</span>
+              </h1>
               <p className="hero__subtitle">{siteConfig.tagline}</p>
               <div className={styles.buttons}>
                 <Link
