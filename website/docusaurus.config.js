@@ -10,16 +10,16 @@ module.exports = {
     announcementBar: {
       id: 'supportus',
       content:
-        '⭐️ If you like React-reparenting, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/paol-imi/react-reparenting">GitHub</a>! ⭐️',
+        '⭐️ If you like ReactReparenting, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/paol-imi/react-reparenting">GitHub</a>! ⭐️',
     },
     algolia: {
       apiKey: 'bf27e780526eef047832332f8c5a2af2',
       indexName: 'react-reparenting',
     },
     navbar: {
-      title: 'React-reparenting',
+      title: 'ReactReparenting',
       logo: {
-        alt: 'React-reparenting Logo',
+        alt: 'ReactReparenting Logo',
         src: 'logo/logo.svg',
       },
       links: [

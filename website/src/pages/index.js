@@ -61,12 +61,12 @@ function Home() {
   const context = useDocusaurusContext();
   const {siteConfig = {}} = context;
   return (
-    <Layout title="Home" description="The layout engine for React <head />">
+    <Layout title="Home" description="The reparenting tools for React <head />">
       <header className={classnames('hero', styles.heroBanner)}>
         <div className="container">
           <div className="row">
             <div className={classnames('col col--5 col--offset-1')}>
-              <h1 className="hero__title">{siteConfig.title}</h1>
+              <h1 className="hero__title">React<span>Reparenting</span></h1>
               <p className="hero__subtitle">{siteConfig.tagline}</p>
               <div className={styles.buttons}>
                 <Link

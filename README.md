@@ -1,8 +1,11 @@
 <div align="center">
   
-<img src="https://raw.githubusercontent.com/Paol-imi/react-reparenting/master/website/static/logo/logo.png" width="25%" />
+<br />
+ 
+<img src="https://raw.githubusercontent.com/Paol-imi/react-reparenting/master/website/static/logo/logo.png" width="25%" /><br /><br />
+<img src="https://raw.githubusercontent.com/Paol-imi/react-reparenting/master/website/static/logo/reactreparenting.png" width="35%" />
 
-<h1>React-reparenting</h1>
+<h1></h1>
 
 **Simple**, **intuitive** and **configurable** tools to manage **reparenting** with [`React`](https://reactjs.org/)
 
