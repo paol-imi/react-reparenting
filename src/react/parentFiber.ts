@@ -1,7 +1,6 @@
 import type {Fiber} from 'react-reconciler';
 import {addChild} from '../core/addChild';
 import {removeChild} from '../core/removeChild';
-import {sendChild} from '../core/sendChild';
 import {getCurrentFiber} from '../fiber/getFIber';
 import {invariant} from '../invariant';
 
@@ -62,26 +61,39 @@ export class ParentFiber {
    * If an index (number) is provided the child will be added in that position.
    * The child is added at the bottom if -1 is provided or the index is greater
    * than the number of children.
+   * The method will also try to add the elements connected to the fibers (e.g. DOM elements),
+   * to disable this function you can use the skipUpdate parameter.
    *
-   * @param child     - The child fiber to add.
-   * @param position  - The position in which to add the child fiber.
-   * @returns         - The index in which the child fiber is added.
+   * @param child       - The child fiber to add.
+   * @param position    - The position in which to add the child fiber.
+   * @param skipUpdate  - Whether to add or not the elements.
+   * @returns           - The index in which the child fiber is added.
    */
-  addChild(child: Fiber, position: string | number): number {
-    return addChild(this.getCurrent(), child, position);
+  addChild(
+    child: Fiber,
+    position: string | number,
+    skipUpdate?: boolean
+  ): number {
+    return addChild(this.getCurrent(), child, position, skipUpdate);
   }
 
   /**
    * Remove a child fiber from this instance and return it.
    * The child to remove can be chosen by providing its key (string) or by
    * providing its index (number).
+   * The method will also try to remove the elements connected to the fibers (e.g. DOM elements),
+   * to disable this function you can use the skipUpdate parameter.
    * If the child is not found null is returned.
    *
    * @param childSelector - The child fiber selector.
+   * @param skipUpdate    - Whether to remove or not the elements.
    * @returns             - The removed child fiber or null.
    */
-  removeChild(childSelector: string | number): Fiber | null {
-    return removeChild(this.getCurrent(), childSelector);
+  removeChild(
+    childSelector: string | number,
+    skipUpdate?: boolean
+  ): Fiber | null {
+    return removeChild(this.getCurrent(), childSelector, skipUpdate);
   }
 
   /**
@@ -108,13 +120,14 @@ export class ParentFiber {
     position: string | number,
     skipUpdate?: boolean
   ): number {
-    return sendChild(
-      this.getCurrent(),
-      toParentFiber.getCurrent(),
-      childSelector,
-      position,
-      skipUpdate
-    );
+    // Remove the child fiber.
+    const child = this.removeChild(childSelector, skipUpdate);
+    // Return -1 if the child fiber does not exist.
+    if (child === null) {
+      return -1;
+    }
+    // Add the child fiber.
+    return toParentFiber.addChild(child, position, skipUpdate);
   }
 
   /**

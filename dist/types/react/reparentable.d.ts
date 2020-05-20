@@ -25,9 +25,10 @@ export declare const ReparentableMap: Map<string, ParentFiber>;
  */
 export declare function sendReparentableChild(fromParentId: string, toParentId: string, childSelector: string | number, position: string | number, skipUpdate?: boolean): number;
 /**
- * It is a simple wrapper that generate internally a
+ * This component generate internally a
  * ParentFiber and allow to access it through a global provided map.
- * The children in which to enable reparenting must belong to this component.
+ * This component must be the parent of the children to reparent
+ * (it is possible to get around this by providing a findFiber method).
  */
 export declare class Reparentable extends Component<ReparentableProps> {
     /** The ParentFiber instance. */
