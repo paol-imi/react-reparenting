@@ -2,7 +2,7 @@ import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
-import {getFibersKeys, getFibersIndices} from '../__shared__';
+import {getFibersKeys, getFibersIndices, getChildrenIds} from '../__shared__';
 import {addChild, removeChild, getFiberFromElementInstance} from '../../src';
 import {warning} from '../../src/warning';
 
@@ -17,8 +17,8 @@ beforeEach(() => {
   // Mount the components.
   parentWrapper = mount(
     <div ref={parentElementRef}>
-      <div key="1" />
-      <div key="2" />
+      <div key="1" id="1" />
+      <div key="2" id="2" />
     </div>
   );
 
@@ -42,6 +42,8 @@ describe('How removeChild( ) works', () => {
     expect(getFibersIndices(parent)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parent)).toEqual(['2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['2']);
   });
 
   test('Remove the second child', () => {
@@ -56,6 +58,8 @@ describe('How removeChild( ) works', () => {
     expect(getFibersIndices(parent)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parent)).toEqual(['1']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1']);
   });
 
   test('Remove the child with the key "1"', () => {
@@ -70,6 +74,8 @@ describe('How removeChild( ) works', () => {
     expect(getFibersIndices(parent)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parent)).toEqual(['2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['2']);
   });
 
   test('Remove the child with the key "2"', () => {
@@ -84,6 +90,8 @@ describe('How removeChild( ) works', () => {
     expect(getFibersIndices(parent)).toEqual([0]);
     // The keys are in the correct order.
     expect(getFibersKeys(parent)).toEqual(['1']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1']);
   });
 
   test('(Provide a index bigger than the number of children) Not remove the child', () => {
@@ -96,6 +104,8 @@ describe('How removeChild( ) works', () => {
     expect(getFibersIndices(parent)).toEqual([0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parent)).toEqual(['1', '2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1', '2']);
   });
 
   test('(Provide a not valid key) Not remove the child', () => {
@@ -108,6 +118,8 @@ describe('How removeChild( ) works', () => {
     expect(getFibersIndices(parent)).toEqual([0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parent)).toEqual(['1', '2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1', '2']);
   });
 
   test('(With only parent alternate) Remove the first child', () => {
@@ -116,7 +128,7 @@ describe('How removeChild( ) works', () => {
 
     const ref = createRef<HTMLDivElement>();
     // Generate a fiber without alternate.
-    mount(<div ref={ref} />);
+    mount(<div id="3" ref={ref} />);
     // Add the fiber.
     addChild(parent, getFiberFromElementInstance(ref.current), 0);
 
@@ -133,12 +145,14 @@ describe('How removeChild( ) works', () => {
     // The keys are in the correct order.
     expect(getFibersKeys(parent.alternate)).toEqual(['1', '2']);
     expect(getFibersKeys(parent)).toEqual(['1', '2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1', '2']);
   });
 
   test('(With only child alternate) Remove the first child', () => {
     const ref = createRef<HTMLDivElement>();
     // Generate a fiber with an alternate.
-    mount(<div ref={ref} />).setProps({});
+    mount(<div id="3" ref={ref} />).setProps({});
     // Add the fiber.
     addChild(parent, getFiberFromElementInstance(ref.current), 0);
 
@@ -153,6 +167,8 @@ describe('How removeChild( ) works', () => {
     expect(getFibersIndices(parent)).toEqual([0, 1]);
     // The keys are in the correct order.
     expect(getFibersKeys(parent)).toEqual(['1', '2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1', '2']);
   });
 
   test('(With parent and child alternates) Remove the first child', () => {
@@ -173,6 +189,8 @@ describe('How removeChild( ) works', () => {
     // The keys are in the correct order.
     expect(getFibersKeys(parent.alternate)).toEqual(['2']);
     expect(getFibersKeys(parent)).toEqual(['2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['2']);
   });
 
   test('(With parent and child alternates) Remove the child with the key "2"', () => {
@@ -193,5 +211,59 @@ describe('How removeChild( ) works', () => {
     // The keys are in the correct order.
     expect(getFibersKeys(parent.alternate)).toEqual(['1']);
     expect(getFibersKeys(parent)).toEqual(['1']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1']);
+  });
+
+  test('(Enable skipUpdate option) Send a child but not update the DOM', () => {
+    const child = removeChild(parent, 0, true);
+    // The child is found.
+    expect(child).not.toBe(null);
+    // The key is correct.
+    expect(child.key).toBe('1');
+    // Warning calls.
+    expect(warning).not.toHaveBeenCalled();
+    // The indices are updated.
+    expect(getFibersIndices(parent)).toEqual([0]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parent)).toEqual(['2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1', '2']);
+  });
+
+  test('(The child element is not found) Send a child but not update the DOM', () => {
+    parent.child.stateNode = null;
+
+    const child = removeChild(parent, 0);
+    // The child is found.
+    expect(child).not.toBe(null);
+    // The key is correct.
+    expect(child.key).toBe('1');
+    // Warning calls.
+    expect(warning).toHaveBeenCalledTimes(1);
+    // The indices are updated.
+    expect(getFibersIndices(parent)).toEqual([0]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parent)).toEqual(['2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1', '2']);
+  });
+
+  test('(The container element is not found) Send a child but not update the DOM', () => {
+    parent.stateNode = null;
+
+    const child = removeChild(parent, 0);
+    // The child is found.
+    expect(child).not.toBe(null);
+    // The key is correct.
+    expect(child.key).toBe('1');
+    // Warning calls.
+    expect(warning).toHaveBeenCalledTimes(1);
+    // The indices are updated.
+    expect(getFibersIndices(parent)).toEqual([0]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parent)).toEqual(['2']);
+    // The children are correct.
+    expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1', '2']);
   });
 });
