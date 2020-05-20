@@ -16,7 +16,7 @@ React does not yet offer specific APIs to solve this problem, in many cases we t
 
 > Portals provide a first-class way to render children into a DOM node that exists outside the DOM hierarchy of the parent component.
 
-This process is more related to the DOM, at `"React level"` the Child is still part of the same Parent. This is where `React-reparenting` intervenes.
+This process is more related to the DOM, at `"React level"` the Child is still part of the same Parent. This is where `ReactReparenting` intervenes.
 
 This package offers `easy` and `intuitive` tools to solve this problem. With a few lines of code you will be able to transfer your components, without them being re-mounted or losing their internal state.
 
@@ -35,7 +35,7 @@ In any case, it is **not necessary** to know how React internals work to use thi
 
 ## React Native
 
-The default configuration is designed to work with ReactDOM. If you want to try implementing React-reparenting with other renderers, you can disable the `DOM nodes transfer` in the send method (since it wouldn't work without a DOM), and transfer manually the nodes you are working with. You can even try to [instruct](./renderer) the package to manage the types of nodes you are working with, in order to automate the process as happens with ReactDOM.
+The default configuration is designed to work with ReactDOM. If you want to try implementing `ReactReparenting` with other renderers, you can disable the `DOM nodes transfer` in the send method (since it wouldn't work without a DOM), and transfer manually the nodes you are working with. You can even try to [instruct](./renderer) the package to manage the types of nodes you are working with, in order to automate the process as happens with ReactDOM.
 
 ## Before continuing
 

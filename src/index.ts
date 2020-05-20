@@ -1,7 +1,6 @@
 // Core
 export * from './core/addChild';
 export * from './core/removeChild';
-export * from './core/sendChild';
 // Env.
 export * from './env/env';
 // React.

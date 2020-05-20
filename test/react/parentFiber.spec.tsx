@@ -47,6 +47,18 @@ describe('How the ParentFiber works', () => {
     expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '4']);
   });
 
+  test('(Invalid child) Not send a child', () => {
+    const position = parentA.sendChild(parentB, '5', 0);
+    // The position is correct.
+    expect(position).toBe(-1);
+    // The indices are updated.
+    expect(getFibersIndices(parentA.getCurrent())).toEqual([0, 1]);
+    expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1]);
+    // The keys are in the correct order.
+    expect(getFibersKeys(parentA.getCurrent())).toEqual(['1', '2']);
+    expect(getFibersKeys(parentB.getCurrent())).toEqual(['3', '4']);
+  });
+
   test('Add a child', () => {
     const position = parentB.addChild(parentA.getCurrent().child, 0);
     // The position is correct.

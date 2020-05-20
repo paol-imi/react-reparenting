@@ -58,9 +58,10 @@ export function sendReparentableChild(
 }
 
 /**
- * It is a simple wrapper that generate internally a
+ * This component generate internally a
  * ParentFiber and allow to access it through a global provided map.
- * The children in which to enable reparenting must belong to this component.
+ * This component must be the parent of the children to reparent
+ * (it is possible to get around this by providing a findFiber method).
  */
 export class Reparentable extends Component<ReparentableProps> {
   /** The ParentFiber instance. */

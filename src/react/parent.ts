@@ -38,8 +38,11 @@ export class Parent extends Component<ParentProps> {
       parentRef(this.parent);
     }
     if (typeof parentRef === 'object' && parentRef !== null) {
-      // TODO: Not so pretty solution with @ts-ignore,
-      // maybe I should try the MutableRefObject interface.
+      // The type of ref that is normally returned by useRef and createRef
+      // is not mutable, and the user may not know how to obtain a mutable one,
+      // causing annoying problems. Plus, it makes sense that this property is
+      // immutable, so I just use the refObject interface (and not
+      // the MutableRefObject interface) with the @ts-ignore.
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
       // @ts-ignore
       parentRef.current = this.parent;

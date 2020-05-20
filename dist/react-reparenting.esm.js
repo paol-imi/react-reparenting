@@ -330,6 +330,55 @@ function updateFiberDebugFields(child, parent) {
 }
 
 /**
+ * Return the first valid fiber or null.
+ *
+ * @param fiber - The fiber to start looking for.
+ * @param next  - The callback to get the next fiber to iterate.
+ * @param stop  - The callback to check if the fiber is found.
+ * @returns     - The found fiber or null.
+ */
+function searchFiber(fiber, next, stop) {
+  while (fiber) {
+    if (stop(fiber)) {
+      return fiber;
+    } // Search in the next instance.
+
+
+    fiber = next(fiber);
+  }
+
+  return null;
+}
+
+/**
+ * The host environment.
+ * Default configuration to work with ReactDOM renderer.
+ */
+var Env = {
+  appendChildToContainer: function appendChildToContainer(container, child) {
+    container.appendChild(child);
+  },
+  insertInContainerBefore: function insertInContainerBefore(container, child, before) {
+    container.insertBefore(child, before);
+  },
+  removeChildFromContainer: function removeChildFromContainer(container, child) {
+    container.removeChild(child);
+  },
+  isElement: function isElement(_, stateNode) {
+    return stateNode instanceof Element;
+  }
+};
+/**
+ * Configure the host environment.
+ *
+ * @param configuration - The configuration.
+ */
+
+function configure(configuration) {
+  Object.assign(Env, configuration);
+}
+
+/**
  * Add a child fiber in a parent fiber and return the index in which it is added.
  * The position can be chosen by providing a key (string) or by providing an index (number).
  * If a key (string) is provided the child will be added after the one with that key.
@@ -337,14 +386,17 @@ function updateFiberDebugFields(child, parent) {
  * If an index (number) is provided the child will be added in that position.
  * The child is added at the bottom if -1 is provided or the index is greater
  * than the number of children.
+ * The method will also try to add the elements connected to the fibers (e.g. DOM elements),
+ * to disable this function you can use the skipUpdate parameter.
  *
- * @param parent    - The parent fiber in which to add the child fiber.
- * @param child     - The child fiber to add.
- * @param position  - The position in which to add the child fiber.
- * @returns         - The index in which the child fiber is added.
+ * @param parent      - The parent fiber in which to add the child fiber.
+ * @param child       - The child fiber to add.
+ * @param position    - The position in which to add the child fiber.
+ * @param skipUpdate  - Whether to add or not the elements.
+ * @returns           - The index in which the child fiber is added.
  */
 
-function addChild(parent, child, position) {
+function addChild(parent, child, position, skipUpdate) {
   // The index in which the child is added.
   var index; // Add the child.
 
@@ -367,19 +419,68 @@ function addChild(parent, child, position) {
       child.alternate["return"] = null;
       child.alternate.sibling = null;
     }
+  } else {
+    // Add the alternate child.
+    if (typeof position === 'number') {
+      addChildFiberAt(parent.alternate, child.alternate, position);
+    } else {
+      addChildFiberBefore(parent.alternate, child.alternate, position);
+    } // Update the alternate child fields.
+
+
+    updateFibersIndices(child.alternate, index);
+  } // If we don't have to send the elements we can return here.
+
+
+  if (skipUpdate) {
+    return index;
+  } // Get the fibers that belong to the container elements.
+
+
+  var containerFiber = searchFiber(parent, function (fiber) {
+    return fiber["return"];
+  }, function (fiber) {
+    return Env.isElement(fiber.elementType, fiber.stateNode);
+  }); // Get the fibers that belong to the child element.
+
+  var elementFiber = searchFiber(child, function (fiber) {
+    return fiber.child;
+  }, function (fiber) {
+    return Env.isElement(fiber.elementType, fiber.stateNode);
+  }); // Containers elements not found.
+
+  if (containerFiber === null) {
 
     return index;
-  } // Add the alternate child.
+  } // Child element not found.
 
 
-  if (typeof position === 'number') {
-    addChildFiberAt(parent.alternate, child.alternate, position);
+  if (elementFiber === null) {
+
+    return index;
+  } // Get the elements instances.
+
+
+  var container = containerFiber.stateNode;
+  var element = elementFiber.stateNode; // Add the child element.
+
+  if (child.sibling === null) {
+    // Append the child to the container.
+    Env.appendChildToContainer(container, element);
   } else {
-    addChildFiberBefore(parent.alternate, child.alternate, position);
-  } // Update the alternate child fields.
+    // Get the fibers that belong to the previous element.
+    var beforeFiber = searchFiber(child.sibling, function (fiber) {
+      return fiber.child;
+    }, function (fiber) {
+      return Env.isElement(fiber.elementType, fiber.stateNode);
+    });
 
+    if (beforeFiber !== null) {
+      var before = beforeFiber.stateNode; // Insert the child element in the container.
 
-  updateFibersIndices(child.alternate, index);
+      Env.insertInContainerBefore(container, element, before);
+    } // Previous elements not found.
+  }
 
   return index;
 }
@@ -475,194 +576,91 @@ function removeSiblingFiber(fiber) {
  * Remove a child fiber from its parent fiber and return it.
  * The child to remove can be chosen by providing its key (string) or by
  * providing its index (number).
+ * The method will also try to remove the elements connected to the fibers (e.g. DOM elements),
+ * to disable this function you can use the skipUpdate parameter.
  * If the child is not found null is returned.
  *
  * @param parent        - The parent fiber from which to remove the child fiber.
  * @param childSelector - The child fiber selector.
+ * @param skipUpdate    - Whether to add or not the elements.
  * @returns             - The removed child fiber or null.
  */
 
-function removeChild(parent, childSelector) {
+function removeChild(parent, childSelector, skipUpdate) {
   // The removed fiber.
-  var fiber = null; // Remove the fiber.
+  var child = null; // Remove the fiber.
 
   if (typeof childSelector === 'number') {
-    fiber = removeChildFiberAt(parent, childSelector);
+    child = removeChildFiberAt(parent, childSelector);
   } else {
-    fiber = removeChildFiber(parent, childSelector);
+    child = removeChildFiber(parent, childSelector);
   } // If the fiber is not found return null.
 
 
-  if (fiber === null) {
+  if (child === null) {
 
     return null;
   } // If there are siblings their indices need to be updated.
 
 
-  if (fiber.sibling !== null) {
-    updateFibersIndices(fiber.sibling, fiber.index);
+  if (child.sibling !== null) {
+    updateFibersIndices(child.sibling, child.index);
   } // If There is no alternate we can return here.
 
 
-  if (fiber.alternate === null || parent.alternate === null) {
-    return fiber;
-  } // The alternate child.
+  if (child.alternate !== null && parent.alternate !== null) {
+    // The alternate child.
+    var alternate = null; // Remove the alternate child.
+
+    if (typeof childSelector === 'number') {
+      alternate = removeChildFiberAt(parent.alternate, childSelector);
+    } else {
+      alternate = removeChildFiber(parent.alternate, childSelector);
+    } // We should find it because we are shure it exists.
 
 
-  var alternate = null; // Remove the alternate child.
+    invariant(alternate !== null); // If there are siblings their indices need to be updated.
 
-  if (typeof childSelector === 'number') {
-    alternate = removeChildFiberAt(parent.alternate, childSelector);
-  } else {
-    alternate = removeChildFiber(parent.alternate, childSelector);
-  } // We should find it because we are shure it exists.
+    if (alternate.sibling !== null) {
+      updateFibersIndices(alternate.sibling, alternate.index);
+    }
+  } // If we don't have to send the elements we can return here.
 
-
-  invariant(alternate !== null); // If there are siblings their indices need to be updated.
-
-  if (alternate.sibling !== null) {
-    updateFibersIndices(alternate.sibling, alternate.index);
-  }
-
-  return fiber;
-}
-
-/**
- * The host environment.
- * Default configuration to work with ReactDOM renderer.
- */
-var Env = {
-  appendChildToContainer: function appendChildToContainer(container, child) {
-    container.appendChild(child);
-  },
-  insertInContainerBefore: function insertInContainerBefore(container, child, before) {
-    container.insertBefore(child, before);
-  },
-  removeChildFromContainer: function removeChildFromContainer(container, child) {
-    container.removeChild(child);
-  },
-  isElement: function isElement(_, stateNode) {
-    return stateNode instanceof Element;
-  }
-};
-/**
- * Configure the host environment.
- *
- * @param configuration - The configuration.
- */
-
-function configure(configuration) {
-  Object.assign(Env, configuration);
-}
-
-/**
- * Return the first valid fiber or null.
- *
- * @param fiber - The fiber to start looking for.
- * @param next  - The callback to get the next fiber to iterate.
- * @param stop  - The callback to check if the fiber is found.
- * @returns     - The found fiber or null.
- */
-function searchFiber(fiber, next, stop) {
-  while (fiber) {
-    if (stop(fiber)) {
-      return fiber;
-    } // Search in the next instance.
-
-
-    fiber = next(fiber);
-  }
-
-  return null;
-}
-
-/**
- * Remove a child fiber from a parent fiber and add it to another parent fiber.
- * Return the index in which the child is added or -1 if the child is not found.
- * The child to remove can be chosen by providing its key (string) or by providing its index (number).
- * The position can be chosen by providing a key (string) or by providing an index (number).
- * If a key (string) is provided the child will be added after the one with that key.
- * The child is added at the bottom if none of the children have that key.
- * If an index (number) is provided the child will be added in that position.
- * The child is added at the bottom if -1 is provided or the index is greater than the number of children.
- * The method will also try to send the elements connected to the fibers (e.g. DOM elements),
- * to disable this function you can use the skipUpdate parameter.
- *
- * @param fromParent    - The parent fiber from which to remove the child fiber.
- * @param toParent      - The parent fiber in which to add the child fiber.
- * @param childSelector - The child fiber selector.
- * @param position      - The position in which to add the child fiber.
- * @param skipUpdate    - Whether to send or not the elements.
- * @returns             - The position in which the child fiber is sent or -1.
- */
-
-function sendChild(fromParent, toParent, childSelector, position, skipUpdate) {
-  // Remove the child fiber.
-  var child = removeChild(fromParent, childSelector); // Return -1 if the child fiber does not exist.
-
-  if (child === null) {
-    return -1;
-  } // Add the child fiber.
-
-
-  var index = addChild(toParent, child, position); // If we don't have to send the elements we can return here.
 
   if (skipUpdate) {
-    return index;
+    return child;
   } // Get the fibers that belong to the container elements.
 
 
-  var fromContainer = searchFiber(fromParent, function (fiber) {
+  var containerFiber = searchFiber(parent, function (fiber) {
     return fiber["return"];
   }, function (fiber) {
     return Env.isElement(fiber.elementType, fiber.stateNode);
-  });
-  var toContainer = searchFiber(toParent, function (fiber) {
-    return fiber["return"];
+  }); // Get the fibers that belong to the child element.
+
+  var elementFiber = searchFiber(child, function (fiber) {
+    return fiber.child;
   }, function (fiber) {
     return Env.isElement(fiber.elementType, fiber.stateNode);
   }); // Containers elements not found.
 
-  if (fromContainer === null || toContainer === null) {
+  if (containerFiber === null) {
 
-    return index;
-  } // Get the fibers that belong to the child element.
-
-
-  var element = searchFiber(child, function (fiber) {
-    return fiber.child;
-  }, function (fiber) {
-    return Env.isElement(fiber.elementType, fiber.stateNode);
-  }); // Child element not found.
-
-  if (element === null) {
-
-    return index;
-  } // Add the child element.
+    return child;
+  } // Child element not found.
 
 
-  if (child.sibling === null) {
-    // Remove the element instance.
-    Env.removeChildFromContainer(fromContainer.stateNode, element.stateNode); // Append the child to the container.
+  if (elementFiber === null) {
 
-    Env.appendChildToContainer(toContainer.stateNode, element.stateNode);
-  } else {
-    // Get the fibers that belong to the previous element.
-    var before = searchFiber(child.sibling, function (fiber) {
-      return fiber.child;
-    }, function (fiber) {
-      return Env.isElement(fiber.elementType, fiber.stateNode);
-    });
+    return child;
+  } // Get the elements instances.
 
-    if (before !== null) {
-      // Remove the element instance.
-      Env.removeChildFromContainer(fromContainer.stateNode, element.stateNode); // Insert the child element in the container.
 
-      Env.insertInContainerBefore(toContainer.stateNode, element.stateNode, before.stateNode);
-    } // Previous elements not found.
-  }
+  var container = containerFiber.stateNode;
+  var element = elementFiber.stateNode; // Remove the element instance.
 
-  return index;
+  Env.removeChildFromContainer(container, element);
+  return child;
 }
 
 /**
@@ -787,31 +785,37 @@ var ParentFiber = /*#__PURE__*/function () {
      * If an index (number) is provided the child will be added in that position.
      * The child is added at the bottom if -1 is provided or the index is greater
      * than the number of children.
+     * The method will also try to add the elements connected to the fibers (e.g. DOM elements),
+     * to disable this function you can use the skipUpdate parameter.
      *
-     * @param child     - The child fiber to add.
-     * @param position  - The position in which to add the child fiber.
-     * @returns         - The index in which the child fiber is added.
+     * @param child       - The child fiber to add.
+     * @param position    - The position in which to add the child fiber.
+     * @param skipUpdate  - Whether to add or not the elements.
+     * @returns           - The index in which the child fiber is added.
      */
 
   }, {
     key: "addChild",
-    value: function addChild$1(child, position) {
-      return addChild(this.getCurrent(), child, position);
+    value: function addChild$1(child, position, skipUpdate) {
+      return addChild(this.getCurrent(), child, position, skipUpdate);
     }
     /**
      * Remove a child fiber from this instance and return it.
      * The child to remove can be chosen by providing its key (string) or by
      * providing its index (number).
+     * The method will also try to remove the elements connected to the fibers (e.g. DOM elements),
+     * to disable this function you can use the skipUpdate parameter.
      * If the child is not found null is returned.
      *
      * @param childSelector - The child fiber selector.
+     * @param skipUpdate    - Whether to remove or not the elements.
      * @returns             - The removed child fiber or null.
      */
 
   }, {
     key: "removeChild",
-    value: function removeChild$1(childSelector) {
-      return removeChild(this.getCurrent(), childSelector);
+    value: function removeChild$1(childSelector, skipUpdate) {
+      return removeChild(this.getCurrent(), childSelector, skipUpdate);
     }
     /**
      * Remove a child fiber from this instance and add it to another ParentFiber instance.
@@ -834,8 +838,16 @@ var ParentFiber = /*#__PURE__*/function () {
 
   }, {
     key: "sendChild",
-    value: function sendChild$1(toParentFiber, childSelector, position, skipUpdate) {
-      return sendChild(this.getCurrent(), toParentFiber.getCurrent(), childSelector, position, skipUpdate);
+    value: function sendChild(toParentFiber, childSelector, position, skipUpdate) {
+      // Remove the child fiber.
+      var child = this.removeChild(childSelector, skipUpdate); // Return -1 if the child fiber does not exist.
+
+      if (child === null) {
+        return -1;
+      } // Add the child fiber.
+
+
+      return toParentFiber.addChild(child, position, skipUpdate);
     }
     /**
      * Clear the parent fiber.
@@ -944,8 +956,11 @@ var Parent = /*#__PURE__*/function (_Component) {
       }
 
       if (_typeof(parentRef) === 'object' && parentRef !== null) {
-        // TODO: Not so pretty solution with @ts-ignore,
-        // maybe I should try the MutableRefObject interface.
+        // The type of ref that is normally returned by useRef and createRef
+        // is not mutable, and the user may not know how to obtain a mutable one,
+        // causing annoying problems. Plus, it makes sense that this property is
+        // immutable, so I just use the refObject interface (and not
+        // the MutableRefObject interface) with the @ts-ignore.
         // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
         // @ts-ignore
         parentRef.current = this.parent;
@@ -1026,9 +1041,10 @@ function sendReparentableChild(fromParentId, toParentId, childSelector, position
   return fromParent.sendChild(toParent, childSelector, position, skipUpdate);
 }
 /**
- * It is a simple wrapper that generate internally a
+ * This component generate internally a
  * ParentFiber and allow to access it through a global provided map.
- * The children in which to enable reparenting must belong to this component.
+ * This component must be the parent of the children to reparent
+ * (it is possible to get around this by providing a findFiber method).
  */
 
 var Reparentable = /*#__PURE__*/function (_Component) {
@@ -1115,9 +1131,9 @@ var Reparentable = /*#__PURE__*/function (_Component) {
 /* Reparentable props. */
 
 /**
- * An hook to easily use a ParentFiber inside a function component.
+ * An hook to get a ParentFiber instance in a function component.
  * The ref returned must reference the element that is the parent
- * of the children to reparent.
+ * of the children to reparent (it is possible to get around this by providing a findFiber method).
  *
  * @param findFiber - Get a different parent fiber.
  * @returns - [The ParentFiber instance, the element ref].
@@ -1130,10 +1146,6 @@ function useParent(findFiber) {
   var ref = useRef(null); // Generate the instance.
 
   if (parentRef.current === null) {
-    // TODO: Not so pretty solution with @ts-ignore,
-    // maybe I should try the MutableRefObject interface.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
     parentRef.current = new ParentFiber();
   } // Get a reference.
 
@@ -1153,4 +1165,4 @@ function useParent(findFiber) {
   return [parent, ref];
 }
 
-export { Env, Parent, ParentFiber, Reparentable, ReparentableMap, addChild, addChildFiberAt, addChildFiberBefore, addSiblingFiber, appendChildFiber, configure, createParent, findChildFiber, findChildFiberAt, findPreviousFiber, findSiblingFiber, getCurrentFiber, getFiberFromClassInstance, getFiberFromElementInstance, prependChildFiber, removeChild, removeChildFiber, removeChildFiberAt, removeFirstChildFiber, removeSiblingFiber, searchFiber, sendChild, sendReparentableChild, updateFiberDebugFields, updateFibersIndices, useParent };
+export { Env, Parent, ParentFiber, Reparentable, ReparentableMap, addChild, addChildFiberAt, addChildFiberBefore, addSiblingFiber, appendChildFiber, configure, createParent, findChildFiber, findChildFiberAt, findPreviousFiber, findSiblingFiber, getCurrentFiber, getFiberFromClassInstance, getFiberFromElementInstance, prependChildFiber, removeChild, removeChildFiber, removeChildFiberAt, removeFirstChildFiber, removeSiblingFiber, searchFiber, sendReparentableChild, updateFiberDebugFields, updateFibersIndices, useParent };

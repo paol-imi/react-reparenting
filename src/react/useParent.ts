@@ -6,9 +6,9 @@ import {getFiberFromElementInstance} from '../fiber/getFIber';
 import {invariant} from '../invariant';
 
 /**
- * An hook to easily use a ParentFiber inside a function component.
+ * An hook to get a ParentFiber instance in a function component.
  * The ref returned must reference the element that is the parent
- * of the children to reparent.
+ * of the children to reparent (it is possible to get around this by providing a findFiber method).
  *
  * @param findFiber - Get a different parent fiber.
  * @returns - [The ParentFiber instance, the element ref].
@@ -17,16 +17,12 @@ export function useParent<T>(
   findFiber?: (fiber: Fiber) => Fiber
 ): [ParentFiber, RefObject<T>] {
   // The parent instance.
-  const parentRef = useRef<ParentFiber>(null);
+  const parentRef = useRef<ParentFiber | null>(null);
   // The element ref.
   const ref = useRef<T>(null);
 
   // Generate the instance.
   if (parentRef.current === null) {
-    // TODO: Not so pretty solution with @ts-ignore,
-    // maybe I should try the MutableRefObject interface.
-    // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
     parentRef.current = new ParentFiber();
   }
 

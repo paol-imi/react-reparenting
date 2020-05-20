@@ -106,6 +106,10 @@ a {
   color: white;
 }
 
+.hero__title > span{
+  color: #61DBFB;
+}
+
 div[role="banner"]{
   background: #78dce8;
 }
