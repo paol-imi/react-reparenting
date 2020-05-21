@@ -4,7 +4,7 @@ import {mount} from 'enzyme';
 import {getFibersIndices} from '../__shared__';
 import {
   getFiberFromElementInstance,
-  updateFibersIndices,
+  updateFibersIndex,
   updateFiberDebugFields,
 } from '../../src';
 
@@ -29,21 +29,21 @@ beforeEach(() => {
   childFiber = parentFiber.child;
 });
 
-describe('How updateFibersIndices( ) works', () => {
+describe('How updateFibersIndex( ) works', () => {
   test('Update from the first child', () => {
-    updateFibersIndices(childFiber, 5);
+    updateFibersIndex(childFiber, 5);
     // The indices are updated.
     expect(getFibersIndices(parentFiber)).toEqual([5, 6, 7]);
   });
 
   test('Update from the second child', () => {
-    updateFibersIndices(childFiber.sibling, 5);
+    updateFibersIndex(childFiber.sibling, 5);
     // The indices are updated.
     expect(getFibersIndices(parentFiber)).toEqual([0, 5, 6]);
   });
 
   test('Update from the third child', () => {
-    updateFibersIndices(childFiber.sibling.sibling, 5);
+    updateFibersIndex(childFiber.sibling.sibling, 5);
     // The indices are updated.
     expect(getFibersIndices(parentFiber)).toEqual([0, 1, 5]);
   });
