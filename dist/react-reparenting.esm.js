@@ -19,6 +19,130 @@ import _typeof from '@babel/runtime/helpers/esm/typeof';
 import { Component, useRef, useEffect } from 'react';
 
 /**
+ * The host environment.
+ * Default configuration to work with ReactDOM renderer.
+ */
+var Env = {
+  appendChildToContainer: function appendChildToContainer(container, child) {
+    container.appendChild(child);
+  },
+  insertInContainerBefore: function insertInContainerBefore(container, child, before) {
+    container.insertBefore(child, before);
+  },
+  removeChildFromContainer: function removeChildFromContainer(container, child) {
+    container.removeChild(child);
+  },
+  isElement: function isElement(_, stateNode) {
+    return stateNode instanceof Element;
+  }
+};
+/**
+ * Configure the host environment.
+ *
+ * @param configuration - The configuration.
+ */
+
+function configure(configuration) {
+  Object.assign(Env, configuration);
+}
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+var prefix = 'Invariant failed'; // Invariant error instance.
+
+var Invariant = /*#__PURE__*/function (_Error) {
+  _inherits(Invariant, _Error);
+
+  var _super = _createSuper(Invariant);
+
+  function Invariant() {
+    var _this;
+
+    _classCallCheck(this, Invariant);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "name", 'Invariant');
+
+    return _this;
+  }
+
+  return Invariant;
+}( /*#__PURE__*/_wrapNativeSuper(Error));
+/**
+ * Throw an error if the condition fails.
+ * The message is tripped in production.
+ *
+ * @param condition - The condition.
+ * @param message   - The error message.
+ */
+
+function invariant(condition, message) {
+  if (condition) return;
+
+  {
+    // In production we strip the message but still throw.
+    throw new Invariant(prefix);
+  }
+}
+
+/**
+ * Update the index of a fiber and its next siblings and return the last sibling index.
+ *
+ * @param fiber   - The fiber.
+ * @param index   - The index of the fiber.
+ * @returns       - The last sibling index.
+ */
+
+function updateFibersIndex(fiber, index) {
+  while (fiber) {
+    fiber.index = index;
+    fiber = fiber.sibling;
+    index += 1;
+  }
+
+  return index - 1;
+}
+/**
+ * Update the debug fields.
+ * I have not yet inquired about how the _debug fields are chosen.
+ * For now only the owner and source are set based on the siblings/parent fields.
+ * TODO:
+ * - _debugID:        does it need to be changed?
+ * - _debugHookTypes: does it need to be changed?
+ * - _debugSource:    is it ok like this?
+ * - _debugOwner:     is it ok like this?
+ *
+ * @param child   - The child fiber.
+ * @param parent  - The parent fiber.
+ */
+
+function updateFiberDebugFields(child, parent) {
+  invariant(parent.child !== null); // The fiber from wich to copy the debug fields.
+
+  var fiberToCopy; // Try to find a fiber to copy.
+
+  if (parent.child === child) {
+    if (child.sibling === null) {
+      fiberToCopy = parent;
+    } else {
+      fiberToCopy = child.sibling;
+    }
+  } else {
+    fiberToCopy = parent.child;
+  }
+
+  child._debugOwner = fiberToCopy._debugOwner;
+  child._debugSource = fiberToCopy._debugSource;
+}
+
+/**
  * Return the child fiber at the given index or null if the parent has no children.
  * If the index provided is greater than the number of children the last child is returned.
  *
@@ -234,101 +358,6 @@ function prependChildFiber(parent, child) {
   return 0;
 }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var prefix = 'Invariant failed'; // Invariant error instance.
-
-var Invariant = /*#__PURE__*/function (_Error) {
-  _inherits(Invariant, _Error);
-
-  var _super = _createSuper(Invariant);
-
-  function Invariant() {
-    var _this;
-
-    _classCallCheck(this, Invariant);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _super.call.apply(_super, [this].concat(args));
-
-    _defineProperty(_assertThisInitialized(_this), "name", 'Invariant');
-
-    return _this;
-  }
-
-  return Invariant;
-}( /*#__PURE__*/_wrapNativeSuper(Error));
-/**
- * Throw an error if the condition fails.
- * The message is tripped in production.
- *
- * @param condition - The condition.
- * @param message   - The error message.
- */
-
-function invariant(condition, message) {
-  if (condition) return;
-
-  {
-    // In production we strip the message but still throw.
-    throw new Invariant(prefix);
-  }
-}
-
-/**
- * Update the indices of a fiber and its next siblings and return the last sibling index.
- *
- * @param fiber   - The fiber.
- * @param index   - The index of the fiber.
- * @returns       - The last sibling index.
- */
-
-function updateFibersIndices(fiber, index) {
-  while (fiber) {
-    fiber.index = index;
-    fiber = fiber.sibling;
-    index += 1;
-  }
-
-  return index - 1;
-}
-/**
- * Update the debug fields.
- * I have not yet inquired about how the _debug fields are chosen.
- * For now only the owner and source are set based on the siblings/parent fields.
- * TODO:
- * - _debugID:        does it need to be changed?
- * - _debugHookTypes: does it need to be changed?
- * - _debugSource:    is it ok like this?
- * - _debugOwner:     is it ok like this?
- *
- * @param child   - The child fiber.
- * @param parent  - The parent fiber.
- */
-
-function updateFiberDebugFields(child, parent) {
-  invariant(parent.child !== null);
-  var fiberToCopy; // Try to find a fiber to copy.
-
-  if (parent.child === child) {
-    if (child.sibling === null) {
-      fiberToCopy = parent;
-    } else {
-      fiberToCopy = child.sibling;
-    }
-  } else {
-    fiberToCopy = parent.child;
-  }
-
-  child._debugOwner = fiberToCopy._debugOwner;
-  child._debugSource = fiberToCopy._debugSource;
-}
-
 /**
  * Return the first valid fiber or null.
  *
@@ -348,34 +377,6 @@ function searchFiber(fiber, next, stop) {
   }
 
   return null;
-}
-
-/**
- * The host environment.
- * Default configuration to work with ReactDOM renderer.
- */
-var Env = {
-  appendChildToContainer: function appendChildToContainer(container, child) {
-    container.appendChild(child);
-  },
-  insertInContainerBefore: function insertInContainerBefore(container, child, before) {
-    container.insertBefore(child, before);
-  },
-  removeChildFromContainer: function removeChildFromContainer(container, child) {
-    container.removeChild(child);
-  },
-  isElement: function isElement(_, stateNode) {
-    return stateNode instanceof Element;
-  }
-};
-/**
- * Configure the host environment.
- *
- * @param configuration - The configuration.
- */
-
-function configure(configuration) {
-  Object.assign(Env, configuration);
 }
 
 /**
@@ -407,7 +408,7 @@ function addChild(parent, child, position, skipUpdate) {
   }
 
 
-  updateFibersIndices(child, index);
+  updateFibersIndex(child, index);
 
 
   if (child.alternate === null || parent.alternate === null) {
@@ -428,7 +429,7 @@ function addChild(parent, child, position, skipUpdate) {
     } // Update the alternate child fields.
 
 
-    updateFibersIndices(child.alternate, index);
+    updateFibersIndex(child.alternate, index);
   } // If we don't have to send the elements we can return here.
 
 
@@ -447,7 +448,7 @@ function addChild(parent, child, position, skipUpdate) {
     return fiber.child;
   }, function (fiber) {
     return Env.isElement(fiber.elementType, fiber.stateNode);
-  }); // Containers elements not found.
+  }); // Container element not found.
 
   if (containerFiber === null) {
 
@@ -604,7 +605,7 @@ function removeChild(parent, childSelector, skipUpdate) {
 
 
   if (child.sibling !== null) {
-    updateFibersIndices(child.sibling, child.index);
+    updateFibersIndex(child.sibling, child.index);
   } // If There is no alternate we can return here.
 
 
@@ -622,7 +623,7 @@ function removeChild(parent, childSelector, skipUpdate) {
     invariant(alternate !== null); // If there are siblings their indices need to be updated.
 
     if (alternate.sibling !== null) {
-      updateFibersIndices(alternate.sibling, alternate.index);
+      updateFibersIndex(alternate.sibling, alternate.index);
     }
   } // If we don't have to send the elements we can return here.
 
@@ -642,7 +643,7 @@ function removeChild(parent, childSelector, skipUpdate) {
     return fiber.child;
   }, function (fiber) {
     return Env.isElement(fiber.elementType, fiber.stateNode);
-  }); // Containers elements not found.
+  }); // Container element not found.
 
   if (containerFiber === null) {
 
@@ -1165,4 +1166,4 @@ function useParent(findFiber) {
   return [parent, ref];
 }
 
-export { Env, Parent, ParentFiber, Reparentable, ReparentableMap, addChild, addChildFiberAt, addChildFiberBefore, addSiblingFiber, appendChildFiber, configure, createParent, findChildFiber, findChildFiberAt, findPreviousFiber, findSiblingFiber, getCurrentFiber, getFiberFromClassInstance, getFiberFromElementInstance, prependChildFiber, removeChild, removeChildFiber, removeChildFiberAt, removeFirstChildFiber, removeSiblingFiber, searchFiber, sendReparentableChild, updateFiberDebugFields, updateFibersIndices, useParent };
+export { Env, Parent, ParentFiber, Reparentable, ReparentableMap, addChild, addChildFiberAt, addChildFiberBefore, addSiblingFiber, appendChildFiber, configure, createParent, findChildFiber, findChildFiberAt, findPreviousFiber, findSiblingFiber, getCurrentFiber, getFiberFromClassInstance, getFiberFromElementInstance, prependChildFiber, removeChild, removeChildFiber, removeChildFiberAt, removeFirstChildFiber, removeSiblingFiber, searchFiber, sendReparentableChild, updateFiberDebugFields, updateFibersIndex, useParent };

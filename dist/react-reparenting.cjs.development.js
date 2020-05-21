@@ -25,6 +25,130 @@ var _typeof = _interopDefault(require('@babel/runtime/helpers/typeof'));
 var react = require('react');
 
 /**
+ * The host environment.
+ * Default configuration to work with ReactDOM renderer.
+ */
+var Env = {
+  appendChildToContainer: function appendChildToContainer(container, child) {
+    container.appendChild(child);
+  },
+  insertInContainerBefore: function insertInContainerBefore(container, child, before) {
+    container.insertBefore(child, before);
+  },
+  removeChildFromContainer: function removeChildFromContainer(container, child) {
+    container.removeChild(child);
+  },
+  isElement: function isElement(_, stateNode) {
+    return stateNode instanceof Element;
+  }
+};
+/**
+ * Configure the host environment.
+ *
+ * @param configuration - The configuration.
+ */
+
+function configure(configuration) {
+  Object.assign(Env, configuration);
+}
+
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+var prefix = 'Invariant failed'; // Invariant error instance.
+
+var Invariant = /*#__PURE__*/function (_Error) {
+  _inherits(Invariant, _Error);
+
+  var _super = _createSuper(Invariant);
+
+  function Invariant() {
+    var _this;
+
+    _classCallCheck(this, Invariant);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "name", 'Invariant');
+
+    return _this;
+  }
+
+  return Invariant;
+}( /*#__PURE__*/_wrapNativeSuper(Error));
+/**
+ * Throw an error if the condition fails.
+ * The message is tripped in production.
+ *
+ * @param condition - The condition.
+ * @param message   - The error message.
+ */
+
+function invariant(condition, message) {
+  if (condition) return;
+
+  {
+    // When not in production we allow the message to pass through.
+    throw new Invariant("".concat(prefix, ": ").concat(message || ''));
+  }
+}
+
+/**
+ * Update the index of a fiber and its next siblings and return the last sibling index.
+ *
+ * @param fiber   - The fiber.
+ * @param index   - The index of the fiber.
+ * @returns       - The last sibling index.
+ */
+
+function updateFibersIndex(fiber, index) {
+  while (fiber) {
+    fiber.index = index;
+    fiber = fiber.sibling;
+    index += 1;
+  }
+
+  return index - 1;
+}
+/**
+ * Update the debug fields.
+ * I have not yet inquired about how the _debug fields are chosen.
+ * For now only the owner and source are set based on the siblings/parent fields.
+ * TODO:
+ * - _debugID:        does it need to be changed?
+ * - _debugHookTypes: does it need to be changed?
+ * - _debugSource:    is it ok like this?
+ * - _debugOwner:     is it ok like this?
+ *
+ * @param child   - The child fiber.
+ * @param parent  - The parent fiber.
+ */
+
+function updateFiberDebugFields(child, parent) {
+  invariant(parent.child !== null); // The fiber from wich to copy the debug fields.
+
+  var fiberToCopy; // Try to find a fiber to copy.
+
+  if (parent.child === child) {
+    if (child.sibling === null) {
+      fiberToCopy = parent;
+    } else {
+      fiberToCopy = child.sibling;
+    }
+  } else {
+    fiberToCopy = parent.child;
+  }
+
+  child._debugOwner = fiberToCopy._debugOwner;
+  child._debugSource = fiberToCopy._debugSource;
+}
+
+/**
  * Return the child fiber at the given index or null if the parent has no children.
  * If the index provided is greater than the number of children the last child is returned.
  *
@@ -240,99 +364,25 @@ function prependChildFiber(parent, child) {
   return 0;
 }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var prefix = 'Invariant failed'; // Invariant error instance.
-
-var Invariant = /*#__PURE__*/function (_Error) {
-  _inherits(Invariant, _Error);
-
-  var _super = _createSuper(Invariant);
-
-  function Invariant() {
-    var _this;
-
-    _classCallCheck(this, Invariant);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _super.call.apply(_super, [this].concat(args));
-
-    _defineProperty(_assertThisInitialized(_this), "name", 'Invariant');
-
-    return _this;
-  }
-
-  return Invariant;
-}( /*#__PURE__*/_wrapNativeSuper(Error));
 /**
- * Throw an error if the condition fails.
- * The message is tripped in production.
+ * Return the first valid fiber or null.
  *
- * @param condition - The condition.
- * @param message   - The error message.
+ * @param fiber - The fiber to start looking for.
+ * @param next  - The callback to get the next fiber to iterate.
+ * @param stop  - The callback to check if the fiber is found.
+ * @returns     - The found fiber or null.
  */
-
-function invariant(condition, message) {
-  if (condition) return;
-
-  {
-    // When not in production we allow the message to pass through.
-    throw new Invariant("".concat(prefix, ": ").concat(message || ''));
-  }
-}
-
-/**
- * Update the indices of a fiber and its next siblings and return the last sibling index.
- *
- * @param fiber   - The fiber.
- * @param index   - The index of the fiber.
- * @returns       - The last sibling index.
- */
-
-function updateFibersIndices(fiber, index) {
+function searchFiber(fiber, next, stop) {
   while (fiber) {
-    fiber.index = index;
-    fiber = fiber.sibling;
-    index += 1;
+    if (stop(fiber)) {
+      return fiber;
+    } // Search in the next instance.
+
+
+    fiber = next(fiber);
   }
 
-  return index - 1;
-}
-/**
- * Update the debug fields.
- * I have not yet inquired about how the _debug fields are chosen.
- * For now only the owner and source are set based on the siblings/parent fields.
- * TODO:
- * - _debugID:        does it need to be changed?
- * - _debugHookTypes: does it need to be changed?
- * - _debugSource:    is it ok like this?
- * - _debugOwner:     is it ok like this?
- *
- * @param child   - The child fiber.
- * @param parent  - The parent fiber.
- */
-
-function updateFiberDebugFields(child, parent) {
-  invariant(parent.child !== null);
-  var fiberToCopy; // Try to find a fiber to copy.
-
-  if (parent.child === child) {
-    if (child.sibling === null) {
-      fiberToCopy = parent;
-    } else {
-      fiberToCopy = child.sibling;
-    }
-  } else {
-    fiberToCopy = parent.child;
-  }
-
-  child._debugOwner = fiberToCopy._debugOwner;
-  child._debugSource = fiberToCopy._debugSource;
+  return null;
 }
 
 /**
@@ -357,55 +407,6 @@ function warning(message) {
     throw Error(text);
   } catch (x) {} // eslint-disable-line no-empty
 
-}
-
-/**
- * Return the first valid fiber or null.
- *
- * @param fiber - The fiber to start looking for.
- * @param next  - The callback to get the next fiber to iterate.
- * @param stop  - The callback to check if the fiber is found.
- * @returns     - The found fiber or null.
- */
-function searchFiber(fiber, next, stop) {
-  while (fiber) {
-    if (stop(fiber)) {
-      return fiber;
-    } // Search in the next instance.
-
-
-    fiber = next(fiber);
-  }
-
-  return null;
-}
-
-/**
- * The host environment.
- * Default configuration to work with ReactDOM renderer.
- */
-var Env = {
-  appendChildToContainer: function appendChildToContainer(container, child) {
-    container.appendChild(child);
-  },
-  insertInContainerBefore: function insertInContainerBefore(container, child, before) {
-    container.insertBefore(child, before);
-  },
-  removeChildFromContainer: function removeChildFromContainer(container, child) {
-    container.removeChild(child);
-  },
-  isElement: function isElement(_, stateNode) {
-    return stateNode instanceof Element;
-  }
-};
-/**
- * Configure the host environment.
- *
- * @param configuration - The configuration.
- */
-
-function configure(configuration) {
-  Object.assign(Env, configuration);
 }
 
 /**
@@ -451,7 +452,7 @@ function addChild(parent, child, position, skipUpdate) {
   } // Update the child fields.
 
 
-  updateFibersIndices(child, index);
+  updateFibersIndex(child, index);
 
   {
     updateFiberDebugFields(child, parent);
@@ -476,7 +477,7 @@ function addChild(parent, child, position, skipUpdate) {
     } // Update the alternate child fields.
 
 
-    updateFibersIndices(child.alternate, index);
+    updateFibersIndex(child.alternate, index);
 
     {
       updateFiberDebugFields(child.alternate, parent);
@@ -499,7 +500,7 @@ function addChild(parent, child, position, skipUpdate) {
     return fiber.child;
   }, function (fiber) {
     return Env.isElement(fiber.elementType, fiber.stateNode);
-  }); // Containers elements not found.
+  }); // Container element not found.
 
   if (containerFiber === null) {
     {
@@ -678,7 +679,7 @@ function removeChild(parent, childSelector, skipUpdate) {
 
 
   if (child.sibling !== null) {
-    updateFibersIndices(child.sibling, child.index);
+    updateFibersIndex(child.sibling, child.index);
   } // If There is no alternate we can return here.
 
 
@@ -696,7 +697,7 @@ function removeChild(parent, childSelector, skipUpdate) {
     invariant(alternate !== null, 'The alternate child has not been removed.' + 'This is a bug in React-reparenting, please file an issue.'); // If there are siblings their indices need to be updated.
 
     if (alternate.sibling !== null) {
-      updateFibersIndices(alternate.sibling, alternate.index);
+      updateFibersIndex(alternate.sibling, alternate.index);
     }
   } // If we don't have to send the elements we can return here.
 
@@ -716,7 +717,7 @@ function removeChild(parent, childSelector, skipUpdate) {
     return fiber.child;
   }, function (fiber) {
     return Env.isElement(fiber.elementType, fiber.stateNode);
-  }); // Containers elements not found.
+  }); // Container element not found.
 
   if (containerFiber === null) {
     {
@@ -1289,5 +1290,5 @@ exports.removeSiblingFiber = removeSiblingFiber;
 exports.searchFiber = searchFiber;
 exports.sendReparentableChild = sendReparentableChild;
 exports.updateFiberDebugFields = updateFiberDebugFields;
-exports.updateFibersIndices = updateFibersIndices;
+exports.updateFibersIndex = updateFibersIndex;
 exports.useParent = useParent;

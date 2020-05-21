@@ -1,13 +1,10 @@
 import type {Fiber} from 'react-reconciler';
+import {Env} from '../env/env';
+import {updateFibersIndex, updateFiberDebugFields} from '../fiber/updateFiber';
 import {addChildFiberBefore, addChildFiberAt} from '../fiber/addFiber';
-import {
-  updateFibersIndices,
-  updateFiberDebugFields,
-} from '../fiber/updateFiber';
-import {warning} from '../warning';
 import {findPreviousFiber} from '../fiber/findFIber';
 import {searchFiber} from '../fiber/searchFiber';
-import {Env} from '../env/env';
+import {warning} from '../warning';
 
 /**
  * Add a child fiber in a parent fiber and return the index in which it is added.
@@ -63,7 +60,7 @@ export function addChild(
   }
 
   // Update the child fields.
-  updateFibersIndices(child, index);
+  updateFibersIndex(child, index);
   if (__DEV__) {
     updateFiberDebugFields(child, parent);
   }
@@ -87,7 +84,7 @@ export function addChild(
     }
 
     // Update the alternate child fields.
-    updateFibersIndices(child.alternate, index);
+    updateFibersIndex(child.alternate, index);
     if (__DEV__) {
       updateFiberDebugFields(child.alternate, parent);
     }
@@ -112,7 +109,7 @@ export function addChild(
     (fiber) => Env.isElement(fiber.elementType, fiber.stateNode)
   );
 
-  // Containers elements not found.
+  // Container element not found.
   if (containerFiber === null) {
     if (__DEV__) {
       warning(

@@ -1,10 +1,10 @@
 import type {Fiber} from 'react-reconciler';
+import {Env} from '../env/env';
 import {removeChildFiber, removeChildFiberAt} from '../fiber/removeFiber';
-import {updateFibersIndices} from '../fiber/updateFiber';
+import {updateFibersIndex} from '../fiber/updateFiber';
+import {searchFiber} from '../fiber/searchFiber';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
-import {searchFiber} from '../fiber/searchFiber';
-import {Env} from '../env/env';
 
 /**
  * Remove a child fiber from its parent fiber and return it.
@@ -54,7 +54,7 @@ export function removeChild(
 
   // If there are siblings their indices need to be updated.
   if (child.sibling !== null) {
-    updateFibersIndices(child.sibling, child.index);
+    updateFibersIndex(child.sibling, child.index);
   }
 
   // If There is no alternate we can return here.
@@ -78,7 +78,7 @@ export function removeChild(
 
     // If there are siblings their indices need to be updated.
     if (alternate.sibling !== null) {
-      updateFibersIndices(alternate.sibling, alternate.index);
+      updateFibersIndex(alternate.sibling, alternate.index);
     }
   }
 
@@ -101,7 +101,7 @@ export function removeChild(
     (fiber) => Env.isElement(fiber.elementType, fiber.stateNode)
   );
 
-  // Containers elements not found.
+  // Container element not found.
   if (containerFiber === null) {
     if (__DEV__) {
       warning(
