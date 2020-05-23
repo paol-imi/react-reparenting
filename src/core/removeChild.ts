@@ -26,7 +26,7 @@ export function removeChild(
 ): Fiber | null {
   invariant(
     typeof childSelector !== 'number' || childSelector >= 0,
-    `The index provided to remove the child must be` +
+    `The index provided to remove the child must be ` +
       `greater than or equal to 0, found: ${childSelector}.`
   );
 
@@ -78,7 +78,7 @@ export function removeChild(
     // We should find it because we are shure it exists.
     invariant(
       alternate !== null,
-      'The alternate child has not been removed.' +
+      'The alternate child has not been removed. ' +
         'This is a bug in React-reparenting, please file an issue.'
     );
 
@@ -111,8 +111,8 @@ export function removeChild(
   if (containerFiber === null) {
     if (__DEV__) {
       warning(
-        'Cannot find the container element, neither the parent nor any' +
-          'component before it seems to generate an element instance.' +
+        'Cannot find the container element, neither the parent nor any ' +
+          'component before it seems to generate an element instance. ' +
           'You should manually send the element and use the `skipUpdate` option.'
       );
     }
@@ -124,7 +124,7 @@ export function removeChild(
   if (elementFiber === null) {
     if (__DEV__) {
       warning(
-        'Cannot find the child element.' +
+        'Cannot find the child element. ' +
           'You should manually send the element and use the `skipUpdate` option.'
       );
     }

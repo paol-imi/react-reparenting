@@ -32,7 +32,7 @@ export function addChild(
 ): number {
   invariant(
     typeof position !== 'number' || position >= -1,
-    `The index provided to add the child must be` +
+    `The index provided to add the child must be ` +
       `greater than or equal to -1, found: ${position}.`
   );
 
@@ -59,7 +59,7 @@ export function addChild(
       // If no children have the provided key.
       if (findPreviousFiber(parent, position) === null) {
         warning(
-          `No child with the key: '${position}' has been found,` +
+          `No child with the key: '${position}' has been found, ` +
             `the child is added at the bottom.`
         );
       }
@@ -120,8 +120,8 @@ export function addChild(
   if (containerFiber === null) {
     if (__DEV__) {
       warning(
-        'Cannot find the container element, neither the parent nor any' +
-          'component before it seems to generate an element instance.' +
+        'Cannot find the container element, neither the parent nor any ' +
+          'component before it seems to generate an element instance. ' +
           'You should manually send the element and use the `skipUpdate` option.'
       );
     }
@@ -133,7 +133,7 @@ export function addChild(
   if (elementFiber === null) {
     if (__DEV__) {
       warning(
-        'Cannot find the child element.' +
+        'Cannot find the child element. ' +
           'You should manually send the element and use the `skipUpdate` option.'
       );
     }
@@ -167,7 +167,7 @@ export function addChild(
     if (__DEV__) {
       if (beforeFiber === null) {
         warning(
-          'Cannot find the previous element.' +
+          'Cannot find the previous element. ' +
             'You should manually send the element and use the `skipUpdate` option.'
         );
       }
