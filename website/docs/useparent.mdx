@@ -14,7 +14,8 @@ You can generate a parent instance to use the `send` method within a function co
 
 ```jsx
 const Parent = ({children}) => {
-  const [parent, ref] = useParent();
+  const ref = useRef();
+  const parent = useParent(ref);
 
   return (
     <div className="parent" ref={ref}>

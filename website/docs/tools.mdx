@@ -84,18 +84,19 @@ A method to generate a ParentFiber instance.
 | ------------- | ------------------------- |
 | _ParentFiber_ | The parentFiber instance. |
 
-### useParent( [findFiber] ): [parent, ref] ⚙️
+### useParent( ref, [findFiber] ): parent ⚙️
 
 An hook to generate a ParentFiber instance.
 
 #### arguments
 
-| Name      | Type   | Description                                                                                |
-| --------- | ------ | ------------------------------------------------------------------------------------------ |
-| findFiber | _func_ | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
+| Name      | Type              | Description                                                                                |
+| --------- | ----------------- | ------------------------------------------------------------------------------------------ |
+| ref       | _React.RefObject_ | The ref of the parent element. <br/><br/> **Required**                                     |
+| findFiber | _func_            | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
 
 #### returns
 
-| Type                                       | Description                                   |
-| ------------------------------------------ | --------------------------------------------- |
-| [_ParentFiber_, _React.ref<HTMLElement\>_] | The ParentFiber instance and the element ref. |
+| Type          | Description               |
+| ------------- | ------------------------- |
+| _ParentFiber_ | The ParentFiber instance. |
