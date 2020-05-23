@@ -4,8 +4,8 @@ import {mount} from 'enzyme';
 import {getFibersIndices} from '../__shared__';
 import {
   getFiberFromElementInstance,
-  updateFibersIndex,
   updateFiberDebugFields,
+  updateFibersIndex,
 } from '../../src';
 
 // Refs.

@@ -1,13 +1,13 @@
 import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
-import {getFibersKeys, getFibersIndices} from '../__shared__';
+import {getFibersIndices, getFibersKeys} from '../__shared__';
 import {
-  getFiberFromElementInstance,
   addChildFiberAt,
   addChildFiberBefore,
   addSiblingFiber,
   appendChildFiber,
+  getFiberFromElementInstance,
   prependChildFiber,
 } from '../../src';
 

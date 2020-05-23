@@ -4,6 +4,7 @@ import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
 import {getFibersKeys, getFibersIndices, getChildrenIds} from '../__shared__';
 import {addChild, getFiberFromElementInstance} from '../../src';
+import {Invariant} from '../../src/invariant';
 import {warning} from '../../src/warning';
 
 // Refs.
@@ -260,5 +261,11 @@ describe('How addChild( ) works', () => {
     expect(getFibersKeys(parent)).toEqual(['3', '1', '2']);
     // The children are in the correct order.
     expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1', '2']);
+  });
+
+  test('(Provide an index less than -1) Throw an Invariant', () => {
+    expect(() => {
+      addChild(parent, child, -2);
+    }).toThrow(Invariant);
   });
 });

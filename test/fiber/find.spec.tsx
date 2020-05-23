@@ -2,11 +2,11 @@ import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
 import {
-  getFiberFromElementInstance,
-  findChildFiberAt,
   findChildFiber,
+  findChildFiberAt,
   findPreviousFiber,
   findSiblingFiber,
+  getFiberFromElementInstance,
 } from '../../src';
 
 // Refs.

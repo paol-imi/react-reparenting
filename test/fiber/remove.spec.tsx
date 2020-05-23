@@ -3,13 +3,12 @@ import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
 import {getFibersIndices, getFibersKeys} from '../__shared__';
 import {
-  getFiberFromElementInstance,
-  removeChildFiberAt,
   removeChildFiber,
+  removeChildFiberAt,
   removeFirstChildFiber,
   removeSiblingFiber,
+  getFiberFromElementInstance,
 } from '../../src';
-import {Invariant} from '../../src/invariant';
 
 // Refs.
 const parentRef = createRef<HTMLDivElement>();
@@ -72,12 +71,6 @@ describe('How removeChildFiberAt( ) works', () => {
     const child = removeChildFiberAt(parentFiber, 1);
     // The child is not found.
     expect(child).toBe(null);
-  });
-
-  test('(Provide an index < 0) Throw an error', () => {
-    expect(() => {
-      removeChildFiberAt(parentFiber, -1);
-    }).toThrow(Invariant);
   });
 });
 

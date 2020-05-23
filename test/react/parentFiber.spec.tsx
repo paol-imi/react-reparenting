@@ -1,7 +1,7 @@
 import React, {createRef} from 'react';
 import {mount} from 'enzyme';
-import {getFibersKeys, getFibersIndices} from '../__shared__';
-import {ParentFiber, getFiberFromElementInstance} from '../../src';
+import {getFibersIndices, getFibersKeys} from '../__shared__';
+import {getFiberFromElementInstance, ParentFiber} from '../../src';
 import {Invariant} from '../../src/invariant';
 
 // Refs.

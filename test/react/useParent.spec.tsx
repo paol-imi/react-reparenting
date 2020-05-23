@@ -1,9 +1,9 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {mount} from 'enzyme';
 import type {Fiber} from 'react-reconciler';
 import type {ReactWrapper} from 'enzyme';
 import {ErrorBoundary} from '../__shared__';
-import {useParent, ParentFiber} from '../../src';
+import {ParentFiber, useParent} from '../../src';
 import {Invariant} from '../../src/invariant';
 
 // Wrapper.
@@ -13,8 +13,8 @@ let parent: ParentFiber;
 
 // Parent component.
 const Parent = ({findFiber}: {findFiber?: (fiber: Fiber) => Fiber}): any => {
-  const [parentFiber, ref] = useParent<HTMLDivElement>(findFiber);
-  parent = parentFiber;
+  const ref = useRef<HTMLDivElement>();
+  parent = useParent<HTMLDivElement>(ref, findFiber);
   return <div ref={ref} />;
 };
 
@@ -48,7 +48,8 @@ describe('How useParent( ) works', () => {
 
   test('Throw if the ref is not set', () => {
     const WrongParent = (): null => {
-      useParent();
+      const ref = useRef();
+      useParent(ref);
       return null;
     };
 

@@ -4,6 +4,7 @@ import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
 import {getFibersKeys, getFibersIndices, getChildrenIds} from '../__shared__';
 import {addChild, removeChild, getFiberFromElementInstance} from '../../src';
+import {Invariant} from '../../src/invariant';
 import {warning} from '../../src/warning';
 
 // Refs.
@@ -265,5 +266,11 @@ describe('How removeChild( ) works', () => {
     expect(getFibersKeys(parent)).toEqual(['2']);
     // The children are correct.
     expect(getChildrenIds(parentWrapper.getDOMNode())).toEqual(['1', '2']);
+  });
+
+  test('(Provide an index less than 0) Throw an Invariant', () => {
+    expect(() => {
+      removeChild(parent, -1);
+    }).toThrow(Invariant);
   });
 });

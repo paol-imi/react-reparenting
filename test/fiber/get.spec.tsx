@@ -6,9 +6,9 @@ import React, {
 } from 'react';
 import {mount} from 'enzyme';
 import {
-  getFiberFromElementInstance,
   getCurrentFiber,
   getFiberFromClassInstance,
+  getFiberFromElementInstance,
 } from '../../src';
 import {Invariant} from '../../src/invariant';
 
