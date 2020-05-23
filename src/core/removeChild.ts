@@ -24,6 +24,12 @@ export function removeChild(
   childSelector: string | number,
   skipUpdate?: boolean
 ): Fiber | null {
+  invariant(
+    typeof childSelector !== 'number' || childSelector >= 0,
+    `The index provided to remove the child must be` +
+      `greater than or equal to 0, found: ${childSelector}.`
+  );
+
   // The removed fiber.
   let child = null;
 

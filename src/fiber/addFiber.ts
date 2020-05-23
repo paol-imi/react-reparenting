@@ -27,7 +27,7 @@ export function addChildFiberAt(
   // At this point we are sure that the index is greater than 0.
   const previousSibling = findChildFiberAt(parent, index - 1);
 
-  // If the fiber is not found add the fiber at the bottom.
+  // If there are no children, the fiber is added as the only child.
   if (previousSibling === null) {
     return prependChildFiber(parent, child);
   }

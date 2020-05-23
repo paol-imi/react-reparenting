@@ -1,5 +1,4 @@
 import type {Fiber} from 'react-reconciler';
-import {invariant} from '../invariant';
 
 /**
  * Update the indices of a fiber and its siblings.
@@ -33,7 +32,6 @@ export function updateFibersIndex(fiber: Fiber, index: number): number {
  * @param parent  - The parent fiber.
  */
 export function updateFiberDebugFields(child: Fiber, parent: Fiber): void {
-  invariant(parent.child !== null);
   // The fiber from wich to copy the debug fields.
   let fiberToCopy: Fiber;
 
@@ -45,7 +43,7 @@ export function updateFiberDebugFields(child: Fiber, parent: Fiber): void {
       fiberToCopy = child.sibling;
     }
   } else {
-    fiberToCopy = parent.child;
+    fiberToCopy = parent.child || parent;
   }
 
   child._debugOwner = fiberToCopy._debugOwner;

@@ -7,6 +7,6 @@ import { ParentFiber } from './parentFiber';
  * of the children to reparent (it is possible to get around this by providing a findFiber method).
  *
  * @param findFiber - Get a different parent fiber.
- * @returns - [The ParentFiber instance, the element ref].
+ * @returns - The ParentFiber instance.
  */
-export declare function useParent<T>(findFiber?: (fiber: Fiber) => Fiber): [ParentFiber, RefObject<T>];
+export declare function useParent<T>(ref: RefObject<T>, findFiber?: (fiber: Fiber) => Fiber): ParentFiber;

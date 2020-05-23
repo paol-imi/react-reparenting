@@ -1,5 +1,5 @@
 /**
-* React-reparenting v0.3.0
+* React-reparenting v0.4.0
 * https://paol-imi.github.io/react-reparenting
 * Copyright (c) 2020-present, Paol-imi
 * Released under the MIT license
@@ -46,60 +46,14 @@ function configure(configuration) {
   Object.assign(Env, configuration);
 }
 
-function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
-
-function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
-
-var prefix = 'Invariant failed'; // Invariant error instance.
-
-var Invariant = /*#__PURE__*/function (_Error) {
-  _inherits(Invariant, _Error);
-
-  var _super = _createSuper(Invariant);
-
-  function Invariant() {
-    var _this;
-
-    _classCallCheck(this, Invariant);
-
-    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
-      args[_key] = arguments[_key];
-    }
-
-    _this = _super.call.apply(_super, [this].concat(args));
-
-    _defineProperty(_assertThisInitialized(_this), "name", 'Invariant');
-
-    return _this;
-  }
-
-  return Invariant;
-}( /*#__PURE__*/_wrapNativeSuper(Error));
 /**
- * Throw an error if the condition fails.
- * The message is tripped in production.
- *
- * @param condition - The condition.
- * @param message   - The error message.
- */
-
-function invariant(condition, message) {
-  if (condition) return;
-
-  {
-    // In production we strip the message but still throw.
-    throw new Invariant(prefix);
-  }
-}
-
-/**
- * Update the index of a fiber and its next siblings and return the last sibling index.
+ * Update the indices of a fiber and its siblings.
+ * return the last sibling index.
  *
  * @param fiber   - The fiber.
  * @param index   - The index of the fiber.
  * @returns       - The last sibling index.
  */
-
 function updateFibersIndex(fiber, index) {
   while (fiber) {
     fiber.index = index;
@@ -124,8 +78,7 @@ function updateFibersIndex(fiber, index) {
  */
 
 function updateFiberDebugFields(child, parent) {
-  invariant(parent.child !== null); // The fiber from wich to copy the debug fields.
-
+  // The fiber from wich to copy the debug fields.
   var fiberToCopy; // Try to find a fiber to copy.
 
   if (parent.child === child) {
@@ -135,7 +88,7 @@ function updateFiberDebugFields(child, parent) {
       fiberToCopy = child.sibling;
     }
   } else {
-    fiberToCopy = parent.child;
+    fiberToCopy = parent.child || parent;
   }
 
   child._debugOwner = fiberToCopy._debugOwner;
@@ -271,7 +224,7 @@ function addChildFiberAt(parent, child, index) {
   if (index === 0) return prependChildFiber(parent, child); // Find the previous sibling.
   // At this point we are sure that the index is greater than 0.
 
-  var previousSibling = findChildFiberAt(parent, index - 1); // If the fiber is not found add the fiber at the bottom.
+  var previousSibling = findChildFiberAt(parent, index - 1); // If there are no children, the fiber is added as the only child.
 
   if (previousSibling === null) {
     return prependChildFiber(parent, child);
@@ -379,6 +332,52 @@ function searchFiber(fiber, next, stop) {
   return null;
 }
 
+function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function () { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _isNativeReflectConstruct() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+
+var prefix = 'Invariant failed'; // Invariant error instance.
+
+var Invariant = /*#__PURE__*/function (_Error) {
+  _inherits(Invariant, _Error);
+
+  var _super = _createSuper(Invariant);
+
+  function Invariant() {
+    var _this;
+
+    _classCallCheck(this, Invariant);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "name", 'Invariant');
+
+    return _this;
+  }
+
+  return Invariant;
+}( /*#__PURE__*/_wrapNativeSuper(Error));
+/**
+ * Throw an error if the condition fails.
+ * The message is tripped in production.
+ *
+ * @param condition - The condition.
+ * @param message   - The error message.
+ */
+
+function invariant(condition, message) {
+  if (condition) return;
+
+  {
+    // In production we strip the message but still throw.
+    throw new Invariant(prefix);
+  }
+}
+
 /**
  * Add a child fiber in a parent fiber and return the index in which it is added.
  * The position can be chosen by providing a key (string) or by providing an index (number).
@@ -398,7 +397,8 @@ function searchFiber(fiber, next, stop) {
  */
 
 function addChild(parent, child, position, skipUpdate) {
-  // The index in which the child is added.
+  invariant(typeof position !== 'number' || position >= -1); // The index in which the child is added.
+
   var index; // Add the child.
 
   if (typeof position === 'number') {
@@ -495,8 +495,7 @@ function addChild(parent, child, position, skipUpdate) {
  */
 
 function removeChildFiberAt(parent, index) {
-  invariant(index >= 0); // Remove the first child fiber.
-
+  // Remove the first child fiber.
   if (index === 0) {
     return removeFirstChildFiber(parent);
   } // Find the previous fiber.
@@ -588,7 +587,8 @@ function removeSiblingFiber(fiber) {
  */
 
 function removeChild(parent, childSelector, skipUpdate) {
-  // The removed fiber.
+  invariant(typeof childSelector !== 'number' || childSelector >= 0); // The removed fiber.
+
   var child = null; // Remove the fiber.
 
   if (typeof childSelector === 'number') {
@@ -1137,14 +1137,12 @@ var Reparentable = /*#__PURE__*/function (_Component) {
  * of the children to reparent (it is possible to get around this by providing a findFiber method).
  *
  * @param findFiber - Get a different parent fiber.
- * @returns - [The ParentFiber instance, the element ref].
+ * @returns - The ParentFiber instance.
  */
 
-function useParent(findFiber) {
+function useParent(ref, findFiber) {
   // The parent instance.
-  var parentRef = useRef(null); // The element ref.
-
-  var ref = useRef(null); // Generate the instance.
+  var parentRef = useRef(null); // Generate the instance.
 
   if (parentRef.current === null) {
     parentRef.current = new ParentFiber();
@@ -1152,10 +1150,10 @@ function useParent(findFiber) {
 
 
   var parent = parentRef.current;
-  parent.setFinder(findFiber); // When the component is mounted the fiber is setted.
+  parent.setFinder(findFiber); // When the component is mounted the fiber is set.
 
   useEffect(function () {
-    invariant(ref.current !== null); // The element fiber.
+    invariant(ref.current !== null && ref.current !== undefined); // The element fiber.
 
     parent.setFiber(getFiberFromElementInstance(ref.current)); // Clean up.
 
@@ -1163,7 +1161,7 @@ function useParent(findFiber) {
       parent.clear();
     };
   }, []);
-  return [parent, ref];
+  return parent;
 }
 
 export { Env, Parent, ParentFiber, Reparentable, ReparentableMap, addChild, addChildFiberAt, addChildFiberBefore, addSiblingFiber, appendChildFiber, configure, createParent, findChildFiber, findChildFiberAt, findPreviousFiber, findSiblingFiber, getCurrentFiber, getFiberFromClassInstance, getFiberFromElementInstance, prependChildFiber, removeChild, removeChildFiber, removeChildFiberAt, removeFirstChildFiber, removeSiblingFiber, searchFiber, sendReparentableChild, updateFiberDebugFields, updateFibersIndex, useParent };

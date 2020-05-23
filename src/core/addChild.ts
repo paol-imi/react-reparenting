@@ -1,9 +1,10 @@
 import type {Fiber} from 'react-reconciler';
 import {Env} from '../env/env';
-import {updateFibersIndex, updateFiberDebugFields} from '../fiber/updateFiber';
-import {addChildFiberBefore, addChildFiberAt} from '../fiber/addFiber';
+import {updateFiberDebugFields, updateFibersIndex} from '../fiber/updateFiber';
+import {addChildFiberAt, addChildFiberBefore} from '../fiber/addFiber';
 import {findPreviousFiber} from '../fiber/findFIber';
 import {searchFiber} from '../fiber/searchFiber';
+import {invariant} from '../invariant';
 import {warning} from '../warning';
 
 /**
@@ -29,6 +30,12 @@ export function addChild(
   position: string | number,
   skipUpdate?: boolean
 ): number {
+  invariant(
+    typeof position !== 'number' || position >= -1,
+    `The index provided to add the child must be` +
+      `greater than or equal to -1, found: ${position}.`
+  );
+
   // The index in which the child is added.
   let index: number;
 

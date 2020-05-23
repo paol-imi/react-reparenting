@@ -1,6 +1,5 @@
 import type {Fiber} from 'react-reconciler';
 import {findChildFiberAt, findPreviousFiber} from './findFIber';
-import {invariant} from '../invariant';
 
 /**
  * Remove the child fiber at the given index and return it or null if it not exists.
@@ -10,11 +9,6 @@ import {invariant} from '../invariant';
  * @returns       - The removed fiber or null.
  */
 export function removeChildFiberAt(parent: Fiber, index: number): Fiber | null {
-  invariant(
-    index >= 0,
-    `The index provided to find the child must be >= 0, found: ${index}.`
-  );
-
   // Remove the first child fiber.
   if (index === 0) {
     return removeFirstChildFiber(parent);
