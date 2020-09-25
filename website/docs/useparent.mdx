@@ -2,7 +2,7 @@
 title: useParent
 ---
 
-Get the [useParent](./tools#useparent-findfiber--parent-ref-%EF%B8%8F) hook from the package.
+Get the [useParent](./tools#useparent--parent) hook from the package.
 
 ```jsx
 import {useParent} from 'react-reparenting';
@@ -10,18 +10,13 @@ import {useParent} from 'react-reparenting';
 
 ## Setup ⚙️
 
-You can generate a parent instance to use the `send` method within a function component. You must set the ref in the DOM element which is the **direct parent** of the children which can be transferred.
+You can generate a parent instance to use the `send` method.
 
 ```jsx
 const Parent = ({children}) => {
-  const ref = useRef();
-  const parent = useParent(ref);
-
-  return (
-    <div className="parent" ref={ref}>
-      {children}
-    </div>
-  );
+  const parent = useParent();
+  // Move the parent instance to a centralized store...
+  return children;
 };
 ```
 
@@ -60,7 +55,7 @@ const App = () => {
 };
 ```
 
-Now we can reparent anywhere in our app using the send method.
+Now we can reparent anywhere in our app using the send method _(The instances are the ones returned by the hook)_.
 
 ```jsx
 // Send the first Child ('c3') of 'parentB'

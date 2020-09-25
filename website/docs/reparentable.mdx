@@ -2,15 +2,21 @@
 title: Reparentable
 ---
 
-Get the [Reparentable](./tools#reparentable--%EF%B8%8F) component from the package.
+Import the [createReparentableSpace](./tools#reparentable-) method from the package.
 
-```jsx
-import {Reparentable, sendReparentableChild} from 'react-reparenting';
+```js
+import {createReparentableSpace} from 'react-reparenting';
 ```
 
 ## Setup ⚙️
 
-The `<Reparentable>` must be the **direct parent** of the children which can be transferred, and it must have an **unique id** that differentiates it from other `<Reparentable>`s in your app.
+First you need to define a Space that will virtually contain the components. Only `<Reparentable>`s belonging to the same space can send children to each other.
+
+```js
+const {Reparentable, sendReparentableChild} = createReparentableSpace();
+```
+
+The `<Reparentable>` must be the **direct parent** of the children which can be transferred, and it must have an **unique id** that differentiates it from other `<Reparentable>`s in its Space.
 
 ```jsx
 <Reparentable id="id">{children}</Reparentable>
