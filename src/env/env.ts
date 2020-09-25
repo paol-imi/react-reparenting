@@ -29,7 +29,7 @@ export interface ENV<Instance> {
    * Get if the given element is a valid instance.
    *
    * @param type      - The element type.
-   * @param stateNode - The fiber state node.
+   * @param stateNode - The state node.
    * @returns         - If the given type is a valid element type.
    */
   isElement(type: any, stateNode?: Instance | any): boolean;
@@ -59,6 +59,6 @@ export const Env: ENV<any> = {
  *
  * @param configuration - The configuration.
  */
-export function configure<T>(configuration: Partial<ENV<T>>): void {
-  Object.assign(Env, configuration);
+export function configure<T>(configuration: Partial<ENV<T>>): ENV<T> {
+  return Object.assign(Env, configuration);
 }

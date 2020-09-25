@@ -9,6 +9,10 @@ export declare class ParentFiber {
     /** Find fiber method. */
     findFiber?: (fiber: Fiber) => Fiber;
     /**
+     * @param fiber - The parent fiber to manage.
+     */
+    constructor(fiber?: Fiber);
+    /**
      * Parent fiber setter.
      *
      * @param fiber - The parent fiber to manage.
@@ -70,13 +74,13 @@ export declare class ParentFiber {
      * The method will also try to send the elements connected to the fibers (e.g. DOM elements),
      * to disable this function you can use the skipUpdate parameter.
      *
-     * @param toParentFiber - The ParentFiber instance in which to send the child fiber.
+     * @param toParent      - The ParentFiber instance in which to send the child fiber.
      * @param childSelector - The child fiber selector.
      * @param position      - The position in which to add the child fiber.
      * @param skipUpdate    - Whether to send or not the elements.
      * @returns             - The position in which the child fiber is sent or -1.
      */
-    sendChild(toParentFiber: ParentFiber, childSelector: string | number, position: string | number, skipUpdate?: boolean): number;
+    sendChild(toParent: ParentFiber, childSelector: string | number, position: string | number, skipUpdate?: boolean): number;
     /**
      * Clear the parent fiber.
      */

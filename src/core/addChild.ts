@@ -1,28 +1,28 @@
 import type {Fiber} from 'react-reconciler';
 import {Env} from '../env/env';
-import {updateFiberDebugFields, updateFibersIndex} from '../fiber/updateFiber';
 import {addChildFiberAt, addChildFiberBefore} from '../fiber/addFiber';
-import {findPreviousFiber} from '../fiber/findFIber';
-import {searchFiber} from '../fiber/searchFiber';
+import {updateFibersIndex} from '../fiber/updateFiber';
+import {findPreviousFiber} from '../fiber/findFiber';
+import {getFiberFromPath} from '../fiber/getFiber';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 
 /**
- * Add a child fiber in a parent fiber and return the index in which it is added.
- * The position can be chosen by providing a key (string) or by providing an index (number).
+ * Add a child in a parent and return the index in which it is added.
+ * The position of the child can be chosen by providing a key (string) or an index (number).
  * If a key (string) is provided the child will be added after the one with that key.
  * The child is added at the bottom if none of the children have that key.
  * If an index (number) is provided the child will be added in that position.
  * The child is added at the bottom if -1 is provided or the index is greater
  * than the number of children.
- * The method will also try to add the elements connected to the fibers (e.g. DOM elements),
- * to disable this function you can use the skipUpdate parameter.
+ * The method will also try to add the elements connected to the child (e.g. DOM elements),
+ * it is possible to disable this function using the skipUpdate parameter.
  *
- * @param parent      - The parent fiber in which to add the child fiber.
- * @param child       - The child fiber to add.
- * @param position    - The position in which to add the child fiber.
+ * @param parent      - The parent in which to add the child.
+ * @param child       - The child to add.
+ * @param position    - The position in which to add the child.
  * @param skipUpdate  - Whether to add or not the elements.
- * @returns           - The index in which the child fiber is added.
+ * @returns           - The index in which the child is added.
  */
 export function addChild(
   parent: Fiber,
@@ -68,9 +68,6 @@ export function addChild(
 
   // Update the child fields.
   updateFibersIndex(child, index);
-  if (__DEV__) {
-    updateFiberDebugFields(child, parent);
-  }
 
   // If there are the alternates.
   if (child.alternate === null || parent.alternate === null) {
@@ -92,9 +89,6 @@ export function addChild(
 
     // Update the alternate child fields.
     updateFibersIndex(child.alternate, index);
-    if (__DEV__) {
-      updateFiberDebugFields(child.alternate, parent);
-    }
   }
 
   // If we don't have to send the elements we can return here.
@@ -103,14 +97,14 @@ export function addChild(
   }
 
   // Get the fibers that belong to the container elements.
-  const containerFiber = searchFiber(
+  const containerFiber = getFiberFromPath(
     parent,
     (fiber) => fiber.return,
     (fiber) => Env.isElement(fiber.elementType, fiber.stateNode)
   );
 
   // Get the fibers that belong to the child element.
-  const elementFiber = searchFiber(
+  const elementFiber = getFiberFromPath(
     child,
     (fiber) => fiber.child,
     (fiber) => Env.isElement(fiber.elementType, fiber.stateNode)
@@ -151,7 +145,7 @@ export function addChild(
     Env.appendChildToContainer(container, element);
   } else {
     // Get the fibers that belong to the previous element.
-    const beforeFiber = searchFiber(
+    const beforeFiber = getFiberFromPath(
       child.sibling,
       (fiber) => fiber.child,
       (fiber) => Env.isElement(fiber.elementType, fiber.stateNode)
@@ -163,7 +157,7 @@ export function addChild(
       Env.insertInContainerBefore(container, element, before);
     }
 
-    // Previous elements not found.
+    // Previous element not found.
     if (__DEV__) {
       if (beforeFiber === null) {
         warning(

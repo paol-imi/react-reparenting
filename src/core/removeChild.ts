@@ -2,22 +2,21 @@ import type {Fiber} from 'react-reconciler';
 import {Env} from '../env/env';
 import {removeChildFiber, removeChildFiberAt} from '../fiber/removeFiber';
 import {updateFibersIndex} from '../fiber/updateFiber';
-import {searchFiber} from '../fiber/searchFiber';
+import {getFiberFromPath} from '../fiber/getFiber';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 
 /**
- * Remove a child fiber from its parent fiber and return it.
- * The child to remove can be chosen by providing its key (string) or by
- * providing its index (number).
- * The method will also try to remove the elements connected to the fibers (e.g. DOM elements),
- * to disable this function you can use the skipUpdate parameter.
+ * Remove a child from its parent and return it.
+ * The child to remove can be chosen by providing its key (string) or its index (number).
+ * The method will also try to remove the elements connected to the child (e.g. DOM elements),
+ * it is possible to disable this function using the skipUpdate parameter.
  * If the child is not found null is returned.
  *
- * @param parent        - The parent fiber from which to remove the child fiber.
- * @param childSelector - The child fiber selector.
+ * @param parent        - The parent from which to remove the child.
+ * @param childSelector - The child selector.
  * @param skipUpdate    - Whether to add or not the elements.
- * @returns             - The removed child fiber or null.
+ * @returns             - The removed child or null.
  */
 export function removeChild(
   parent: Fiber,
@@ -30,17 +29,17 @@ export function removeChild(
       `greater than or equal to 0, found: ${childSelector}.`
   );
 
-  // The removed fiber.
+  // The removed child.
   let child = null;
 
-  // Remove the fiber.
+  // Remove the child.
   if (typeof childSelector === 'number') {
     child = removeChildFiberAt(parent, childSelector);
   } else {
     child = removeChildFiber(parent, childSelector);
   }
 
-  // If the fiber is not found return null.
+  // If the child is not found return null.
   if (child === null) {
     if (__DEV__) {
       if (typeof childSelector === 'number') {
@@ -94,14 +93,14 @@ export function removeChild(
   }
 
   // Get the fibers that belong to the container elements.
-  const containerFiber = searchFiber(
+  const containerFiber = getFiberFromPath(
     parent,
     (fiber) => fiber.return,
     (fiber) => Env.isElement(fiber.elementType, fiber.stateNode)
   );
 
   // Get the fibers that belong to the child element.
-  const elementFiber = searchFiber(
+  const elementFiber = getFiberFromPath(
     child,
     (fiber) => fiber.child,
     (fiber) => Env.isElement(fiber.elementType, fiber.stateNode)

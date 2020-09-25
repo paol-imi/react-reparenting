@@ -1,7 +1,7 @@
 import type {Fiber} from 'react-reconciler';
+import {getCurrentFiber} from './currentFiber';
 import {addChild} from '../core/addChild';
 import {removeChild} from '../core/removeChild';
-import {getCurrentFiber} from '../fiber/getFIber';
 import {invariant} from '../invariant';
 
 /**
@@ -13,6 +13,13 @@ export class ParentFiber {
   fiber: Fiber | null = null;
   /** Find fiber method. */
   findFiber?: (fiber: Fiber) => Fiber;
+
+  /**
+   * @param fiber - The parent fiber to manage.
+   */
+  constructor(fiber?: Fiber) {
+    if (fiber) this.setFiber(fiber);
+  }
 
   /**
    * Parent fiber setter.
@@ -42,7 +49,7 @@ export class ParentFiber {
   getCurrent(): Fiber {
     invariant(
       this.fiber !== null,
-      'Cannot call Parent methods before it is initialized.'
+      'Cannot call ParentFiber methods before it is initialized.'
     );
 
     // Find the current fiber.
@@ -108,14 +115,14 @@ export class ParentFiber {
    * The method will also try to send the elements connected to the fibers (e.g. DOM elements),
    * to disable this function you can use the skipUpdate parameter.
    *
-   * @param toParentFiber - The ParentFiber instance in which to send the child fiber.
+   * @param toParent      - The ParentFiber instance in which to send the child fiber.
    * @param childSelector - The child fiber selector.
    * @param position      - The position in which to add the child fiber.
    * @param skipUpdate    - Whether to send or not the elements.
    * @returns             - The position in which the child fiber is sent or -1.
    */
   sendChild(
-    toParentFiber: ParentFiber,
+    toParent: ParentFiber,
     childSelector: string | number,
     position: string | number,
     skipUpdate?: boolean
@@ -127,7 +134,7 @@ export class ParentFiber {
       return -1;
     }
     // Add the child fiber.
-    return toParentFiber.addChild(child, position, skipUpdate);
+    return toParent.addChild(child, position, skipUpdate);
   }
 
   /**

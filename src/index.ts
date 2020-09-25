@@ -4,15 +4,13 @@ export * from './core/removeChild';
 // Env.
 export * from './env/env';
 // React.
-export * from './react/createParent';
-export * from './react/Parent';
+export * from './react/currentFiber';
 export * from './react/parentFiber';
 export * from './react/Reparentable';
 export * from './react/useParent';
-// Fibers.
+// Fiber.
 export * from './fiber/addFiber';
-export * from './fiber/findFIber';
-export * from './fiber/getFIber';
+export * from './fiber/findFiber';
+export * from './fiber/getFiber';
 export * from './fiber/removeFiber';
-export * from './fiber/searchFiber';
 export * from './fiber/updateFiber';

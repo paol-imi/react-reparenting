@@ -1,5 +1,5 @@
 import type {Fiber} from 'react-reconciler';
-import {findChildFiberAt, findPreviousFiber} from './findFIber';
+import {findChildFiberAt, findPreviousFiber} from './findFiber';
 
 /**
  * Remove the child fiber at the given index and return it or null if it not exists.
