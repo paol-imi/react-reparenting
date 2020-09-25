@@ -13,7 +13,7 @@ export class ErrorBoundary extends Component<
   /** State. */
   state = {error: null};
 
-  static getDerivedStateFromError(error): {error: Error} {
+  static getDerivedStateFromError(error: Error): {error: Error} {
     // eslint-disable-next-line no-console
     console.error = consoleError;
     // Update state so the next render will show the fallback UI.

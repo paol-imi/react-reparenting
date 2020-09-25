@@ -1,31 +1,32 @@
 import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
-import {getFibersIndices, getFibersKeys} from '../__shared__';
+import {Child, getFibersIndices, getFibersKeys, Parent} from '../__shared__';
 import {
   removeChildFiber,
   removeChildFiberAt,
   removeFirstChildFiber,
   removeSiblingFiber,
-  getFiberFromElementInstance,
 } from '../../src';
+import {invariant} from '../../src/invariant';
 
 // Refs.
-const parentRef = createRef<HTMLDivElement>();
+const parentRef = createRef<Fiber>();
 // Fibers.
 let parentFiber: Fiber;
 
 beforeEach(() => {
   // Mount the component.
   mount(
-    <div ref={parentRef}>
-      <div key="1" />
-      <div key="2" />
-    </div>
+    <Parent fiberRef={parentRef}>
+      <Child key="1" />
+      <Child key="2" />
+    </Parent>
   );
 
-  // Load the fiber.
-  parentFiber = getFiberFromElementInstance(parentRef.current);
+  // (type fixing)
+  invariant(parentRef.current !== null);
+  parentFiber = parentRef.current;
 });
 
 describe('How removeChildFiberAt( ) works', () => {
@@ -33,6 +34,8 @@ describe('How removeChildFiberAt( ) works', () => {
     const child = removeChildFiberAt(parentFiber, 0);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
     // The indices are changed.
@@ -45,6 +48,8 @@ describe('How removeChildFiberAt( ) works', () => {
     const child = removeChildFiberAt(parentFiber, 1);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('2');
     // The indices are changed.
@@ -65,10 +70,10 @@ describe('How removeChildFiberAt( ) works', () => {
 
   test('(Parent without children) Not remove the child', () => {
     // Setup.
-    mount(<div ref={parentRef} />);
-    parentFiber = getFiberFromElementInstance(parentRef.current);
-
-    const child = removeChildFiberAt(parentFiber, 1);
+    mount(<Parent fiberRef={parentRef} />);
+    // (type fixing).
+    invariant(parentRef.current !== null);
+    const child = removeChildFiberAt(parentRef.current, 1);
     // The child is not found.
     expect(child).toBe(null);
   });
@@ -79,6 +84,8 @@ describe('How removeChildFiber( ) works', () => {
     const child = removeChildFiber(parentFiber, '1');
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
     // The indices are changed.
@@ -91,6 +98,8 @@ describe('How removeChildFiber( ) works', () => {
     const child = removeChildFiber(parentFiber, '2');
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('2');
     // The indices are changed.
@@ -111,10 +120,10 @@ describe('How removeChildFiber( ) works', () => {
 
   test('(Parent without children) Not remove the child', () => {
     // Setup.
-    mount(<div ref={parentRef} />);
-    parentFiber = getFiberFromElementInstance(parentRef.current);
-
-    const child = removeChildFiber(parentFiber, '1');
+    mount(<Parent fiberRef={parentRef} />);
+    // (type fixing).
+    invariant(parentRef.current !== null);
+    const child = removeChildFiber(parentRef.current, '1');
     // The child is not found.
     expect(child).toBe(null);
   });
@@ -125,6 +134,8 @@ describe('How removeFirstChildFiber( ) works', () => {
     const child = removeFirstChildFiber(parentFiber);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
     // The indices are changed.
@@ -135,10 +146,10 @@ describe('How removeFirstChildFiber( ) works', () => {
 
   test('(Parent without children) Not remove the child and return null', () => {
     // Setup.
-    mount(<div ref={parentRef} />);
-    parentFiber = getFiberFromElementInstance(parentRef.current);
-
-    const child = removeFirstChildFiber(parentFiber);
+    mount(<Parent fiberRef={parentRef} />);
+    // (type fixing).
+    invariant(parentRef.current !== null);
+    const child = removeFirstChildFiber(parentRef.current);
     // The child is not found.
     expect(child).toBe(null);
   });
@@ -146,10 +157,13 @@ describe('How removeFirstChildFiber( ) works', () => {
 
 describe('How removeSiblingFiber( ) works', () => {
   test('Remove the sibling', () => {
+    invariant(parentFiber.child !== null);
     const childFiber = parentFiber.child;
     const sibling = removeSiblingFiber(childFiber);
     // The sibling is found.
     expect(sibling).not.toBe(null);
+    // (type fixing).
+    invariant(sibling !== null);
     // The key is correct.
     expect(sibling.key).toBe('2');
     // The indices are changed.

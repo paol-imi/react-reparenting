@@ -6,66 +6,76 @@ import {
   findChildFiberAt,
   findPreviousFiber,
   findSiblingFiber,
-  getFiberFromElementInstance,
 } from '../../src';
+import {invariant} from '../../src/invariant';
+import {Child, Parent} from '../__shared__';
 
 // Refs.
-const parentElementRef = createRef<HTMLDivElement>();
-const childElementRef = createRef<HTMLDivElement>();
+const parentRef = createRef<Fiber>();
+const childRef = createRef<Fiber>();
 // Fibers.
 let parent: Fiber;
 let child: Fiber;
 
 beforeEach(() => {
-  // Mount the component.
+  // Mount the components.
   mount(
-    <div ref={parentElementRef}>
-      <div key="1" ref={childElementRef} />
-      <div key="2" />
-    </div>
+    <Parent fiberRef={parentRef}>
+      <Child key="1" id="1" fiberRef={childRef} />
+      <Child key="2" id="2" />
+    </Parent>
   );
 
-  // Load the fibers.
-  parent = getFiberFromElementInstance(parentElementRef.current);
-  child = getFiberFromElementInstance(childElementRef.current);
+  // (type fixing).
+  invariant(parentRef.current !== null && childRef.current !== null);
+  parent = parentRef.current;
+  child = childRef.current;
 });
 
 describe('How findChildFiberAt( ) works', () => {
   test('Find the first child', () => {
-    child = findChildFiberAt(parent, 0);
+    const child = findChildFiberAt(parent, 0);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
   });
 
   test('Find the second child', () => {
-    child = findChildFiberAt(parent, 1);
+    const child = findChildFiberAt(parent, 1);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('2');
   });
 
   test('Find the last child', () => {
-    child = findChildFiberAt(parent, -1);
+    const child = findChildFiberAt(parent, -1);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('2');
   });
 
   test('(Provide a position bigger than the number of children) Find the last child', () => {
-    child = findChildFiberAt(parent, 5);
+    const child = findChildFiberAt(parent, 5);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('2');
   });
 
   test('(Parent without children) Not find the child and get null', () => {
     parent.child = null;
-    child = findChildFiberAt(parent, 1);
+    const child = findChildFiberAt(parent, 1);
     // The child is not found.
     expect(child).toBe(null);
   });
@@ -73,24 +83,28 @@ describe('How findChildFiberAt( ) works', () => {
 
 describe('How findChildFiber( ) works', () => {
   test('Find the child with key "1"', () => {
-    child = findChildFiber(parent, '1');
+    const child = findChildFiber(parent, '1');
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
   });
 
   test('Find the child with key "2"', () => {
-    child = findChildFiber(parent, '2');
+    const child = findChildFiber(parent, '2');
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('2');
   });
 
   test('(Parent without children) Not find the child and get null', () => {
     parent.child = null;
-    child = findChildFiber(parent, '1');
+    const child = findChildFiber(parent, '1');
     // The child is not found.
     expect(child).toBe(null);
   });
@@ -98,28 +112,30 @@ describe('How findChildFiber( ) works', () => {
 
 describe('How findPreviousFiber( ) works', () => {
   test('Find the child previous the one with key "2"', () => {
-    child = findPreviousFiber(parent, '2');
+    const child = findPreviousFiber(parent, '2');
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
   });
 
   test('Find the child previous the first child and get the parent', () => {
-    child = findPreviousFiber(parent, '1');
+    const child = findPreviousFiber(parent, '1');
     // The child is found.
     expect(child).toBe(parent);
   });
 
   test('(Provide a not valid key) Not find the child and get null', () => {
-    child = findPreviousFiber(parent, '3');
+    const child = findPreviousFiber(parent, '3');
     // The child is not found.
     expect(child).toBe(null);
   });
 
   test('(Parent without children) Not find the child and get null', () => {
     parent.child = null;
-    child = findPreviousFiber(parent, '1');
+    const child = findPreviousFiber(parent, '1');
     // The child is not found.
     expect(child).toBe(null);
   });
@@ -130,6 +146,8 @@ describe('How findSiblingFiber( ) works', () => {
     const sibling = findSiblingFiber(child, '2');
     // The child is found.
     expect(sibling).not.toBe(null);
+    // (type fixing).
+    invariant(sibling !== null);
     // The key is correct.
     expect(sibling.key).toBe('2');
   });

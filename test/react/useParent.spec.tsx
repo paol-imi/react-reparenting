@@ -1,10 +1,10 @@
-import React, {useRef} from 'react';
+import React from 'react';
 import {mount} from 'enzyme';
 import type {Fiber} from 'react-reconciler';
 import type {ReactWrapper} from 'enzyme';
-import {ErrorBoundary} from '../__shared__';
 import {ParentFiber, useParent} from '../../src';
-import {Invariant} from '../../src/invariant';
+import {Child} from '../__shared__';
+import {invariant} from '../../src/invariant';
 
 // Wrapper.
 let wrapper: ReactWrapper;
@@ -12,10 +12,9 @@ let wrapper: ReactWrapper;
 let parent: ParentFiber;
 
 // Parent component.
-const Parent = ({findFiber}: {findFiber?: (fiber: Fiber) => Fiber}): any => {
-  const ref = useRef<HTMLDivElement>();
-  parent = useParent<HTMLDivElement>(ref, findFiber);
-  return <div ref={ref} />;
+const Parent = ({findFiber}: {findFiber?: (fiber: Fiber) => Fiber}) => {
+  parent = useParent(findFiber);
+  return <Child />;
 };
 
 beforeEach(() => {
@@ -41,27 +40,17 @@ describe('How useParent( ) works', () => {
   });
 
   test('The findFiber prop', () => {
-    mount(<Parent findFiber={(fiber): Fiber => fiber.return} />);
+    mount(
+      <Parent
+        findFiber={(fiber) => {
+          // (type fixing).
+          invariant(fiber.child !== null);
+          return fiber.child;
+        }}
+      />
+    );
     // The correct fiber is set.
-    expect(parent.getCurrent().elementType).toBe(Parent);
-  });
-
-  test('Throw if the ref is not set', () => {
-    const WrongParent = (): null => {
-      const ref = useRef();
-      useParent(ref);
-      return null;
-    };
-
-    wrapper = mount(
-      <ErrorBoundary>
-        <WrongParent />
-      </ErrorBoundary>
-    );
-    // The hook throw.
-    expect((wrapper.state() as ErrorBoundary['state']).error).toBeInstanceOf(
-      Invariant
-    );
+    expect(parent.getCurrent().elementType).toBe(Child);
   });
 
   test('The parent is the same after a re-render', () => {

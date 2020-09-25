@@ -17,25 +17,21 @@ describe('How invariant works (development)', () => {
 describe('How invariant works (production)', () => {
   test('Not throw Invariant', () => {
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    global.__DEV__ = false;
+    (global as any).__DEV__ = false;
     expect(() => {
       invariant(true, 'invariant');
     }).not.toThrow();
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    global.__DEV__ = true;
+    (global as any).__DEV__ = true;
   });
 
   test('Throw Invariant', () => {
     expect(() => {
       // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-      // @ts-ignore
-      global.__DEV__ = false;
+      (global as any).__DEV__ = false;
       invariant(false, 'invariant');
     }).toThrowError(new Invariant('Invariant failed'));
     // eslint-disable-next-line @typescript-eslint/ban-ts-ignore
-    // @ts-ignore
-    global.__DEV__ = true;
+    (global as any).__DEV__ = true;
   });
 });

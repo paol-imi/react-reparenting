@@ -1,14 +1,20 @@
 import React from 'react';
-import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
+import type {Fiber} from 'react-reconciler';
 import type {ReactWrapper} from 'enzyme';
 import {ErrorBoundary} from '../__shared__';
-import {Reparentable, ReparentableMap, sendReparentableChild} from '../../src';
-import {Invariant} from '../../src/invariant';
+import {createReparentableSpace} from '../../src';
+import {invariant, Invariant} from '../../src/invariant';
 import {warning} from '../../src/warning';
 
 // Wrapper.
 let wrapper: ReactWrapper;
+
+const {
+  Reparentable,
+  ReparentableMap,
+  sendReparentableChild,
+} = createReparentableSpace();
 
 beforeEach(() => {
   ReparentableMap.clear();
@@ -44,8 +50,8 @@ describe('How <Reparentable> works', () => {
 
   test('The ParentFiber is initialized after mounting the component', () => {
     // The fiber is set.
-    expect(ReparentableMap.get('A').fiber).not.toBe(null);
-    expect(ReparentableMap.get('B').fiber).not.toBe(null);
+    expect((ReparentableMap.get('A') as any).fiber).not.toBe(null);
+    expect((ReparentableMap.get('B') as any).fiber).not.toBe(null);
     // Warning calls.
     expect(warning).not.toHaveBeenCalled();
   });
@@ -60,13 +66,19 @@ describe('How <Reparentable> works', () => {
 
   test('The findFiber prop', () => {
     mount(
-      <Reparentable id="C" findFiber={(fiber): Fiber => fiber.child}>
+      <Reparentable
+        id="C"
+        findFiber={(fiber) => {
+          // (type fixing).
+          invariant(fiber.child !== null);
+          return fiber.child;
+        }}>
         <div key="1" />
       </Reparentable>
     );
 
     // The correct fiber is set.
-    expect(ReparentableMap.get('C').getCurrent().key).toBe('1');
+    expect((ReparentableMap.get('C') as any).getCurrent().key).toBe('1');
     // Warning calls.
     expect(warning).not.toHaveBeenCalled();
   });
@@ -79,11 +91,11 @@ describe('How <Reparentable> works', () => {
     );
 
     wrapper.setProps({
-      findFiber: (fiber) => fiber.child,
+      findFiber: (fiber: Fiber) => fiber.child,
     });
 
     // The correct fiber is set.
-    expect(ReparentableMap.get('C').findFiber).toBeDefined();
+    expect((ReparentableMap.get('C') as any).findFiber).toBeDefined();
     // Warning calls.
     expect(warning).not.toHaveBeenCalled();
   });
@@ -97,7 +109,7 @@ describe('How <Reparentable> works', () => {
   test('<Reparentable> throw if id is not passed', () => {
     wrapper = mount(
       <ErrorBoundary>
-        <Reparentable id={null}>{null}</Reparentable>
+        <Reparentable id={null as any}>{null}</Reparentable>
       </ErrorBoundary>
     );
 

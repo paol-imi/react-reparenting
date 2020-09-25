@@ -1,12 +1,12 @@
 import React, {createRef} from 'react';
 import {mount} from 'enzyme';
-import {getFibersIndices, getFibersKeys} from '../__shared__';
-import {getFiberFromElementInstance, ParentFiber} from '../../src';
-import {Invariant} from '../../src/invariant';
+import {Child, getFibersIndices, getFibersKeys, Parent} from '../__shared__';
+import {ParentFiber} from '../../src';
+import {invariant, Invariant} from '../../src/invariant';
 
 // Refs.
-const parentAElementRef = createRef<HTMLDivElement>();
-const parentBElementRef = createRef<HTMLDivElement>();
+const parentFiberARef = createRef<ParentFiber>();
+const parentFiberBRef = createRef<ParentFiber>();
 // Parent fibers.
 let parentA: ParentFiber;
 let parentB: ParentFiber;
@@ -14,24 +14,24 @@ let parentB: ParentFiber;
 beforeEach(() => {
   // Mount the components.
   mount(
-    <div ref={parentAElementRef}>
-      <div key="1" />
-      <div key="2" />
-    </div>
+    <Parent parentFiberRef={parentFiberARef}>
+      <Child key="1" />
+      <Child key="2" />
+    </Parent>
   );
   mount(
-    <div ref={parentBElementRef}>
-      <div key="3" />
-      <div key="4" />
-    </div>
+    <Parent parentFiberRef={parentFiberBRef}>
+      <Child key="3" />
+      <Child key="4" />
+    </Parent>
   );
 
   // Parents.
-  parentA = new ParentFiber();
-  parentB = new ParentFiber();
-
-  parentA.setFiber(getFiberFromElementInstance(parentAElementRef.current));
-  parentB.setFiber(getFiberFromElementInstance(parentBElementRef.current));
+  invariant(
+    parentFiberARef.current !== null && parentFiberBRef.current !== null
+  );
+  parentA = parentFiberARef.current;
+  parentB = parentFiberBRef.current;
 });
 
 describe('How the ParentFiber works', () => {
@@ -60,7 +60,10 @@ describe('How the ParentFiber works', () => {
   });
 
   test('Add a child', () => {
-    const position = parentB.addChild(parentA.getCurrent().child, 0);
+    const current = parentA.getCurrent();
+    // (type fixing).
+    invariant(current.child !== null);
+    const position = parentB.addChild(current.child, 0);
     // The position is correct.
     expect(position).toBe(0);
     // The indices are updated.
@@ -80,16 +83,20 @@ describe('How the ParentFiber works', () => {
   });
 
   test('The findFiber method', () => {
-    parentA.setFinder((fiber) => fiber.child);
+    parentA.setFinder((fiber) => {
+      // (type fixing).
+      invariant(fiber.child !== null);
+      return fiber.child;
+    });
     // The position is correct.
     expect(parentA.getCurrent().key).toBe('1');
   });
 
   test('Throw id the fiber is not set', () => {
-    parentA.clear();
+    const parent = new ParentFiber();
 
     expect(() => {
-      parentA.getCurrent();
+      parent.getCurrent();
     }).toThrow(Invariant);
   });
 });

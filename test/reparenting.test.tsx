@@ -1,17 +1,16 @@
 import React, {createRef, createContext, memo, useContext} from 'react';
-import type {MutableRefObject} from 'react';
 import {mount} from 'enzyme';
+import type {MutableRefObject} from 'react';
+import type {Fiber} from 'react-reconciler';
 import type {ReactWrapper} from 'enzyme';
-import {Child, getFibersIndices, getFibersKeys} from './__shared__';
+import {Child, getFibersIndices, getFibersKeys, Parent} from './__shared__';
+import {findChildFiber, ParentFiber} from '../src';
+import {invariant} from '../src/invariant';
 import type {ChildProps} from './__shared__';
-import {Parent, findChildFiber} from '../src';
-import type {ParentFiber} from '../src';
 
 // Refs.
 const parentARef = createRef<ParentFiber>();
 const parentBRef = createRef<ParentFiber>();
-const containerARef = createRef<HTMLDivElement>();
-const containerBRef = createRef<HTMLDivElement>();
 // Wrappers.
 let wrapperA: ReactWrapper;
 let wrapperB: ReactWrapper;
@@ -32,6 +31,7 @@ beforeEach(() => {
     onRender: jest.fn(),
     onMount: jest.fn(),
     onUnmount: jest.fn(),
+    stateRef: createRef(),
   };
   // Children moks.
   child2Mocks = {
@@ -39,6 +39,7 @@ beforeEach(() => {
     onRender: jest.fn(),
     onMount: jest.fn(),
     onUnmount: jest.fn(),
+    stateRef: createRef(),
   };
   // Children moks.
   child3Mocks = {
@@ -46,6 +47,7 @@ beforeEach(() => {
     onRender: jest.fn(),
     onMount: jest.fn(),
     onUnmount: jest.fn(),
+    stateRef: createRef(),
   };
   // Children moks.
   child4Mocks = {
@@ -53,20 +55,21 @@ beforeEach(() => {
     onRender: jest.fn(),
     onMount: jest.fn(),
     onUnmount: jest.fn(),
+    stateRef: createRef(),
   };
 
   // Mount the components.
   wrapperA = mount(
-    <div ref={containerARef}>
-      <Parent parentRef={parentARef}>
+    <div>
+      <Parent parentFiberRef={parentARef}>
         <Child key="1" {...child1Mocks} />
         <Child key="2" {...child2Mocks} />
       </Parent>
     </div>
   );
   wrapperB = mount(
-    <div ref={containerBRef}>
-      <Parent parentRef={parentBRef}>
+    <div>
+      <Parent parentFiberRef={parentBRef}>
         <Child key="3" {...child3Mocks} />
         <Child key="4" {...child4Mocks} />
       </Parent>
@@ -74,6 +77,7 @@ beforeEach(() => {
   );
 
   // Parents.
+  invariant(parentARef.current !== null && parentBRef.current !== null);
   parentA = parentARef.current;
   parentB = parentBRef.current;
 });
@@ -85,14 +89,14 @@ describe('How the reparented child lifecycle works', () => {
     // Update the children.
     wrapperA.setProps({
       children: (
-        <Parent parentRef={parentARef}>
+        <Parent parentFiberRef={parentARef}>
           <Child key="2" {...child2Mocks} />
         </Parent>
       ),
     });
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
+        <Parent parentFiberRef={parentBRef}>
           <Child key="1" {...child1Mocks} />
           <Child key="3" {...child3Mocks} />
           <Child key="4" {...child4Mocks} />
@@ -141,21 +145,26 @@ describe('How the reparented child lifecycle works', () => {
   });
 });
 
-describe('How the state is manteined after reparenting', () => {
+describe('How the state is maintained after reparenting', () => {
   test('Send a child', () => {
     // The state is generated using Math.random().
-    const randomlyCalculatedState = wrapperA.find(Child).first().state();
+    invariant(child1Mocks.stateRef !== undefined);
+    const randomlyCalculatedState = child1Mocks.stateRef.current;
 
     // Send the child.
     parentA.sendChild(parentB, '1', 0);
 
     // Update the children.
     wrapperA.setProps({
-      children: <Parent parentRef={parentARef}>{null}</Parent>,
+      children: (
+        <Parent parentFiberRef={parentARef}>
+          <Child key="2" {...child2Mocks} />
+        </Parent>
+      ),
     });
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
+        <Parent parentFiberRef={parentBRef}>
           <Child key="1" {...child1Mocks} />
           <Child key="3" {...child3Mocks} />
           <Child key="4" {...child4Mocks} />
@@ -164,7 +173,7 @@ describe('How the state is manteined after reparenting', () => {
     });
 
     // The state is manteined.
-    expect(wrapperB.find(Child).first().state()).toBe(randomlyCalculatedState);
+    expect(randomlyCalculatedState).toBe(child1Mocks.stateRef.current);
   });
 });
 
@@ -180,14 +189,14 @@ describe('Reparenting with context', () => {
     };
 
     // Context values.
-    const valueARef: MutableRefObject<string> = createRef<string>();
-    const valueBRef: MutableRefObject<string> = createRef<string>();
+    const valueARef = createRef<string>() as MutableRefObject<string>;
+    const valueBRef = createRef<string>() as MutableRefObject<string>;
 
     // Mount the components.
     wrapperA = mount(
       <div>
         <Provider value="A">
-          <Parent parentRef={parentARef}>
+          <Parent parentFiberRef={parentARef}>
             <Consumer key="1" valueRef={valueARef} />
           </Parent>
         </Provider>
@@ -196,7 +205,7 @@ describe('Reparenting with context', () => {
     wrapperB = mount(
       <div>
         <Provider value="B">
-          <Parent parentRef={parentBRef}>
+          <Parent parentFiberRef={parentBRef}>
             <Consumer key="2" valueRef={valueBRef} />
           </Parent>
         </Provider>
@@ -211,7 +220,7 @@ describe('Reparenting with context', () => {
     wrapperB.setProps({
       children: (
         <Provider value="B">
-          <Parent parentRef={parentBRef}>
+          <Parent parentFiberRef={parentBRef}>
             <Consumer key="1" valueRef={valueARef} />
             <Consumer key="2" valueRef={valueBRef} />
           </Parent>
@@ -237,14 +246,14 @@ describe('Reparenting with context', () => {
     );
 
     // Context values.
-    const valueARef: MutableRefObject<string> = createRef<string>();
-    const valueBRef: MutableRefObject<string> = createRef<string>();
+    const valueARef = createRef<string>() as MutableRefObject<string>;
+    const valueBRef = createRef<string>() as MutableRefObject<string>;
 
     // Mount the components.
     wrapperA = mount(
       <div>
         <Provider value="A">
-          <Parent parentRef={parentARef}>
+          <Parent parentFiberRef={parentARef}>
             <MemoConsumer key="1" valueRef={valueARef} />
           </Parent>
         </Provider>
@@ -254,7 +263,7 @@ describe('Reparenting with context', () => {
     wrapperB = mount(
       <div>
         <Provider value="B">
-          <Parent parentRef={parentBRef}>
+          <Parent parentFiberRef={parentBRef}>
             <MemoConsumer key="2" valueRef={valueBRef} />
           </Parent>
         </Provider>
@@ -269,7 +278,7 @@ describe('Reparenting with context', () => {
     wrapperB.setProps({
       children: (
         <Provider value="B">
-          <Parent parentRef={parentBRef}>
+          <Parent parentFiberRef={parentBRef}>
             <MemoConsumer key="1" valueRef={valueARef} />
             <MemoConsumer key="2" valueRef={valueBRef} />
           </Parent>
@@ -318,22 +327,24 @@ describe('Reparenting with React.memo', () => {
 
     // Mount the components.
     wrapperA = mount(
-      <div ref={containerARef}>
-        <Parent parentRef={parentARef}>
+      <div>
+        <Parent parentFiberRef={parentARef}>
           <MemoChild key="1" {...child1Mocks} />
           <MemoChild key="2" {...child2Mocks} />
         </Parent>
       </div>
     );
     wrapperB = mount(
-      <div ref={containerBRef}>
-        <Parent parentRef={parentBRef}>
+      <div>
+        <Parent parentFiberRef={parentBRef}>
           <MemoChild key="3" {...child3Mocks} />
           <MemoChild key="4" {...child4Mocks} />
         </Parent>
       </div>
     );
 
+    // (type fixing).
+    invariant(parentARef.current !== null && parentBRef.current !== null);
     // Parents.
     parentA = parentARef.current;
     parentB = parentBRef.current;
@@ -342,14 +353,14 @@ describe('Reparenting with React.memo', () => {
     // Mount the components.
     wrapperA.setProps({
       children: (
-        <Parent parentRef={parentARef}>
+        <Parent parentFiberRef={parentARef}>
           <MemoChild key="2" {...child2Mocks} />
         </Parent>
       ),
     });
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
+        <Parent parentFiberRef={parentBRef}>
           <MemoChild key="1" {...child1Mocks} />
           <MemoChild key="3" {...child3Mocks} />
           <MemoChild key="4" {...child4Mocks} />
@@ -381,7 +392,7 @@ describe('Some possible scenarios', () => {
     // Re-render.
     wrapperA.setProps({
       children: (
-        <Parent parentRef={parentARef}>
+        <Parent parentFiberRef={parentARef}>
           <Child key="1" {...child1Mocks} />
           <Child key="2" {...child2Mocks} />
         </Parent>
@@ -393,11 +404,11 @@ describe('Some possible scenarios', () => {
 
     // Update the children.
     wrapperA.setProps({
-      children: <Parent parentRef={parentARef}>{null}</Parent>,
+      children: <Parent parentFiberRef={parentARef}>{null}</Parent>,
     });
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
+        <Parent parentFiberRef={parentBRef}>
           <Child key="1" {...child1Mocks} />
           <Child key="3" {...child3Mocks} />
           <Child key="2" {...child2Mocks} />
@@ -407,6 +418,7 @@ describe('Some possible scenarios', () => {
     });
 
     const fiber = findChildFiber(parentB.getCurrent(), '2');
+    invariant(fiber !== null && fiber.alternate !== null);
 
     // The fiber fields are updated.
     expect(fiber.return).toBe(parentB.getCurrent());
@@ -415,7 +427,7 @@ describe('Some possible scenarios', () => {
     // The indices are updated.
     expect(getFibersIndices(parentA.getCurrent())).toEqual([]);
     expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2, 3]);
-    expect(getFibersIndices(parentB.getCurrent().alternate)).toEqual([
+    expect(getFibersIndices(parentB.getCurrent().alternate as Fiber)).toEqual([
       0,
       1,
       2,
@@ -424,7 +436,7 @@ describe('Some possible scenarios', () => {
     // The keys are in the correct order.
     expect(getFibersKeys(parentA.getCurrent())).toEqual([]);
     expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '2', '4']);
-    expect(getFibersKeys(parentB.getCurrent().alternate)).toEqual([
+    expect(getFibersKeys(parentB.getCurrent().alternate as Fiber)).toEqual([
       '1',
       '3',
       '2',
@@ -433,12 +445,12 @@ describe('Some possible scenarios', () => {
 
     // The children are in the correct order.
     expect(
-      Array.from(wrapperA.getDOMNode().children).map((child: HTMLElement) =>
+      Array.from(wrapperA.childAt(0).getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
     ).toEqual([]);
     expect(
-      Array.from(wrapperB.getDOMNode().children).map((child: HTMLElement) =>
+      Array.from(wrapperB.childAt(0).getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
     ).toEqual(['1', '3', '2', '4']);
@@ -487,7 +499,7 @@ describe('Some possible scenarios', () => {
     // Re-render.
     wrapperA.setProps({
       children: (
-        <Parent parentRef={parentARef}>
+        <Parent parentFiberRef={parentARef}>
           <Child key="1" {...child1Mocks} />
           <Child key="2" {...child2Mocks} />
         </Parent>
@@ -499,11 +511,11 @@ describe('Some possible scenarios', () => {
 
     // Update the children.
     wrapperA.setProps({
-      children: <Parent parentRef={parentARef}>{null}</Parent>,
+      children: <Parent parentFiberRef={parentARef}>{null}</Parent>,
     });
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
+        <Parent parentFiberRef={parentBRef}>
           <Child key="1" {...child1Mocks} />
           <Child key="3" {...child3Mocks} />
           <Child key="2" {...child2Mocks} />
@@ -514,11 +526,11 @@ describe('Some possible scenarios', () => {
 
     // Re-render.
     wrapperA.setProps({
-      children: <Parent parentRef={parentARef}>{null}</Parent>,
+      children: <Parent parentFiberRef={parentARef}>{null}</Parent>,
     });
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
+        <Parent parentFiberRef={parentBRef}>
           <Child key="1" {...child1Mocks} />
           <Child key="3" {...child3Mocks} />
           <Child key="2" {...child2Mocks} />
@@ -528,6 +540,7 @@ describe('Some possible scenarios', () => {
     });
 
     const fiber = findChildFiber(parentB.getCurrent(), '2');
+    invariant(fiber !== null && fiber.alternate !== null);
 
     // The fiber fields are updated.
     expect(fiber.return).toBe(parentB.getCurrent());
@@ -536,7 +549,7 @@ describe('Some possible scenarios', () => {
     // The indices are updated.
     expect(getFibersIndices(parentA.getCurrent())).toEqual([]);
     expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2, 3]);
-    expect(getFibersIndices(parentB.getCurrent().alternate)).toEqual([
+    expect(getFibersIndices(parentB.getCurrent().alternate as Fiber)).toEqual([
       0,
       1,
       2,
@@ -545,7 +558,7 @@ describe('Some possible scenarios', () => {
     // The keys are in the correct order.
     expect(getFibersKeys(parentA.getCurrent())).toEqual([]);
     expect(getFibersKeys(parentB.getCurrent())).toEqual(['1', '3', '2', '4']);
-    expect(getFibersKeys(parentB.getCurrent().alternate)).toEqual([
+    expect(getFibersKeys(parentB.getCurrent().alternate as Fiber)).toEqual([
       '1',
       '3',
       '2',
@@ -554,12 +567,12 @@ describe('Some possible scenarios', () => {
 
     // The children are in the correct order.
     expect(
-      Array.from(wrapperA.getDOMNode().children).map((child: HTMLElement) =>
+      Array.from(wrapperA.childAt(0).getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
     ).toEqual([]);
     expect(
-      Array.from(wrapperB.getDOMNode().children).map((child: HTMLElement) =>
+      Array.from(wrapperB.childAt(0).getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
     ).toEqual(['1', '3', '2', '4']);
@@ -615,7 +628,7 @@ describe('Some possible scenarios', () => {
     // Re-render.
     wrapperA.setProps({
       children: (
-        <Parent parentRef={parentARef}>
+        <Parent parentFiberRef={parentARef}>
           <Child key="1" {...child1Mocks} />
           <Child key="2" {...child2Mocks} />
         </Parent>
@@ -627,11 +640,11 @@ describe('Some possible scenarios', () => {
 
     // Update the children.
     wrapperA.setProps({
-      children: <Parent parentRef={parentARef}>{null}</Parent>,
+      children: <Parent parentFiberRef={parentARef}>{null}</Parent>,
     });
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
+        <Parent parentFiberRef={parentBRef}>
           <Child key="1" {...child1Mocks} />
           <Child key="3" {...child3Mocks} />
           <Child key="5" {...child5Mocks} />
@@ -642,6 +655,7 @@ describe('Some possible scenarios', () => {
     });
 
     const fiber = findChildFiber(parentB.getCurrent(), '2');
+    invariant(fiber !== null && fiber.alternate !== null);
 
     // The fiber fields are updated.
     expect(fiber.return).toBe(parentB.getCurrent());
@@ -650,7 +664,7 @@ describe('Some possible scenarios', () => {
     // The indices are updated.
     expect(getFibersIndices(parentA.getCurrent())).toEqual([]);
     expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2, 3, 4]);
-    expect(getFibersIndices(parentB.getCurrent().alternate)).toEqual([
+    expect(getFibersIndices(parentB.getCurrent().alternate as Fiber)).toEqual([
       0,
       1,
       2,
@@ -665,7 +679,7 @@ describe('Some possible scenarios', () => {
       '2',
       '4',
     ]);
-    expect(getFibersKeys(parentB.getCurrent().alternate)).toEqual([
+    expect(getFibersKeys(parentB.getCurrent().alternate as Fiber)).toEqual([
       '1',
       '3',
       '2',
@@ -674,12 +688,12 @@ describe('Some possible scenarios', () => {
 
     // The children are in the correct order.
     expect(
-      Array.from(wrapperA.getDOMNode().children).map((child: HTMLElement) =>
+      Array.from(wrapperA.childAt(0).getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
     ).toEqual([]);
     expect(
-      Array.from(wrapperB.getDOMNode().children).map((child: HTMLElement) =>
+      Array.from(wrapperB.childAt(0).getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
     ).toEqual(['1', '3', '5', '2', '4']);
@@ -739,7 +753,7 @@ describe('Some possible scenarios', () => {
     // Re-render.
     wrapperA.setProps({
       children: (
-        <Parent parentRef={parentARef}>
+        <Parent parentFiberRef={parentARef}>
           <Child key="1" {...child1Mocks} />
           <Child key="2" {...child2Mocks} />
         </Parent>
@@ -751,11 +765,11 @@ describe('Some possible scenarios', () => {
 
     // Update the children.
     wrapperA.setProps({
-      children: <Parent parentRef={parentARef}>{null}</Parent>,
+      children: <Parent parentFiberRef={parentARef}>{null}</Parent>,
     });
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
+        <Parent parentFiberRef={parentBRef}>
           <Child key="1" {...child1Mocks} />
           <Child key="3" {...child3Mocks} />
           <Child key="5" {...child5Mocks} />
@@ -767,11 +781,11 @@ describe('Some possible scenarios', () => {
 
     // Re-render.
     wrapperA.setProps({
-      children: <Parent parentRef={parentARef}>{null}</Parent>,
+      children: <Parent parentFiberRef={parentARef}>{null}</Parent>,
     });
     wrapperB.setProps({
       children: (
-        <Parent parentRef={parentBRef}>
+        <Parent parentFiberRef={parentBRef}>
           <Child key="1" {...child1Mocks} />
           <Child key="3" {...child3Mocks} />
           <Child key="5" {...child5Mocks} />
@@ -782,6 +796,7 @@ describe('Some possible scenarios', () => {
     });
 
     const fiber = findChildFiber(parentB.getCurrent(), '2');
+    invariant(fiber !== null && fiber.alternate !== null);
 
     // The fiber fields are updated.
     expect(fiber.return).toBe(parentB.getCurrent());
@@ -790,7 +805,7 @@ describe('Some possible scenarios', () => {
     // The indices are updated.
     expect(getFibersIndices(parentA.getCurrent())).toEqual([]);
     expect(getFibersIndices(parentB.getCurrent())).toEqual([0, 1, 2, 3, 4]);
-    expect(getFibersIndices(parentB.getCurrent().alternate)).toEqual([
+    expect(getFibersIndices(parentB.getCurrent().alternate as Fiber)).toEqual([
       0,
       1,
       2,
@@ -806,7 +821,7 @@ describe('Some possible scenarios', () => {
       '2',
       '4',
     ]);
-    expect(getFibersKeys(parentB.getCurrent().alternate)).toEqual([
+    expect(getFibersKeys(parentB.getCurrent().alternate as Fiber)).toEqual([
       '1',
       '3',
       '5',
@@ -816,12 +831,12 @@ describe('Some possible scenarios', () => {
 
     // The children are in the correct order.
     expect(
-      Array.from(wrapperA.getDOMNode().children).map((child: HTMLElement) =>
+      Array.from(wrapperA.childAt(0).getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
     ).toEqual([]);
     expect(
-      Array.from(wrapperB.getDOMNode().children).map((child: HTMLElement) =>
+      Array.from(wrapperB.childAt(0).getDOMNode().children).map((child) =>
         child.getAttribute('id')
       )
     ).toEqual(['1', '3', '5', '2', '4']);

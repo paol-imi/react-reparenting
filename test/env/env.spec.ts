@@ -1,8 +1,8 @@
-import {Env, configure} from '../../src';
+import {Env, configure, ENV} from '../../src';
 
 describe('How configure works', () => {
   test('The component provide a ParentFiber instance', () => {
-    const configuration = {
+    const configuration: ENV<Element> = {
       appendChildToContainer(container, child): void {
         container.appendChild(child);
       },

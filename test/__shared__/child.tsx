@@ -1,39 +1,45 @@
-import React, {Component} from 'react';
-import type {ReactNode} from 'react';
+import React, {MutableRefObject, useEffect, useState} from 'react';
+import type {RefObject} from 'react';
+import type {Fiber} from 'react-reconciler';
+import {getCurrentOwner} from '../../src';
 
 /**
- * Custom child component that accepts some lifecycle callback.
+ * Custom component that accepts some lifecycle callback.
  */
-export class Child extends Component<ChildProps> {
-  // eslint-disable-next-line react/no-unused-state
-  state = {id: Math.random()};
+export function Child({
+  stateRef,
+  fiberRef,
+  onRender,
+  onMount,
+  onUnmount,
+  id,
+}: ChildProps) {
+  const [state] = useState(Math.random);
 
-  componentDidMount(): void {
-    // OnMount callback.
-    const {onMount} = this.props;
-    onMount();
-  }
+  if (stateRef) (stateRef as MutableRefObject<number>).current = state;
+  if (fiberRef)
+    (fiberRef as MutableRefObject<Fiber | null>).current = getCurrentOwner();
 
-  componentWillUnmount(): void {
-    // OnUnount callback.
-    const {onUnmount} = this.props;
-    onUnmount();
-  }
+  if (onRender) onRender();
+  useEffect(() => {
+    if (onMount) onMount();
+    return () => {
+      if (onUnmount) onUnmount();
+    };
+  }, []);
 
-  render(): ReactNode {
-    // OnRender callback.
-    const {id, onRender} = this.props;
-    onRender();
-    return <div id={id} className="child" />;
-  }
+  return <div id={id} className="child" />;
 }
 
 /** Child props. */
 export type ChildProps = {
   /** The id of the element. */
-  id: string;
+  id?: string;
+  /** Refs. */
+  stateRef?: RefObject<number>;
+  fiberRef?: RefObject<Fiber>;
   /** Callbacks. */
-  onRender: () => void;
-  onMount: () => void;
-  onUnmount: () => void;
+  onRender?: () => void;
+  onMount?: () => void;
+  onUnmount?: () => void;
 };

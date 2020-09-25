@@ -4,7 +4,7 @@ describe('How warning works', () => {
   test('Not throw in IE9', () => {
     // Remove the console.
     const cnl = global.console;
-    global.console = undefined;
+    (global as any).console = undefined;
 
     expect(() => {
       warning('warning');

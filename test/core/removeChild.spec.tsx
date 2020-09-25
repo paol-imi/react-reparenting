@@ -2,29 +2,35 @@ import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
-import {getFibersKeys, getFibersIndices, getChildrenIds} from '../__shared__';
-import {addChild, removeChild, getFiberFromElementInstance} from '../../src';
-import {Invariant} from '../../src/invariant';
+import {
+  getFibersKeys,
+  getFibersIndices,
+  getChildrenIds,
+  Parent,
+  Child,
+} from '../__shared__';
+import {addChild, removeChild} from '../../src';
+import {invariant, Invariant} from '../../src/invariant';
 import {warning} from '../../src/warning';
 
-// Refs.
-const parentElementRef = createRef<HTMLDivElement>();
-// Wrappers.
+// Ref.
+const parentRef = createRef<Fiber>();
+// Wrapper.
 let parentWrapper: ReactWrapper;
-// Parent fibers.
+// Fiber.
 let parent: Fiber;
 
 beforeEach(() => {
   // Mount the components.
   parentWrapper = mount(
-    <div ref={parentElementRef}>
-      <div key="1" id="1" />
-      <div key="2" id="2" />
-    </div>
+    <Parent fiberRef={parentRef}>
+      <Child key="1" id="1" />
+      <Child key="2" id="2" />
+    </Parent>
   );
 
-  // Parents.
-  parent = getFiberFromElementInstance(parentElementRef.current);
+  invariant(parentRef.current !== null);
+  parent = parentRef.current;
 
   // Clear the mock.
   (warning as jest.Mock).mockClear();
@@ -33,8 +39,11 @@ beforeEach(() => {
 describe('How removeChild( ) works', () => {
   test('Remove the first child', () => {
     const child = removeChild(parent, 0);
+
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
     // Warning calls.
@@ -51,6 +60,8 @@ describe('How removeChild( ) works', () => {
     const child = removeChild(parent, 1);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('2');
     // Warning calls.
@@ -67,6 +78,8 @@ describe('How removeChild( ) works', () => {
     const child = removeChild(parent, '1');
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
     // Warning calls.
@@ -83,6 +96,8 @@ describe('How removeChild( ) works', () => {
     const child = removeChild(parent, '2');
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('2');
     // Warning calls.
@@ -126,16 +141,21 @@ describe('How removeChild( ) works', () => {
   test('(With only parent alternate) Remove the first child', () => {
     // Generate the parent alternate.
     parentWrapper.setProps({});
+    invariant(parent.alternate !== null);
 
-    const ref = createRef<HTMLDivElement>();
+    const fiberRef = createRef<Fiber>();
     // Generate a fiber without alternate.
-    mount(<div id="3" ref={ref} />);
+    mount(<Child id="3" fiberRef={fiberRef} />);
+    // (type fixing).
+    invariant(fiberRef.current !== null);
     // Add the fiber.
-    addChild(parent, getFiberFromElementInstance(ref.current), 0);
+    addChild(parent, fiberRef.current, 0);
 
     const child = removeChild(parent, 0);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The child has an alternate.
     expect(child.alternate).toBe(null);
     // Warning calls.
@@ -151,15 +171,19 @@ describe('How removeChild( ) works', () => {
   });
 
   test('(With only child alternate) Remove the first child', () => {
-    const ref = createRef<HTMLDivElement>();
-    // Generate a fiber with an alternate.
-    mount(<div id="3" ref={ref} />).setProps({});
+    const fiberRef = createRef<Fiber>();
+    // Generate a fiber without alternate.
+    mount(<Child id="3" fiberRef={fiberRef} />).setProps({});
+    // (type fixing).
+    invariant(fiberRef.current !== null);
     // Add the fiber.
-    addChild(parent, getFiberFromElementInstance(ref.current), 0);
+    addChild(parent, fiberRef.current, 0);
 
     const child = removeChild(parent, 0);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The child has an alternate.
     expect(child.alternate).not.toBe(null);
     // Warning calls.
@@ -173,11 +197,15 @@ describe('How removeChild( ) works', () => {
   });
 
   test('(With parent and child alternates) Remove the first child', () => {
+    // Generate the parent alternate.
     parentWrapper.setProps({});
+    invariant(parent.alternate !== null);
 
     const child = removeChild(parent, 0);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The child has an alternate.
     expect(child.alternate).not.toBe(null);
     // The key is correct.
@@ -196,10 +224,13 @@ describe('How removeChild( ) works', () => {
 
   test('(With parent and child alternates) Remove the child with the key "2"', () => {
     parentWrapper.setProps({});
+    invariant(parent.alternate !== null);
 
     const child = removeChild(parent, '2');
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The child has an alternate.
     expect(child.alternate).not.toBe(null);
     // The key is correct.
@@ -220,6 +251,8 @@ describe('How removeChild( ) works', () => {
     const child = removeChild(parent, 0, true);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
     // Warning calls.
@@ -233,11 +266,15 @@ describe('How removeChild( ) works', () => {
   });
 
   test('(The child element is not found) Send a child but not update the DOM', () => {
-    parent.child.stateNode = null;
+    // (type fixing).
+    invariant(parent.child !== null && parent.child.child !== null);
+    parent.child.child.stateNode = null;
 
     const child = removeChild(parent, 0);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
     // Warning calls.
@@ -256,6 +293,8 @@ describe('How removeChild( ) works', () => {
     const child = removeChild(parent, 0);
     // The child is found.
     expect(child).not.toBe(null);
+    // (type fixing).
+    invariant(child !== null);
     // The key is correct.
     expect(child.key).toBe('1');
     // Warning calls.

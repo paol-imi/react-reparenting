@@ -2,38 +2,47 @@ import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
-import {getFibersKeys, getFibersIndices, getChildrenIds} from '../__shared__';
-import {addChild, getFiberFromElementInstance} from '../../src';
-import {Invariant} from '../../src/invariant';
+import {
+  getFibersKeys,
+  getFibersIndices,
+  getChildrenIds,
+  Parent,
+  Child,
+} from '../__shared__';
+import {addChild} from '../../src';
+import {invariant, Invariant} from '../../src/invariant';
 import {warning} from '../../src/warning';
 
 // Refs.
-const parentElementRef = createRef<HTMLDivElement>();
-const childElementRef = createRef<HTMLDivElement>();
+const parentRef = createRef<Fiber>();
+const childRef = createRef<Fiber>();
 // Wrappers.
 let parentWrapper: ReactWrapper;
 let childWrapper: ReactWrapper;
-// Parent fibers.
+// Fibers.
 let parent: Fiber;
 let child: Fiber;
 
 beforeEach(() => {
   // Mount the components.
   parentWrapper = mount(
-    <div ref={parentElementRef}>
-      <div key="1" id="1" />
-      <div key="2" id="2" />
-    </div>
+    <Parent fiberRef={parentRef}>
+      <Child key="1" id="1" />
+      <Child key="2" id="2" />
+    </Parent>
   );
+  // The fragment is necessary because the fiber of the first
+  // component mounted does not receive the key (maybe an Enzyme bug).
   childWrapper = mount(
-    <div>
-      <div key="3" id="3" ref={childElementRef} />
-    </div>
+    <>
+      <Child key="3" id="3" fiberRef={childRef} />
+    </>
   );
 
-  // Parents.
-  parent = getFiberFromElementInstance(parentElementRef.current);
-  child = getFiberFromElementInstance(childElementRef.current);
+  // (type fixing).
+  invariant(parentRef.current !== null && childRef.current !== null);
+  parent = parentRef.current;
+  child = childRef.current;
 
   // Clear the mock.
   (warning as jest.Mock).mockClear();
@@ -125,7 +134,9 @@ describe('How addChild( ) works', () => {
   });
 
   test('(With only parent alternate) Add a child at the beginning', () => {
+    // Generate the parent alternate.
     parentWrapper.setProps({});
+    invariant(parent.alternate !== null);
 
     const position = addChild(parent.alternate, child, 0);
     // The position is correct.
@@ -143,7 +154,9 @@ describe('How addChild( ) works', () => {
   });
 
   test('(With only child alternate) Add a child at the beginning', () => {
+    // Generate the child alternate.
     childWrapper.setProps({});
+    invariant(child.alternate !== null);
 
     const position = addChild(parent, child, 0);
     // The position is correct.
@@ -164,8 +177,11 @@ describe('How addChild( ) works', () => {
   });
 
   test('(With parent and child alternates) Add a child at the beginning', () => {
+    // Generate the child and parent alternates.
     parentWrapper.setProps({});
     childWrapper.setProps({});
+    invariant(parent.alternate !== null);
+    invariant(child.alternate !== null);
 
     const position = addChild(parent.alternate, child, 0);
     // The position is correct.
@@ -183,8 +199,11 @@ describe('How addChild( ) works', () => {
   });
 
   test('(With parent and child alternates) Add a child in the position of the child with the key "2"', () => {
+    // Generate the child and parent alternates.
     parentWrapper.setProps({});
     childWrapper.setProps({});
+    invariant(parent.alternate !== null);
+    invariant(child.alternate !== null);
 
     const position = addChild(parent.alternate, child, '2');
     // The position is correct.
@@ -216,7 +235,9 @@ describe('How addChild( ) works', () => {
   });
 
   test('(The child element is not found) Add a child but not update the DOM', () => {
-    child.stateNode = null;
+    // (type fixing).
+    invariant(child.child !== null);
+    child.child.stateNode = null;
 
     const position = addChild(parent, child, 0);
     // The position is correct.
@@ -232,7 +253,9 @@ describe('How addChild( ) works', () => {
   });
 
   test('(The child element before is not found) Add a child but not update the DOM', () => {
-    parent.child.stateNode = null;
+    // (type fixing).
+    invariant(parent.child !== null && parent.child.child !== null);
+    parent.child.child.stateNode = null;
 
     const position = addChild(parent, child, 0);
     // The position is correct.
