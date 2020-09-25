@@ -14,7 +14,6 @@ const banner = `/**
 * React-reparenting v${pkg.version}
 * ${pkg.homepage}
 * Copyright (c) 2020-present, Paol-imi
-* Released under the MIT license
 * https://github.com/Paol-imi/react-reparenting/blob/master/LICENSE
 * @license MIT
 */
@@ -62,7 +61,7 @@ export default [
       babel(getBabelOptions({useESModules: false})),
       strip({
         include: extensions.map((ex) => '**/*'.concat(ex)),
-        functions: ['warning', 'updateDebugOwner'],
+        functions: ['warning'],
       }),
       terser(),
     ],
@@ -80,7 +79,7 @@ export default [
       babel(getBabelOptions({useESModules: true})),
       strip({
         include: extensions.map((ex) => '**/*'.concat(ex)),
-        functions: ['warning', 'updateDebugOwner'],
+        functions: ['warning'],
       }),
     ],
   },
