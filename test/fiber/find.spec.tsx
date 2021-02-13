@@ -6,30 +6,28 @@ import {
   findChildFiberAt,
   findPreviousFiber,
   findSiblingFiber,
+  getFiberFromElementInstance,
 } from '../../src';
 import {invariant} from '../../src/invariant';
-import {Child, Parent} from '../__shared__';
 
 // Refs.
-const parentRef = createRef<Fiber>();
-const childRef = createRef<Fiber>();
+const parentRef = createRef<HTMLDivElement>();
 // Fibers.
 let parent: Fiber;
-let child: Fiber;
 
 beforeEach(() => {
-  // Mount the components.
+  // Mount the component.
   mount(
-    <Parent fiberRef={parentRef}>
-      <Child key="1" id="1" fiberRef={childRef} />
-      <Child key="2" id="2" />
-    </Parent>
+    <div ref={parentRef}>
+      <div key="1" />
+      <div key="2" />
+    </div>
   );
 
   // (type fixing).
-  invariant(parentRef.current !== null && childRef.current !== null);
-  parent = parentRef.current;
-  child = childRef.current;
+  invariant(parentRef.current !== null);
+  // Load the fibers.
+  parent = getFiberFromElementInstance(parentRef.current);
 });
 
 describe('How findChildFiberAt( ) works', () => {
@@ -143,6 +141,10 @@ describe('How findPreviousFiber( ) works', () => {
 
 describe('How findSiblingFiber( ) works', () => {
   test('Find the child previous the one with key "2"', () => {
+    const {child} = parent;
+    // (type fixing).
+    invariant(child !== null);
+
     const sibling = findSiblingFiber(child, '2');
     // The child is found.
     expect(sibling).not.toBe(null);
@@ -153,12 +155,20 @@ describe('How findSiblingFiber( ) works', () => {
   });
 
   test('(Provide a not valid key) Not find the child and get null', () => {
+    const {child} = parent;
+    // (type fixing).
+    invariant(child !== null);
+
     const sibling = findSiblingFiber(child, '5');
     // The child is not found.
     expect(sibling).toBe(null);
   });
 
   test('(Fiber without siblings) Not find the child and get null', () => {
+    const {child} = parent;
+    // (type fixing).
+    invariant(child !== null);
+
     child.sibling = null;
     const sibling = findSiblingFiber(child, '5');
     // The child is not found.

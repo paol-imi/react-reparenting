@@ -57,5 +57,5 @@ export function getFibersKeys(parent: Fiber): Key[] {
  */
 export function getChildrenIds(container: HTMLElement): string[] {
   const children = Array.from(container.children);
-  return children.map((child) => child.getAttribute('id'));
+  return children.map((child) => child.getAttribute('id')) as string[];
 }

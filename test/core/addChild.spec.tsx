@@ -1,21 +1,15 @@
-import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
-import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
-import {
-  getFibersKeys,
-  getFibersIndices,
-  getChildrenIds,
-  Parent,
-  Child,
-} from '../__shared__';
-import {addChild} from '../../src';
+import React, {createRef} from 'react';
+import {mount} from 'enzyme';
+import {getChildrenIds, getFibersIndices, getFibersKeys} from '../__shared__';
+import {addChild, getFiberFromElementInstance} from '../../src';
 import {invariant, Invariant} from '../../src/invariant';
 import {warning} from '../../src/warning';
 
 // Refs.
-const parentRef = createRef<Fiber>();
-const childRef = createRef<Fiber>();
+const parentRef = createRef<HTMLDivElement>();
+const childRef = createRef<HTMLDivElement>();
 // Wrappers.
 let parentWrapper: ReactWrapper;
 let childWrapper: ReactWrapper;
@@ -26,23 +20,21 @@ let child: Fiber;
 beforeEach(() => {
   // Mount the components.
   parentWrapper = mount(
-    <Parent fiberRef={parentRef}>
-      <Child key="1" id="1" />
-      <Child key="2" id="2" />
-    </Parent>
+    <div ref={parentRef}>
+      <div key="1" id="1" />
+      <div key="2" id="2" />
+    </div>
   );
-  // The fragment is necessary because the fiber of the first
-  // component mounted does not receive the key (maybe an Enzyme bug).
   childWrapper = mount(
-    <>
-      <Child key="3" id="3" fiberRef={childRef} />
-    </>
+    <div>
+      <div key="3" id="3" ref={childRef} />
+    </div>
   );
 
   // (type fixing).
   invariant(parentRef.current !== null && childRef.current !== null);
-  parent = parentRef.current;
-  child = childRef.current;
+  parent = getFiberFromElementInstance(parentRef.current);
+  child = getFiberFromElementInstance(childRef.current);
 
   // Clear the mock.
   (warning as jest.Mock).mockClear();
@@ -235,9 +227,7 @@ describe('How addChild( ) works', () => {
   });
 
   test('(The child element is not found) Add a child but not update the DOM', () => {
-    // (type fixing).
-    invariant(child.child !== null);
-    child.child.stateNode = null;
+    child.stateNode = null;
 
     const position = addChild(parent, child, 0);
     // The position is correct.
@@ -254,8 +244,8 @@ describe('How addChild( ) works', () => {
 
   test('(The child element before is not found) Add a child but not update the DOM', () => {
     // (type fixing).
-    invariant(parent.child !== null && parent.child.child !== null);
-    parent.child.child.stateNode = null;
+    invariant(parent.child !== null);
+    parent.child.stateNode = null;
 
     const position = addChild(parent, child, 0);
     // The position is correct.

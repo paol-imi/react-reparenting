@@ -1,12 +1,12 @@
 import React, {createRef} from 'react';
 import {mount} from 'enzyme';
-import {Child, getFibersIndices, getFibersKeys, Parent} from '../__shared__';
-import {ParentFiber} from '../../src';
+import {getFibersIndices, getFibersKeys} from '../__shared__';
+import {getFiberFromElementInstance, ParentFiber} from '../../src';
 import {invariant, Invariant} from '../../src/invariant';
 
 // Refs.
-const parentFiberARef = createRef<ParentFiber>();
-const parentFiberBRef = createRef<ParentFiber>();
+const parentARef = createRef<HTMLDivElement>();
+const parentBRef = createRef<HTMLDivElement>();
 // Parent fibers.
 let parentA: ParentFiber;
 let parentB: ParentFiber;
@@ -14,24 +14,26 @@ let parentB: ParentFiber;
 beforeEach(() => {
   // Mount the components.
   mount(
-    <Parent parentFiberRef={parentFiberARef}>
-      <Child key="1" />
-      <Child key="2" />
-    </Parent>
+    <div ref={parentARef}>
+      <div key="1" />
+      <div key="2" />
+    </div>
   );
   mount(
-    <Parent parentFiberRef={parentFiberBRef}>
-      <Child key="3" />
-      <Child key="4" />
-    </Parent>
+    <div ref={parentBRef}>
+      <div key="3" />
+      <div key="4" />
+    </div>
   );
 
   // Parents.
-  invariant(
-    parentFiberARef.current !== null && parentFiberBRef.current !== null
-  );
-  parentA = parentFiberARef.current;
-  parentB = parentFiberBRef.current;
+  parentA = new ParentFiber();
+  parentB = new ParentFiber();
+
+  // (type fixing).
+  invariant(parentARef.current !== null && parentBRef.current !== null);
+  parentA.setFiber(getFiberFromElementInstance(parentARef.current));
+  parentB.setFiber(getFiberFromElementInstance(parentBRef.current));
 });
 
 describe('How the ParentFiber works', () => {

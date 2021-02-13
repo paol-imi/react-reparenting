@@ -1,5 +1,5 @@
-import {Component} from 'react';
 import type {ReactNode} from 'react';
+import {Component} from 'react';
 
 // eslint-disable-next-line no-console
 const consoleError = console.error;
@@ -10,7 +10,7 @@ export class ErrorBoundary extends Component<
   {children: ReactNode},
   {error: Error | null}
 > {
-  /** State. */
+  /* State. */
   state = {error: null};
 
   static getDerivedStateFromError(error: Error): {error: Error} {
