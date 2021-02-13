@@ -1,9 +1,9 @@
 import type {Fiber} from 'react-reconciler';
 import {Env} from '../env/env';
 import {addChildFiberAt, addChildFiberBefore} from '../fiber/addFiber';
-import {updateFibersIndex} from '../fiber/updateFiber';
 import {findPreviousFiber} from '../fiber/findFiber';
 import {getFiberFromPath} from '../fiber/getFiber';
+import {updateFiberDebugFields, updateFibersIndex} from '../fiber/updateFiber';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 
@@ -68,6 +68,9 @@ export function addChild(
 
   // Update the child fields.
   updateFibersIndex(child, index);
+  if (__DEV__) {
+    updateFiberDebugFields(child, parent);
+  }
 
   // If there are the alternates.
   if (child.alternate === null || parent.alternate === null) {
@@ -89,6 +92,9 @@ export function addChild(
 
     // Update the alternate child fields.
     updateFibersIndex(child.alternate, index);
+    if (__DEV__) {
+      updateFiberDebugFields(child.alternate, parent);
+    }
   }
 
   // If we don't have to send the elements we can return here.

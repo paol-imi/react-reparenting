@@ -1,20 +1,21 @@
 /**
-* React-reparenting v0.5.0
+* React-reparenting v0.6.0
 * https://paol-imi.github.io/react-reparenting
 * Copyright (c) 2020-present, Paol-imi
 * https://github.com/Paol-imi/react-reparenting/blob/master/LICENSE
 * @license MIT
 */
 
-import _classCallCheck from '@babel/runtime/helpers/esm/classCallCheck';
-import _assertThisInitialized from '@babel/runtime/helpers/esm/assertThisInitialized';
-import _inherits from '@babel/runtime/helpers/esm/inherits';
-import _possibleConstructorReturn from '@babel/runtime/helpers/esm/possibleConstructorReturn';
-import _getPrototypeOf from '@babel/runtime/helpers/esm/getPrototypeOf';
-import _wrapNativeSuper from '@babel/runtime/helpers/esm/wrapNativeSuper';
-import _defineProperty from '@babel/runtime/helpers/esm/defineProperty';
-import React, { useRef, useEffect } from 'react';
-import _createClass from '@babel/runtime/helpers/esm/createClass';
+import React, { Component, useRef, useEffect } from 'react';
+import _classCallCheck from '@babel/runtime/helpers/classCallCheck';
+import _assertThisInitialized from '@babel/runtime/helpers/assertThisInitialized';
+import _inherits from '@babel/runtime/helpers/inherits';
+import _possibleConstructorReturn from '@babel/runtime/helpers/possibleConstructorReturn';
+import _getPrototypeOf from '@babel/runtime/helpers/getPrototypeOf';
+import _wrapNativeSuper from '@babel/runtime/helpers/wrapNativeSuper';
+import _defineProperty from '@babel/runtime/helpers/defineProperty';
+import _createClass from '@babel/runtime/helpers/createClass';
+import _typeof from '@babel/runtime/helpers/typeof';
 
 /**
  * The host environment.
@@ -260,44 +261,17 @@ function prependChildFiber(parent, child) {
   return 0;
 }
 
-/**
- * Update the indices of a fiber and its siblings.
- * Return the last sibling index.
- *
- * @param fiber   - The fiber.
- * @param index   - The index of the fiber.
- * @returns       - The last sibling index.
- */
-function updateFibersIndex(fiber, index) {
-  while (fiber) {
-    fiber.index = index;
-    fiber = fiber.sibling;
-    index += 1;
-  }
-
-  return index - 1;
-}
-
-/**
- * Return the first valid fiber or null.
- *
- * @param fiber - The fiber to start looking for.
- * @param next  - The callback to get the next fiber to iterate.
- * @param stop  - The callback to check if the fiber is found.
- * @returns     - The found fiber or null.
- */
-function getFiberFromPath(fiber, next, stop) {
-  while (fiber) {
-    if (stop(fiber)) {
-      return fiber;
-    } // Search in the next instance.
-
-
-    fiber = next(fiber);
-  }
-
-  return null;
-}
+var oldConvention = React.version.startsWith('16');
+var Int = {
+  // Prefix of the attribute that contains the fiber in a DOM node.
+  nodePrefix: oldConvention ? // React 16.x.x
+  '__reactInternalInstance$' : // React 17.x.x
+  '__reactFiber$',
+  // Attribute that contains the fiber in a class component.
+  componentAttribute: oldConvention ? // React 16.x.x
+  '_reactInternalFiber' : // React 17.x.x
+  '_reactInternals'
+};
 
 function _createSuper(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
 
@@ -346,6 +320,133 @@ function invariant(condition, message) {
 }
 
 /**
+ * Return the first valid fiber or null.
+ *
+ * @param fiber - The fiber to start looking for.
+ * @param next  - The callback to get the next fiber to iterate.
+ * @param stop  - The callback to check if the fiber is found.
+ * @returns     - The found fiber or null.
+ */
+
+function getFiberFromPath(fiber, next, stop) {
+  while (fiber) {
+    if (stop(fiber)) {
+      return fiber;
+    } // Search in the next instance.
+
+
+    fiber = next(fiber);
+  }
+
+  return null;
+}
+/**
+ * The fiber could be in the current tree or in the work-in-progress tree.
+ * Return the fiber in the current tree, it could be the given fiber or its alternate.
+ * For now, no special cases are handled (It doesn't make sense to manage
+ * portals as this package was created to avoid them).
+ *
+ * @param fiber - The fiber.
+ * @returns     - The current fiber.
+ */
+
+function getCurrentFiber(fiber) {
+  // If there is no alternate we are shure that it is the current fiber.
+  if (fiber.alternate === null) {
+    return fiber;
+  } // Get the top fiber.
+
+
+  var topFiber = fiber;
+
+  while (topFiber["return"] !== null) {
+    topFiber = topFiber["return"];
+  } // The top fiber must be an HoostRoot.
+
+
+  invariant(topFiber.stateNode !== null && 'current' in topFiber.stateNode);
+  var rootFiber = topFiber.stateNode;
+  var topCurrentFiber = rootFiber.current; // If true we are in the current tree.
+
+  return topCurrentFiber === topFiber ? fiber : fiber.alternate;
+}
+/**
+ * Returns the fiber of the given element (for now limited to DOM nodes).
+ *
+ * @param element - The element.
+ * @returns       - The fiber.
+ */
+
+function getFiberFromElementInstance(element) {
+  var internalKey = Object.keys(element).find(function (key) {
+    return key.startsWith(Int.nodePrefix);
+  });
+  invariant(typeof internalKey === 'string'); // The internal instance is not present in the types definition.
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+
+  return element[internalKey];
+}
+/**
+ * Returns the fiber of the given class component instance.
+ *
+ * @param instance  - The class component instance.
+ * @returns         - The fiber.
+ */
+
+function getFiberFromClassInstance(instance) {
+  invariant(Int.componentAttribute in instance); // The internal fiber is not present in the types definition.
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
+
+  return instance[Int.componentAttribute];
+}
+
+/**
+ * Update the indices of a fiber and its siblings.
+ * Return the last sibling index.
+ *
+ * @param fiber   - The fiber.
+ * @param index   - The index of the fiber.
+ * @returns       - The last sibling index.
+ */
+function updateFibersIndex(fiber, index) {
+  while (fiber) {
+    fiber.index = index;
+    fiber = fiber.sibling;
+    index += 1;
+  }
+
+  return index - 1;
+}
+/**
+ * Update the debug fields.
+ * I have not yet inquired about how the _debug fields are chosen.
+ * For now only the owner and source are set based on the siblings/parent fields.
+ *
+ * @param child   - The child fiber.
+ * @param parent  - The parent fiber.
+ */
+
+function updateFiberDebugFields(child, parent) {
+  // The fiber from wich to copy the debug fields.
+  var fiberToCopy; // Try to find a fiber to copy.
+
+  if (parent.child === child) {
+    if (child.sibling === null) {
+      fiberToCopy = parent;
+    } else {
+      fiberToCopy = child.sibling;
+    }
+  } else {
+    fiberToCopy = parent.child || parent;
+  }
+
+  child._debugOwner = fiberToCopy._debugOwner;
+  child._debugSource = fiberToCopy._debugSource;
+}
+
+/**
  * Add a child in a parent and return the index in which it is added.
  * The position of the child can be chosen by providing a key (string) or an index (number).
  * If a key (string) is provided the child will be added after the one with that key.
@@ -375,7 +476,8 @@ function addChild(parent, child, position, skipUpdate) {
   }
 
 
-  updateFibersIndex(child, index); // If there are the alternates.
+  updateFibersIndex(child, index);
+
 
   if (child.alternate === null || parent.alternate === null) {
     if (child.alternate !== null) {
@@ -630,77 +732,28 @@ function removeChild(parent, childSelector, skipUpdate) {
 }
 
 /**
- * The fiber could be in the current tree or in the work-in-progress tree.
- * Return the fiber in the current tree, it could be the given fiber or its alternate.
- * For now, no special cases are handled.
- * (React.reconciler code https://github.com/facebook/react/blob/master/packages/react-reconciler/src/ReactFiberTreeReflection.js#L127).
- *
- * @param fiber - The fiber.
- * @returns     - The current fiber.
- */
-
-function getCurrentFiber(fiber) {
-  // If there is no alternate we are shure that it is the current fiber.
-  if (fiber.alternate === null) {
-    return fiber;
-  } // Get the top fiber.
-
-
-  var topFiber = fiber;
-
-  while (topFiber["return"] !== null) {
-    topFiber = topFiber["return"];
-  } // The top fiber must be an HoostRoot.
-
-
-  invariant(topFiber.stateNode !== null && 'current' in topFiber.stateNode);
-  var rootFiber = topFiber.stateNode;
-  var topCurrentFiber = rootFiber.current; // If true we are in the current tree.
-
-  return topCurrentFiber === topFiber ? fiber : fiber.alternate;
-}
-/**
- * Returns the current owner.
- *
- * @returns - The owner.
- */
-
-function getCurrentOwner() {
-  return React.__SECRET_INTERNALS_DO_NOT_USE_OR_YOU_WILL_BE_FIRED.ReactCurrentOwner.current;
-}
-
-/**
  * The ParentFiber implement the logic to manage a fiber of a parent component.
  * It provides simple methods for managing reparenting, such as add(), remove() and send().
  */
 
 var ParentFiber = /*#__PURE__*/function () {
-  /** The parent fiber. */
-
-  /** Find fiber method. */
-
-  /**
-   * @param fiber - The parent fiber to manage.
-   */
-  function ParentFiber(fiber) {
+  function ParentFiber() {
     _classCallCheck(this, ParentFiber);
 
     _defineProperty(this, "fiber", null);
 
     _defineProperty(this, "findFiber", void 0);
-
-    if (fiber) this.setFiber(fiber);
   }
-  /**
-   * Parent fiber setter.
-   *
-   * @param fiber - The parent fiber to manage.
-   */
-
 
   _createClass(ParentFiber, [{
     key: "setFiber",
-    value: function setFiber(fiber) {
+    value:
+    /**
+     * Parent fiber setter.
+     *
+     * @param fiber - The parent fiber to manage.
+     */
+    function setFiber(fiber) {
       this.fiber = fiber;
     }
     /**
@@ -817,36 +870,142 @@ var ParentFiber = /*#__PURE__*/function () {
 }();
 
 /**
- * An hook to get a ParentFiber instance in a function component.
- * The ref returned must reference the element that is the parent
- * of the children to reparent (it is possible to get around this by providing a findFiber method).
+ * Generate a ParentFiber instance given a class instance of a component.
+ * If the class component is not the parent, it is possible to provide
+ * a function to get the correct parent given the class component fiber.
  *
+ * @param instance  - The class instance.
  * @param findFiber - Get a different parent fiber.
  * @returns         - The ParentFiber instance.
  */
 
-function useParent(findFiber) {
-  // The parent instance.
-  var parentRef = useRef(null); // Generate the instance.
+function createParent(instance, findFiber) {
+  var parent = new ParentFiber();
+  var componentDidMount = instance.componentDidMount,
+      componentWillUnmount = instance.componentWillUnmount; // Wrap the componentDidMount method.
 
-  if (parentRef.current === null) {
-    parentRef.current = new ParentFiber();
-    var owner = getCurrentOwner();
-    invariant(owner !== null);
-    parentRef.current.setFiber(owner);
+  instance.componentDidMount = function cdm() {
+    var fiber = getFiberFromClassInstance(instance); // Set the fiber.
+
+    parent.setFiber(fiber);
+    parent.setFinder(findFiber); // Call the original method.
+
+    if (typeof componentDidMount === 'function') {
+      componentDidMount.call(this);
+    }
+  }; // Wrap the componentDidMount method.
+
+
+  instance.componentWillUnmount = function cwu() {
+    // Call the original method.
+    if (typeof componentWillUnmount === 'function') {
+      componentWillUnmount.call(this);
+    } // Clear the parent.
+
+
+    parent.clear();
+  };
+
+  return parent;
+}
+
+function _createSuper$1(Derived) { var hasNativeReflectConstruct = _isNativeReflectConstruct$1(); return function _createSuperInternal() { var Super = _getPrototypeOf(Derived), result; if (hasNativeReflectConstruct) { var NewTarget = _getPrototypeOf(this).constructor; result = Reflect.construct(Super, arguments, NewTarget); } else { result = Super.apply(this, arguments); } return _possibleConstructorReturn(this, result); }; }
+
+function _isNativeReflectConstruct$1() { if (typeof Reflect === "undefined" || !Reflect.construct) return false; if (Reflect.construct.sham) return false; if (typeof Proxy === "function") return true; try { Date.prototype.toString.call(Reflect.construct(Date, [], function () {})); return true; } catch (e) { return false; } }
+/**
+ * It is a simple wrapper that generate internally a
+ * ParentFiber and allow to access it through a React.Ref.
+ * The children in which to enable reparenting must belong to this component.
+ */
+
+var Parent = /*#__PURE__*/function (_Component) {
+  _inherits(Parent, _Component);
+
+  var _super = _createSuper$1(Parent);
+
+  function Parent() {
+    var _this;
+
+    _classCallCheck(this, Parent);
+
+    for (var _len = arguments.length, args = new Array(_len), _key = 0; _key < _len; _key++) {
+      args[_key] = arguments[_key];
+    }
+
+    _this = _super.call.apply(_super, [this].concat(args));
+
+    _defineProperty(_assertThisInitialized(_this), "parent", new ParentFiber());
+
+    return _this;
   }
 
-  parentRef.current.setFinder(findFiber); // When the component is mounted the fiber is set.
+  _createClass(Parent, [{
+    key: "componentDidMount",
+    value:
+    /**
+     * The class instance contains the fiber data
+     * only after the component is mounted.
+     */
+    function componentDidMount() {
+      var _this$props = this.props,
+          parentRef = _this$props.parentRef,
+          findFiber = _this$props.findFiber;
+      var fiber = getFiberFromClassInstance(this); // Ensure a ref is passed.
 
-  useEffect(function () {
-    return function () {
-      var _parentRef$current;
+      invariant(parentRef !== null && (typeof parentRef === 'function' || _typeof(parentRef) === 'object')); // Set the fiber.
 
-      return (_parentRef$current = parentRef.current) === null || _parentRef$current === void 0 ? void 0 : _parentRef$current.clear();
-    };
-  }, []);
-  return parentRef.current;
-}
+      this.parent.setFiber(fiber);
+      this.parent.setFinder(findFiber); // Set the ref.
+
+      if (typeof parentRef === 'function') {
+        parentRef(this.parent);
+      }
+
+      if (_typeof(parentRef) === 'object' && parentRef !== null) {
+        // The type of ref that is normally returned by useRef and createRef
+        // is not mutable, and the user may not know how to obtain a mutable one,
+        // causing annoying problems. Plus, it makes sense that this property is
+        // immutable, so I just use the refObject interface (and not
+        // the MutableRefObject interface) with the @ts-ignore.
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        parentRef.current = this.parent;
+      }
+    }
+    /** Update the findFiber method. */
+
+  }, {
+    key: "componentDidUpdate",
+    value: function componentDidUpdate() {
+      var findFiber = this.props.findFiber;
+      this.parent.setFinder(findFiber);
+    }
+    /**
+     * Clear on unmount.
+     */
+
+  }, {
+    key: "componentWillUnmount",
+    value: function componentWillUnmount() {
+      this.parent.clear();
+    }
+    /**
+     * Render only the children.
+     * In this way the component (and therefore its fiber)
+     * will be the direct parent of the children.
+     */
+
+  }, {
+    key: "render",
+    value: function render() {
+      var children = this.props.children;
+      return children;
+    }
+  }]);
+
+  return Parent;
+}(Component);
+/* Parent props. */
 
 /**
  * Create a reparentable Space. Only <Reparentables>s belonging to the same
@@ -901,21 +1060,23 @@ function createReparentableSpace() {
     var id = _ref.id,
         children = _ref.children,
         findFiber = _ref.findFiber;
-    var parent = useParent(findFiber);
+    var parentRef = useRef(null);
     useEffect(function () {
       // Ensure the id is a string.
       invariant(typeof id === 'string');
 
+      invariant(parentRef.current !== null); // Set the ParentFiber instance in the map.
 
-      ReparentableMap.set(id, parent);
+      ReparentableMap.set(id, parentRef.current);
       return function () {
         // Remove the ParentFiber instance from the map.
-        ReparentableMap["delete"](id); // Clear the ParentFiber instance.
-
-        parent.clear();
+        ReparentableMap["delete"](id);
       };
     }, []);
-    return children;
+    return /*#__PURE__*/React.createElement(Parent, {
+      parentRef: parentRef,
+      findFiber: findFiber
+    }, children);
   }
 
   return {
@@ -926,4 +1087,38 @@ function createReparentableSpace() {
 }
 /* Reparentable props. */
 
-export { Env, ParentFiber, addChild, addChildFiberAt, addChildFiberBefore, addSiblingFiber, appendChildFiber, configure, createReparentableSpace, findChildFiber, findChildFiberAt, findPreviousFiber, findSiblingFiber, getCurrentFiber, getCurrentOwner, getFiberFromPath, prependChildFiber, removeChild, removeChildFiber, removeChildFiberAt, removeFirstChildFiber, removeSiblingFiber, updateFibersIndex, useParent };
+/**
+ * An hook to get a ParentFiber instance in a function component.
+ * The ref returned must reference the element that is the parent
+ * of the children to reparent (it is possible to get around this by
+ * providing a findFiber method).
+ *
+ * @param findFiber - Get a different parent fiber.
+ * @returns - The ParentFiber instance.
+ */
+
+function useParent(ref, findFiber) {
+  // The parent instance.
+  var parentRef = useRef(null); // Generate the instance.
+
+  if (parentRef.current === null) {
+    parentRef.current = new ParentFiber();
+  } // Get a reference.
+
+
+  var parent = parentRef.current;
+  parent.setFinder(findFiber); // When the component is mounted the fiber is set.
+
+  useEffect(function () {
+    invariant(ref.current !== null && ref.current !== undefined); // The element fiber.
+
+    parent.setFiber(getFiberFromElementInstance(ref.current)); // Clean up.
+
+    return function () {
+      parent.clear();
+    };
+  }, []);
+  return parent;
+}
+
+export { Env, Int, Parent, ParentFiber, addChild, addChildFiberAt, addChildFiberBefore, addSiblingFiber, appendChildFiber, configure, createParent, createReparentableSpace, findChildFiber, findChildFiberAt, findPreviousFiber, findSiblingFiber, getCurrentFiber, getFiberFromClassInstance, getFiberFromElementInstance, getFiberFromPath, prependChildFiber, removeChild, removeChildFiber, removeChildFiberAt, removeFirstChildFiber, removeSiblingFiber, updateFiberDebugFields, updateFibersIndex, useParent };

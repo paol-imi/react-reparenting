@@ -1,9 +1,8 @@
-import React from 'react';
+import React, {useRef} from 'react';
 import {mount} from 'enzyme';
 import type {Fiber} from 'react-reconciler';
 import type {ReactWrapper} from 'enzyme';
 import {ParentFiber, useParent} from '../../src';
-import {Child} from '../__shared__';
 import {invariant} from '../../src/invariant';
 
 // Wrapper.
@@ -12,9 +11,15 @@ let wrapper: ReactWrapper;
 let parent: ParentFiber;
 
 // Parent component.
+// eslint-disable-next-line react/require-default-props
 const Parent = ({findFiber}: {findFiber?: (fiber: Fiber) => Fiber}) => {
-  parent = useParent(findFiber);
-  return <Child />;
+  const ref = useRef<HTMLDivElement>(null);
+  parent = useParent(ref, findFiber);
+  return (
+    <div ref={ref}>
+      <div />
+    </div>
+  );
 };
 
 beforeEach(() => {
@@ -50,7 +55,7 @@ describe('How useParent( ) works', () => {
       />
     );
     // The correct fiber is set.
-    expect(parent.getCurrent().elementType).toBe(Child);
+    expect(parent.getCurrent().elementType).toBe('div');
   });
 
   test('The parent is the same after a re-render', () => {

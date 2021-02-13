@@ -1,30 +1,25 @@
-import React, {MutableRefObject, useEffect, useState} from 'react';
 import type {RefObject} from 'react';
-import type {Fiber} from 'react-reconciler';
-import {getCurrentOwner} from '../../src';
+import React, {MutableRefObject, useEffect, useState} from 'react';
 
 /**
  * Custom component that accepts some lifecycle callback.
  */
 export function Child({
   stateRef,
-  fiberRef,
   onRender,
   onMount,
   onUnmount,
   id,
-}: ChildProps) {
+}: ChildProps): JSX.Element {
   const [state] = useState(Math.random);
 
   if (stateRef) (stateRef as MutableRefObject<number>).current = state;
-  if (fiberRef)
-    (fiberRef as MutableRefObject<Fiber | null>).current = getCurrentOwner();
 
-  if (onRender) onRender();
+  onRender();
   useEffect(() => {
-    if (onMount) onMount();
+    onMount();
     return () => {
-      if (onUnmount) onUnmount();
+      onUnmount();
     };
   }, []);
 
@@ -35,11 +30,10 @@ export function Child({
 export type ChildProps = {
   /** The id of the element. */
   id?: string;
-  /** Refs. */
+  /** The state ref. */
   stateRef?: RefObject<number>;
-  fiberRef?: RefObject<Fiber>;
   /** Callbacks. */
-  onRender?: () => void;
-  onMount?: () => void;
-  onUnmount?: () => void;
+  onRender: () => void;
+  onMount: () => void;
+  onUnmount: () => void;
 };

@@ -1,7 +1,7 @@
 module.exports = {
   docs: {
     'Getting Started': ['introduction', 'installation', 'usage'],
-    Guides: ['reparentable', 'useparent', 'renderer'],
+    Guides: ['reparentable', 'parent', 'createparent', 'useparent', 'renderer'],
     'API Reference': ['tools'],
   },
 };

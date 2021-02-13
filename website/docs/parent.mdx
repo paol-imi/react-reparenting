@@ -1,28 +1,19 @@
 ---
-title: useParent
+title: Parent
 ---
 
-Get the [useParent](./tools#useparent-findfiber--parent-ref-%EF%B8%8F) hook from the package.
+Get the [Parent](./tools#parent--%EF%B8%8F) component from the package.
 
 ```jsx
-import {useParent} from 'react-reparenting';
+import {Parent} from 'react-reparenting';
 ```
 
 ## Setup ⚙️
 
-You can generate a parent instance to use the `send` method within a function component. You must set the ref in the DOM element which is the **direct parent** of the children which can be transferred.
+The `<Parent>` component must be the **direct parent** of the children which can be transferred. You also have to access the internal **parent instance** to use the `send` method.
 
 ```jsx
-const Parent = ({children}) => {
-  const ref = useRef();
-  const parent = useParent(ref);
-
-  return (
-    <div className="parent" ref={ref}>
-      {children}
-    </div>
-  );
-};
+<Parent parentRef={parentRef}>{children}</Parent>
 ```
 
 ## Usage 📖
@@ -33,7 +24,7 @@ Let's define a very simple child component for the example.
 const Child = () => <div />;
 ```
 
-We use two `<Parent>` components in the app as defined above.
+We define in our app two simple parent components, and insert within them the `<Parent>`s.
 
 ```jsx
 const App = () => {
@@ -49,12 +40,20 @@ const App = () => {
     parentB: parents.B.map((key) => <Child key={key} />),
   };
 
+  // Parent instance refs.
+  const parentARef = useRef();
+  const parentBRef = useRef();
+
   return (
     <>
       {/* Parent A */}
-      <Parent>{children.parentA}</Parent>
+      <div className="parent">
+        <Parent parentRef={parentARef}>{children.parentA}</Parent>
+      </div>
       {/* Parent B */}
-      <Parent>{children.parentB}</Parent>
+      <div className="parent">
+        <Parent parentRef={parentBRef}>{children.parentB}</Parent>
+      </div>
     </>
   );
 };
@@ -63,6 +62,9 @@ const App = () => {
 Now we can reparent anywhere in our app using the send method.
 
 ```jsx
+const parentA = parentARef.current;
+const parentB = parentBRef.current;
+
 // Send the first Child ('c3') of 'parentB'
 // before the Child ('c2') of 'parentA'.
 parentB.sendChild(parentA, 0, 'c2');

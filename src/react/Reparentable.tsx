@@ -1,8 +1,8 @@
-import {useEffect} from 'react';
 import type {ReactElement} from 'react';
 import type {Fiber} from 'react-reconciler';
+import React, {useEffect, useRef} from 'react';
+import {Parent} from './Parent';
 import {ParentFiber} from './parentFiber';
-import {useParent} from './useParent';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 
@@ -10,7 +10,7 @@ import {warning} from '../warning';
  * Create a reparentable Space. Only <Reparentables>s belonging to the same
  * Space can send children to each other.
  */
-export function createReparentableSpace() {
+export function createReparentableSpace(): ReparentableSpace {
   /** Reparentable map. */
   const ReparentableMap = new Map<string, ParentFiber>();
 
@@ -68,8 +68,8 @@ export function createReparentableSpace() {
    * This component must be the parent of the children to reparent
    * (it is possible to get around this by providing a findFiber method).
    */
-  function Reparentable({id, children, findFiber}: ReparentableProps): any {
-    const parent = useParent(findFiber);
+  function Reparentable({id, children, findFiber}: ReparentableProps) {
+    const parentRef = useRef<ParentFiber>(null);
 
     useEffect(() => {
       // Ensure the id is a string.
@@ -87,18 +87,21 @@ export function createReparentableSpace() {
         }
       }
 
+      invariant(parentRef.current !== null);
       // Set the ParentFiber instance in the map.
-      ReparentableMap.set(id, parent);
+      ReparentableMap.set(id, parentRef.current);
 
       return () => {
         // Remove the ParentFiber instance from the map.
         ReparentableMap.delete(id);
-        // Clear the ParentFiber instance.
-        parent.clear();
       };
     }, []);
 
-    return children;
+    return (
+      <Parent parentRef={parentRef} findFiber={findFiber}>
+        {children}
+      </Parent>
+    );
   }
 
   return {Reparentable, sendReparentableChild, ReparentableMap};
@@ -112,4 +115,17 @@ export interface ReparentableProps {
   children: ReactElement[] | ReactElement | null;
   /** Find fiber. */
   findFiber?: (fiber: Fiber) => Fiber;
+}
+
+/* Reparentable Space. */
+export interface ReparentableSpace {
+  ReparentableMap: Map<string, ParentFiber>;
+  Reparentable: ({id, children, findFiber}: ReparentableProps) => JSX.Element;
+  sendReparentableChild: (
+    fromParentId: string,
+    toParentId: string,
+    childSelector: string | number,
+    position: string | number,
+    skipUpdate?: boolean | undefined
+  ) => number;
 }

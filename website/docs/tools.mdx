@@ -55,9 +55,45 @@ Remove a child from this instance and add it to the provided ParentFiber instanc
 | -------- | ---------------------------------------------------------------------------------------------------- |
 | _number_ | The index in which the child is added, if the child to remove is not found (invalid key) returns -1. |
 
-## useParent( ): parent
+### <Parent /\> ⚙️
+
+A component that generate a ParentFiber instance.
+
+#### Props
+
+| Name      | Type                      | Description                                                                                |
+| --------- | ------------------------- | ------------------------------------------------------------------------------------------ |
+| children  | _ReactNode_               | The children that can be transferred.                                                      |
+| parentRef | _React.Ref<ParentFiber\>_ | The ref of the ParentFiber instance. <br/><br/> **Required**                               |
+| findFiber | _func_                    | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
+
+### createParent( instance, [findFiber] ): parent ⚙️
+
+A method to generate a ParentFiber instance.
+
+#### arguments
+
+| Name      | Type              | Description                                                                                         |
+| --------- | ----------------- | --------------------------------------------------------------------------------------------------- |
+| instance  | _React.Component_ | A class component instance, must be called before the component is mounted. <br/><br/> **Required** |
+| findFiber | _func_            | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber`          |
+
+#### returns
+
+| Type          | Description               |
+| ------------- | ------------------------- |
+| _ParentFiber_ | The parentFiber instance. |
+
+### useParent( ref, [findFiber] ): parent ⚙️
 
 An hook to generate a ParentFiber instance.
+
+#### arguments
+
+| Name      | Type              | Description                                                                                |
+| --------- | ----------------- | ------------------------------------------------------------------------------------------ |
+| ref       | _React.RefObject_ | The ref of the parent element. <br/><br/> **Required**                                     |
+| findFiber | _func_            | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
 
 #### returns
 

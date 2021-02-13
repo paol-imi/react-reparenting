@@ -1,8 +1,8 @@
 import type {Fiber} from 'react-reconciler';
 import {Env} from '../env/env';
+import {getFiberFromPath} from '../fiber/getFiber';
 import {removeChildFiber, removeChildFiberAt} from '../fiber/removeFiber';
 import {updateFibersIndex} from '../fiber/updateFiber';
-import {getFiberFromPath} from '../fiber/getFiber';
 import {invariant} from '../invariant';
 import {warning} from '../warning';
 

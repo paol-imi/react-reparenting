@@ -1,20 +1,14 @@
-import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
-import {mount} from 'enzyme';
 import type {ReactWrapper} from 'enzyme';
-import {
-  getFibersKeys,
-  getFibersIndices,
-  getChildrenIds,
-  Parent,
-  Child,
-} from '../__shared__';
-import {addChild, removeChild} from '../../src';
+import React, {createRef} from 'react';
+import {mount} from 'enzyme';
+import {getChildrenIds, getFibersIndices, getFibersKeys} from '../__shared__';
+import {addChild, getFiberFromElementInstance, removeChild} from '../../src';
 import {invariant, Invariant} from '../../src/invariant';
 import {warning} from '../../src/warning';
 
 // Ref.
-const parentRef = createRef<Fiber>();
+const parentRef = createRef<HTMLDivElement>();
 // Wrapper.
 let parentWrapper: ReactWrapper;
 // Fiber.
@@ -23,14 +17,15 @@ let parent: Fiber;
 beforeEach(() => {
   // Mount the components.
   parentWrapper = mount(
-    <Parent fiberRef={parentRef}>
-      <Child key="1" id="1" />
-      <Child key="2" id="2" />
-    </Parent>
+    <div ref={parentRef}>
+      <div key="1" id="1" />
+      <div key="2" id="2" />
+    </div>
   );
 
+  // (type fixing).
   invariant(parentRef.current !== null);
-  parent = parentRef.current;
+  parent = getFiberFromElementInstance(parentRef.current);
 
   // Clear the mock.
   (warning as jest.Mock).mockClear();
@@ -143,13 +138,13 @@ describe('How removeChild( ) works', () => {
     parentWrapper.setProps({});
     invariant(parent.alternate !== null);
 
-    const fiberRef = createRef<Fiber>();
+    const ref = createRef<HTMLDivElement>();
     // Generate a fiber without alternate.
-    mount(<Child id="3" fiberRef={fiberRef} />);
+    mount(<div id="3" ref={ref} />);
     // (type fixing).
-    invariant(fiberRef.current !== null);
+    invariant(ref.current !== null);
     // Add the fiber.
-    addChild(parent, fiberRef.current, 0);
+    addChild(parent, getFiberFromElementInstance(ref.current), 0);
 
     const child = removeChild(parent, 0);
     // The child is found.
@@ -171,13 +166,13 @@ describe('How removeChild( ) works', () => {
   });
 
   test('(With only child alternate) Remove the first child', () => {
-    const fiberRef = createRef<Fiber>();
+    const ref = createRef<HTMLDivElement>();
     // Generate a fiber without alternate.
-    mount(<Child id="3" fiberRef={fiberRef} />).setProps({});
+    mount(<div id="3" ref={ref} />).setProps({});
     // (type fixing).
-    invariant(fiberRef.current !== null);
+    invariant(ref.current !== null);
     // Add the fiber.
-    addChild(parent, fiberRef.current, 0);
+    addChild(parent, getFiberFromElementInstance(ref.current), 0);
 
     const child = removeChild(parent, 0);
     // The child is found.
@@ -267,8 +262,8 @@ describe('How removeChild( ) works', () => {
 
   test('(The child element is not found) Send a child but not update the DOM', () => {
     // (type fixing).
-    invariant(parent.child !== null && parent.child.child !== null);
-    parent.child.child.stateNode = null;
+    invariant(parent.child !== null);
+    parent.child.stateNode = null;
 
     const child = removeChild(parent, 0);
     // The child is found.

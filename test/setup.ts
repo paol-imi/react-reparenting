@@ -3,10 +3,10 @@ import {configure} from 'enzyme';
 import Adapter from 'enzyme-adapter-react-16';
 import * as module from '../src/warning';
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 configure({adapter: new Adapter()});
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 global.__DEV__ = true;
 
@@ -16,7 +16,7 @@ const consoleError = console.error;
 const noop = (): null => null;
 const {warning} = module;
 
-// eslint-disable-next-line @typescript-eslint/ban-ts-ignore
+// eslint-disable-next-line @typescript-eslint/ban-ts-comment
 // @ts-ignore
 module.warning = jest.fn((message: string) => {
   // eslint-disable-next-line no-console

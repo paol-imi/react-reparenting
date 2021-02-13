@@ -1,28 +1,48 @@
 ---
-title: useParent
+title: createParent
 ---
 
-Get the [useParent](./tools#useparent-findfiber--parent-ref-%EF%B8%8F) hook from the package.
+Get the [createParent](./tools#createparent-instance-findfiber--parent-%EF%B8%8F) method from the package.
 
 ```jsx
-import {useParent} from 'react-reparenting';
+import {createParent} from 'react-reparenting';
 ```
 
 ## Setup ⚙️
 
-You can generate a parent instance to use the `send` method within a function component. You must set the ref in the DOM element which is the **direct parent** of the children which can be transferred.
+You can generate a parent instance to use the `send` method within a class component. That component must be the **direct parent** of the children which can be transferred. `createParent` must be called in the constructor.
 
 ```jsx
-const Parent = ({children}) => {
-  const ref = useRef();
-  const parent = useParent(ref);
+class Parent extends React.Component {
+  constructor(props) {
+    super(props);
+    // set the parent in the constructor.
+    this.parent = createParent(this);
+  }
 
-  return (
-    <div className="parent" ref={ref}>
-      {children}
-    </div>
-  );
-};
+  render() {
+    // Render the children directly.
+    return this.props.children;
+  }
+}
+```
+
+If you want to use another component as parent, you can provide a function that defines that component _(You need to know the structure of the React fibers)_.
+
+```jsx
+class Parent extends React.Component {
+  constructor(props) {
+    super(props);
+    // Select the first child as parent (the div element).
+    this.parent = createParent(this, (fiber) => fiber.child);
+  }
+
+  render() {
+    const {children} = this.props;
+    // Use a different parent.
+    return <div className="parent">{children}</div>;
+  }
+}
 ```
 
 ## Usage 📖

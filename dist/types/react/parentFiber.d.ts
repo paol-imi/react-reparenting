@@ -9,10 +9,6 @@ export declare class ParentFiber {
     /** Find fiber method. */
     findFiber?: (fiber: Fiber) => Fiber;
     /**
-     * @param fiber - The parent fiber to manage.
-     */
-    constructor(fiber?: Fiber);
-    /**
      * Parent fiber setter.
      *
      * @param fiber - The parent fiber to manage.

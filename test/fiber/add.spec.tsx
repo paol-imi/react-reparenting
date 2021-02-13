@@ -1,19 +1,20 @@
 import React, {createRef} from 'react';
 import type {Fiber} from 'react-reconciler';
 import {mount} from 'enzyme';
-import {Child, getFibersIndices, getFibersKeys, Parent} from '../__shared__';
+import {getFibersIndices, getFibersKeys} from '../__shared__';
 import {
   addChildFiberAt,
   addChildFiberBefore,
   addSiblingFiber,
   appendChildFiber,
+  getFiberFromElementInstance,
   prependChildFiber,
 } from '../../src';
 import {invariant} from '../../src/invariant';
 
 // Refs.
-const parentRef = createRef<Fiber>();
-const childRef = createRef<Fiber>();
+const parentRef = createRef<HTMLDivElement>();
+const childRef = createRef<HTMLDivElement>();
 // Fibers.
 let parent: Fiber;
 let child: Fiber;
@@ -21,23 +22,22 @@ let child: Fiber;
 beforeEach(() => {
   // Mount the components.
   mount(
-    <Parent fiberRef={parentRef}>
-      <Child key="1" id="1" />
-      <Child key="2" id="2" />
-    </Parent>
+    <div ref={parentRef}>
+      <div key="1" />
+      <div key="2" />
+    </div>
   );
-  // The fragment is necessary because the fiber of the first
-  // component mounted does not receive the key (maybe an Enzyme bug).
   mount(
-    <>
-      <Child key="3" id="3" fiberRef={childRef} />
-    </>
+    <div>
+      <div key="3" ref={childRef} />
+    </div>
   );
 
   // (type fixing).
   invariant(parentRef.current !== null && childRef.current !== null);
-  parent = parentRef.current;
-  child = childRef.current;
+  // Load the fibers.
+  parent = getFiberFromElementInstance(parentRef.current);
+  child = getFiberFromElementInstance(childRef.current);
 });
 
 describe('How addChildFiberAt( ) works', () => {
@@ -91,10 +91,10 @@ describe('How addChildFiberAt( ) works', () => {
 
   test('(Parent without children) Add a child at the beginning', () => {
     // Setup.
-    mount(<Parent fiberRef={parentRef} />);
+    mount(<div ref={parentRef} />);
     // (type fixing).
     invariant(parentRef.current !== null);
-    parent = parentRef.current;
+    parent = getFiberFromElementInstance(parentRef.current);
 
     const position = addChildFiberAt(parent, child, 5);
     // The position is correct.
@@ -161,10 +161,10 @@ describe('How appendChildFiber( ) works', () => {
 
   test('(Parent without children) Add a child as the only child', () => {
     // Setup.
-    mount(<Parent fiberRef={parentRef} />);
+    mount(<div ref={parentRef} />);
     // (type fixing).
     invariant(parentRef.current !== null);
-    parent = parentRef.current;
+    parent = getFiberFromElementInstance(parentRef.current);
 
     const position = appendChildFiber(parent, child);
     // The position is correct.

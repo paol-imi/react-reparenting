@@ -1,4 +1,4 @@
-import {Env, configure, ENV} from '../../src';
+import {configure, Env, ENV} from '../../src';
 
 describe('How configure works', () => {
   test('The component provide a ParentFiber instance', () => {
