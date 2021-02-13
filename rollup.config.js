@@ -1,9 +1,9 @@
 // Rollup.
-import babel from 'rollup-plugin-babel';
+import {babel} from '@rollup/plugin-babel';
 import {terser} from 'rollup-plugin-terser';
-import strip from '@rollup/plugin-strip';
 import resolve from '@rollup/plugin-node-resolve';
 import replace from '@rollup/plugin-replace';
+
 // Package.json
 import pkg from './package.json';
 
@@ -20,12 +20,13 @@ const banner = `/**
 `;
 
 // Babel options.
-const getBabelOptions = ({useESModules}) => ({
+const getBabelOptions = () => ({
   exclude: 'node_modules/**',
   extensions,
-  runtimeHelpers: true,
-  plugins: [['@babel/transform-runtime', {useESModules}]],
+  babelHelpers: 'runtime',
 });
+
+const external = (id) => !id.startsWith('.');
 
 export default [
   // CommonJS (cjs) development build
@@ -37,11 +38,11 @@ export default [
       format: 'cjs',
       banner,
     },
-    external: (id) => !id.startsWith('.') && !id.startsWith('/'),
+    external,
     plugins: [
       resolve({extensions}),
       replace({__DEV__: JSON.stringify(true)}),
-      babel(getBabelOptions({useESModules: false})),
+      babel(getBabelOptions()),
     ],
   },
 
@@ -54,15 +55,11 @@ export default [
       format: 'cjs',
       banner,
     },
-    external: (id) => !id.startsWith('.') && !id.startsWith('/'),
+    external,
     plugins: [
       resolve({extensions}),
       replace({__DEV__: JSON.stringify(false)}),
-      babel(getBabelOptions({useESModules: false})),
-      strip({
-        include: extensions.map((ex) => '**/*'.concat(ex)),
-        functions: ['warning'],
-      }),
+      babel(getBabelOptions()),
       terser(),
     ],
   },
@@ -71,16 +68,16 @@ export default [
   // - All external packages are not bundled
   {
     input,
-    output: {file: pkg.module, format: 'esm', banner},
-    external: (id) => !id.startsWith('.') && !id.startsWith('/'),
+    output: {
+      file: pkg.module,
+      format: 'es',
+      banner,
+    },
+    external,
     plugins: [
       resolve({extensions}),
       replace({__DEV__: JSON.stringify(false)}),
-      babel(getBabelOptions({useESModules: true})),
-      strip({
-        include: extensions.map((ex) => '**/*'.concat(ex)),
-        functions: ['warning'],
-      }),
+      babel(getBabelOptions()),
     ],
   },
 ];
