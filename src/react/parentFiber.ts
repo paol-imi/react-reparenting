@@ -1,7 +1,7 @@
 import type {Fiber} from 'react-reconciler';
-import {getCurrentFiber} from './currentFiber';
 import {addChild} from '../core/addChild';
 import {removeChild} from '../core/removeChild';
+import {getCurrentFiber} from '../fiber/getFiber';
 import {invariant} from '../invariant';
 
 /**
@@ -11,15 +11,9 @@ import {invariant} from '../invariant';
 export class ParentFiber {
   /** The parent fiber. */
   fiber: Fiber | null = null;
+
   /** Find fiber method. */
   findFiber?: (fiber: Fiber) => Fiber;
-
-  /**
-   * @param fiber - The parent fiber to manage.
-   */
-  constructor(fiber?: Fiber) {
-    if (fiber) this.setFiber(fiber);
-  }
 
   /**
    * Parent fiber setter.
