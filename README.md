@@ -32,6 +32,9 @@ This process is more related to the DOM, at `"React level"` the Child is still p
 
 This package offers `easy` and `intuitive` tools to solve this problem. With a few lines of code you will be able to transfer your components, without them being re-mounted or losing their internal state.
 
+| ⚠️  | This is an experimental technology that interacts with React [**internals**](https://paol-imi.github.io/react-reparenting/docs/introduction#under-the-hood), you shouldn't rely on them in your production code. The React team could introduce breaking changes in future releases without following the semver rules. |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+
 ## Documentation 📖
 
 You can find the full documentation [**here**](https://paol-imi.github.io/react-reparenting).

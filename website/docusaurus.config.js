@@ -9,6 +9,7 @@ module.exports = {
   themeConfig: {
     announcementBar: {
       id: 'supportus',
+      backgroundColor: '#78dce8',
       content:
         '⭐️ If you like ReactReparenting, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/paol-imi/react-reparenting">GitHub</a>! ⭐️',
     },
@@ -22,7 +23,7 @@ module.exports = {
         alt: 'ReactReparenting Logo',
         src: 'logo/logo.svg',
       },
-      links: [
+      items: [
         {
           to: 'docs/introduction',
           activeBasePath: 'docs',

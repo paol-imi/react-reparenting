@@ -99,7 +99,11 @@ a {
 
 .col {
   padding-top: 10px;
-  padding-bottom: 10px;
+  padding-bottom: 30px;
+}
+
+.col:first-child {
+  margin-bottom: 26px;
 }
 
 .hero__title{

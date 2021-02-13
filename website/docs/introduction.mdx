@@ -23,7 +23,10 @@ This package offers `easy` and `intuitive` tools to solve this problem. With a f
 ## Under the hood
 
 Besides the tree of elements, React has a tree of internal instances used to keep the state. Starting from version 16, React rolled out a new implementation of that internal instances tree and the algorithm that manages it code-named `Fiber`.
-This package does nothing more than transfer the internal instances of the children you want to reparent.
+
+:::warning
+This is an experimental technology that interacts with React internals, you shouldn't rely on them in your production code. The React team could introduce breaking changes in future releases without following the semver rules, causing your code to not work as expected. Use this library at your own risk.
+:::
 
 If you are interested, there are very valid sources in which to deepen the topic:
 
@@ -32,7 +35,3 @@ If you are interested, there are very valid sources in which to deepen the topic
 - [Inside fiber in depth overview of the new reconciliation algorithm in react](https://medium.com/react-in-depth/inside-fiber-in-depth-overview-of-the-new-reconciliation-algorithm-in-react-e1c04700ef6e)
 
 In any case, it is **not necessary** to know how React internals work to use this package.
-
-:::caution
-This is an experimental technology (currently in beta) that directly interacts with React **internals**, you can decide to use it in production at your own risk.
-:::
