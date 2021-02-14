@@ -6,7 +6,7 @@ title: Tools API ⚙️
 
 A custom component to enable reparenting.
 
-### • props
+#### props
 
 | Name      | Type        | Description                                                                                               |
 | --------- | ----------- | --------------------------------------------------------------------------------------------------------- |
@@ -36,7 +36,7 @@ Remove a child from a Reparentable component and add it to a new Reparentable co
 
 ## ParentFiber
 
-### • parent.sendChild( toParent, child, position, [skipUpdate] ): index
+### parent.sendChild( toParent, child, position, [skipUpdate] ): index
 
 Remove a child from this instance and add it to the provided ParentFiber instance.
 
@@ -55,7 +55,7 @@ Remove a child from this instance and add it to the provided ParentFiber instanc
 | -------- | ---------------------------------------------------------------------------------------------------- |
 | _number_ | The index in which the child is added, if the child to remove is not found (invalid key) returns -1. |
 
-### <Parent /\> ⚙️
+## <Parent /\>
 
 A component that generate a ParentFiber instance.
 
@@ -67,7 +67,7 @@ A component that generate a ParentFiber instance.
 | parentRef | _React.Ref<ParentFiber\>_ | The ref of the ParentFiber instance. <br/><br/> **Required**                               |
 | findFiber | _func_                    | A function to change the parent fiber. <br/><br/> **Signature** `(parent: fiber) => fiber` |
 
-### createParent( instance, [findFiber] ): parent ⚙️
+## createParent( instance, [findFiber] ): parent
 
 A method to generate a ParentFiber instance.
 
@@ -84,7 +84,7 @@ A method to generate a ParentFiber instance.
 | ------------- | ------------------------- |
 | _ParentFiber_ | The parentFiber instance. |
 
-### useParent( ref, [findFiber] ): parent ⚙️
+## useParent( ref, [findFiber] ): parent
 
 An hook to generate a ParentFiber instance.
 
