@@ -10,5 +10,5 @@ export * from './fiber/updateFiber';
 export * from './react/createParent';
 export * from './react/Parent';
 export * from './react/parentFiber';
-export * from './react/Reparentable';
+export * from './react/reparentable';
 export * from './react/useParent';
