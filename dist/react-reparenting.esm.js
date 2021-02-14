@@ -1,5 +1,5 @@
 /**
-* React-reparenting v0.6.0
+* React-reparenting v0.6.1
 * https://paol-imi.github.io/react-reparenting
 * Copyright (c) 2020-present, Paol-imi
 * https://github.com/Paol-imi/react-reparenting/blob/master/LICENSE
