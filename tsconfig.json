@@ -1,21 +1,24 @@
 {
   "compilerOptions": {
-    "forceConsistentCasingInFileNames": true,
+    /* Language and Environment */
+    "target": "ES2017",
+    "jsx": "react-jsx",
+    /* Modules */
+    "moduleResolution": "Node",
+    /* JavaScript Support */
+    "allowJs": false,
+    /* Interop Constraints */
     "allowSyntheticDefaultImports": true,
-    "noFallthroughCasesInSwitch": true,
-    "declarationDir": "dist/types",
-    "moduleResolution": "node",
-    "noUnusedParameters": true,
-    "noImplicitReturns": true,
-    "esModuleInterop": true,
-    "noUnusedLocals": true,
-    "noImplicitAny": true,
-    "declaration": true,
-    "module": "commonjs",
-    "target": "es5",
+    "forceConsistentCasingInFileNames": true,
+    /* Type Checking */
     "strict": true,
-    "jsx": "react"
+    "noImplicitAny": true,
+    "noImplicitThis": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    /* Completeness */
+    "skipLibCheck": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules"]
+  "include": ["src/**/*"]
 }

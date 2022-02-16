@@ -19,7 +19,7 @@ export class Parent extends Component<ParentProps> {
    * only after the component is mounted.
    */
   componentDidMount(): void {
-    const {parentRef, findFiber} = this.props;
+    const {parentRef} = this.props;
     const fiber = getFiberFromClassInstance(this);
 
     // Ensure a ref is passed.
@@ -31,7 +31,6 @@ export class Parent extends Component<ParentProps> {
 
     // Set the fiber.
     this.parent.setFiber(fiber);
-    this.parent.setFinder(findFiber);
 
     // Set the ref.
     if (typeof parentRef === 'function') {

@@ -1,42 +1,15 @@
 {
   "extends": [
-    "airbnb",
-    "prettier",
-    "prettier/react",
-    "prettier/@typescript-eslint",
-    "plugin:import/typescript",
-    "plugin:jest/recommended",
-    "plugin:prettier/recommended",
-    "plugin:@typescript-eslint/recommended"
+    "eslint:recommended",
+    "plugin:@typescript-eslint/eslint-recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:react/recommended",
+    "plugin:react/jsx-runtime",
+    "plugin:react-hooks/recommended",
+    "plugin:jest/recommended"
   ],
   "parser": "@typescript-eslint/parser",
-  "plugins": [
-    "prettier",
-    "react",
-    "react-hooks",
-    "jest",
-    "import",
-    "@typescript-eslint"
-  ],
-  "globals": {"__DEV__": true},
-  "env": {"browser": true, "node": true, "jest": true, "es6": true},
-  "settings": {"import/resolver": {"typescript": {"alwaysTryTypes": true}}},
-  "rules": {    
-    "@typescript-eslint/no-explicit-any": 0,
-    "react/jsx-props-no-spreading": 0,
-    "react/jsx-filename-extension": 0,
-    "react/state-in-constructor": 0,
-    "import/prefer-default-export": 0,
-    "import/extensions": 0,
-    "no-underscore-dangle": 0,
-    "no-use-before-define": 0,
-    "no-param-reassign": 0,
-    "no-lonely-if": 0,
-    "prettier/prettier": [
-      "error",
-      {
-        "endOfLine": "crlf"
-      }
-    ]
-  }
+  "plugins": ["@typescript-eslint", "react", "react-hooks", "jest"],
+  // We whitelist in package.json, but we use ingore patterns here for vscode
+  "ignorePatterns": ["dist", "jest.config.js"]
 }

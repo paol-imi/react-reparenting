@@ -10,11 +10,8 @@ import {warning} from '../../src/warning';
 // Wrapper.
 let wrapper: ReactWrapper;
 
-const {
-  Reparentable,
-  ReparentableMap,
-  sendReparentableChild,
-} = createReparentableSpace();
+const {Reparentable, ReparentableMap, sendReparentableChild} =
+  createReparentableSpace();
 
 beforeEach(() => {
   ReparentableMap.clear();

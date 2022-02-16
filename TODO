@@ -1,0 +1,7 @@
+testing with act Reactdom/TESTUTILS
+
+master -> main
+
+how to integrate with something like muuri react?
+
+https://github.com/facebook/react/blob/27b5699694f20220e0448f0ba3eb6bfa0d3a64ed/packages/react-reconciler/src/ReactInternalTypes.js#L185

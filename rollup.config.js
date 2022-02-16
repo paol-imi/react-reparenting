@@ -1,15 +1,9 @@
-// Rollup.
-import {babel} from '@rollup/plugin-babel';
-import {terser} from 'rollup-plugin-terser';
-import resolve from '@rollup/plugin-node-resolve';
+import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
-
-// Package.json
 import pkg from './package.json';
 
-// Common.
 const input = './src/index.ts';
-const extensions = ['.js', '.jsx', '.ts', '.tsx'];
+const external = ['react'];
 const banner = `/**
 * React-reparenting v${pkg.version}
 * ${pkg.homepage}
@@ -18,54 +12,22 @@ const banner = `/**
 * @license MIT
 */
 `;
-
-// Babel options.
-const getBabelOptions = () => ({
-  exclude: 'node_modules/**',
-  extensions,
-  babelHelpers: 'runtime',
-});
-
-const external = (id) => !id.startsWith('.');
+const plugins = [
+  replace({ __DEV__: "process.env.NODE_ENV === 'production'" }),
+  typescript(),
+];
 
 export default [
-  // CommonJS (cjs) development build
-  // - All external packages are not bundled
   {
     input,
     output: {
-      file: 'dist/react-reparenting.cjs.development.js',
+      file: pkg.main,
       format: 'cjs',
       banner,
     },
     external,
-    plugins: [
-      resolve({extensions}),
-      replace({__DEV__: JSON.stringify(true)}),
-      babel(getBabelOptions()),
-    ],
+    plugins,
   },
-
-  // CommonJS (cjs) production build
-  // - All external packages are not bundled
-  {
-    input,
-    output: {
-      file: 'dist/react-reparenting.cjs.production.min.js',
-      format: 'cjs',
-      banner,
-    },
-    external,
-    plugins: [
-      resolve({extensions}),
-      replace({__DEV__: JSON.stringify(false)}),
-      babel(getBabelOptions()),
-      terser(),
-    ],
-  },
-
-  // EcmaScript Module (esm) build
-  // - All external packages are not bundled
   {
     input,
     output: {
@@ -74,10 +36,6 @@ export default [
       banner,
     },
     external,
-    plugins: [
-      resolve({extensions}),
-      replace({__DEV__: JSON.stringify(false)}),
-      babel(getBabelOptions()),
-    ],
+    plugins,
   },
 ];

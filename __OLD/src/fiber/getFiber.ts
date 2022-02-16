@@ -63,29 +63,6 @@ export function getCurrentFiber(fiber: Fiber): Fiber {
 }
 
 /**
- * Returns the fiber of the given element (for now limited to DOM nodes).
- *
- * @param element - The element.
- * @returns       - The fiber.
- */
-export function getFiberFromElementInstance<T extends Node>(element: T): Fiber {
-  const internalKey = Object.keys(element).find((key) =>
-    key.startsWith(Int.nodePrefix)
-  );
-
-  invariant(
-    typeof internalKey === 'string',
-    `Cannot find the ${Int.nodePrefix}. ` +
-      `This is a problem with React-reparenting, please file an issue.`
-  );
-
-  // The internal instance is not present in the types definition.
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
-  return element[internalKey];
-}
-
-/**
  * Returns the fiber of the given class component instance.
  *
  * @param instance  - The class component instance.
