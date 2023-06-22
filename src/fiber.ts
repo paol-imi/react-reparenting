@@ -16,12 +16,20 @@ const componentAttribute = version.startsWith('16')
  */
 export function getFiberFromClassInstance(instance: Component): Fiber {
   if (!(componentAttribute in instance)) {
-    'Cannot find the ${Int.componentAttribute}. ' +
-      'This is a problem with React-reparenting, please file an issue.';
+    warning(
+      '[react-reparenting]: Cannot find the ${Int.componentAttribute}. ' +
+        'This is likely a problem with react-reparenting, please file an issue.'
+    );
   }
 
-  // The internal fiber is not present in the types definition.
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
+  // @ts-expect-error the internal fiber is not present in the types definition.
   return instance[componentAttribute];
+}
+
+export function getCurrentFiberFromClassInstance(instance: Component): Fiber {
+  const fiber = getFiberFromClassInstance(instance);
+
+  return fiber.pendingProps === instance.props
+    ? fiber
+    : (fiber.alternate as Fiber);
 }

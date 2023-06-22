@@ -1,20 +1,39 @@
-import { ReactElement, useEffect } from 'react';
-import { useCurrentOwner } from './useCurrentOwner';
+import { Component, ReactElement, useEffect } from 'react';
 import { SpaceSlice } from './useOwner';
+import { rollbackWork, SlotState } from './work';
 
 export type ParentProps = {
   children: SpaceSlice;
+  slotsStates: SlotState[]
 };
 
-export function Parent({ workSlots, lookupChild, children }) {
-  const owner = useCurrentOwner();
+export function Paren2t({ hostConfig, slotsStatesRef, slotsStates, index, children }: ParentProps) {
+  // TODO:
+  if(slotsStatesRef.current !== slotsStates) {
+    // a previous render was interrupted! (the ref is shared globally, but the props depenends on the tree!)
 
-  // If component ismounting
-  if (owner.alternate === null) {
-    owner.alternate = oldOwnFiber;
+    // If previous low-prio interruptablecontinue work, will force re-render.
+    rollbackWork(slotsStatesRef.current)
   }
 
+
+  const slotState = slotsStates[index];
+
+  if (hasUncommittedChildren(slotState)) {
+    rollback(slotsStates);
+  } else {
+    // If component ismounting
+    if (owner.alternate === null) {
+      appendContainer(slotState, owner)
+    }
+  }
+
+  
+
   useEffect(() => {
+    // FIXME: TRY IF CAN BE A POSSIBLE SCENARIO AND IF IT WORK ROLLBACK HERE
+
+    if (hasUncommitedWork(workUnit)) rollbackWork(workUnit);
     mount(owner);
   }, []);
 }
@@ -52,12 +71,13 @@ export class Parent extends Component<ParentProps> {
    * will be the direct parent of the children.
    */
   render() {
-    const { children, oldOwnFiber } = this.props;
+    const { children, oldFragmentFiber } = this.props;
 
-    if (owner.alternate === null) {
-      owner.alternate = oldOwnFiber;
+    if (owner.child === null) {
+      owner.child = oldOwnFiber;
+      owner.alternate && owner.alternate.child = oldOwnFiber.alternate
     }
 
-    return children;
+    return <>{children}</>;
   }
 }

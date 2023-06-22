@@ -1,22 +1,24 @@
-import typescript from '@rollup/plugin-typescript';
 import replace from '@rollup/plugin-replace';
+import esbuild from 'rollup-plugin-esbuild';
 import pkg from './package.json';
 
 const input = './src/index.ts';
-const external = ['react'];
 const banner = `/**
-* React-reparenting v${pkg.version}
+* ${pkg.name} v${pkg.version}
 * ${pkg.homepage}
-* Copyright (c) 2020-present, Paol-imi
-* https://github.com/Paol-imi/react-reparenting/blob/master/LICENSE
+* Copyright (c) 2022-present, ${pkg.author.name}
+* https://github.com/paol-imi/${pkg.name}/blob/main/LICENSE
 * @license MIT
 */
 `;
 const plugins = [
   replace({ __DEV__: "process.env.NODE_ENV === 'production'" }),
-  typescript(),
+  esbuild(),
 ];
 
+/**
+ * @type {import('rollup').RollupOptions}
+ */
 export default [
   {
     input,
@@ -25,7 +27,6 @@ export default [
       format: 'cjs',
       banner,
     },
-    external,
     plugins,
   },
   {
@@ -35,7 +36,6 @@ export default [
       format: 'es',
       banner,
     },
-    external,
     plugins,
   },
 ];

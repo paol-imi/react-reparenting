@@ -1,7 +1,38 @@
-testing with act Reactdom/TESTUTILS
+# Documentation
+
+https://github.com/pmndrs/its-fine !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+Remove the warning (at least from Readme and change it in docs)
+
+# Implementation
+
+The problems only arise with startTransition
+
+1. do not support it
+2. support it
+   - we should check whenever a concurrent update is paused because of a sync one, and the restarted (should always restart).
+   - This should implies Check some React internals, and may be too complex
+
+testing with act Reactdom/TESTUTILS (TEST THAT STATE AND EFFECT/LAYOUTEFFECT WORKS PROPERLY)
 
 master -> main
 
 how to integrate with something like muuri react?
 
 https://github.com/facebook/react/blob/27b5699694f20220e0448f0ba3eb6bfa0d3a64ed/packages/react-reconciler/src/ReactInternalTypes.js#L185
+
+        A
+
+    B        C            --->      it suspend with a transition  --->      D unmounts
+
+    D      E     F
+
+
+    We should rollback all data concerning D, it's work unit is not enough
+
+I SUPPOSE EACH FIBER (WITH AN EFFECT) KEEPS TRACK OF THE NEXT ONE WITH AN EFFECT
+SO TRY TO (AFTER CHECKING THE UNMOUNT ORDER REACT17):
+
+1.  APPEND THE CHHILDREN TO UNMOUNT TO THE SILBLING OF THE UNMOUNTING PARENT
+2.  DESIGN and TRY SOMETHING LIKE <UNMOUNTLISTENDER?>
+3.  TRY TO LINK THE NEXT EFFECT ATTRIBUTE

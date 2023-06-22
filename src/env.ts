@@ -39,7 +39,7 @@ export interface ENV<Instance> {
  * The host environment.
  * Default configuration to work with ReactDOM renderer.
  */
-export const Env: ENV<any> = {
+export const defaultDOMHostConfig: ENV<Element> = {
   appendChildToContainer(container, child) {
     container.appendChild(child);
   },
@@ -53,12 +53,3 @@ export const Env: ENV<any> = {
     return stateNode instanceof Element;
   },
 };
-
-/**
- * Configure the host environment.
- *
- * @param configuration - The configuration.
- */
-export function configure<T>(configuration: Partial<ENV<T>>): ENV<T> {
-  return Object.assign(Env, configuration);
-}

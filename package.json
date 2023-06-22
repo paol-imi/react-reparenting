@@ -2,57 +2,64 @@
   "name": "react-reparenting",
   "version": "0.6.1",
   "description": "The reparenting tools for React",
-  "main": "dist/react-reparenting.cjs.js",
-  "module": "dist/react-reparenting.esm.js",
-  "types": "dist/types/index.d.ts",
-  "scripts": {
-    "build:js": "rollup -c",
-    "build:types": "tsc --declaration --declarationDir dist/types --emitDeclarationOnly",
-    "test": "jest",
-    "eslint": "eslint {*,{src,test}/**/*}.{js,jsx,ts,tsx}",
-    "prettier": "prettier --write {*,{src,test}/**/*}.{js,jsx,ts,tsx,md,mdx,json}",
-    "prepublishOnly": "npm run test && npm run prettier && npm run eslint && npm run build:js && npm run build:types"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/Paol-imi/react-reparenting.git"
-  },
   "keywords": [
     "react",
     "reparenting",
     "portal",
     "fiber"
   ],
-  "author": "Paolo Longo <paololongo.git@gmail.com>",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/Paol-imi/react-reparenting/issues"
-  },
   "homepage": "https://paol-imi.github.io/react-reparenting",
+  "bugs": {
+    "url": "https://github.com/paol-imi/react-reparenting/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paol-imi/react-reparenting.git"
+  },
+  "license": "MIT",
+  "author": {
+    "name": "Paolo Longo",
+    "email": "paololongo.git@gmail.com",
+    "url": "https://github.com/paol-imi"
+  },
+  "main": "dist/react-reparenting.cjs.js",
+  "module": "dist/react-reparenting.esm.js",
+  "types": "dist/types/index.d.ts",
   "files": [
     "/dist"
   ],
+  "scripts": {
+    "build:js": "rollup -c",
+    "build:types": "tsc --declaration --declarationDir dist/types --emitDeclarationOnly",
+    "coverage": "vitest run --coverage",
+    "eslint": "eslint",
+    "prepublishOnly": "npm run test && npm run prettier && npm run eslint && npm run build:js && npm run build:types",
+    "prettier": "prettier --write",
+    "test": "vitest calc.test.tsx"
+  },
   "devDependencies": {
-    "@rollup/plugin-replace": "^3.1.0",
-    "@rollup/plugin-typescript": "^8.3.0",
-    "@types/jest": "^27.4.0",
-    "@types/react": "^17.0.39",
-    "@types/react-reconciler": "^0.26.4",
-    "@typescript-eslint/eslint-plugin": "^5.12.0",
-    "@typescript-eslint/parser": "^5.12.0",
-    "eslint": "^8.9.0",
-    "eslint-plugin-jest": "^26.1.0",
-    "eslint-plugin-react": "^7.28.0",
-    "eslint-plugin-react-hooks": "^4.3.0",
-    "jest": "^27.5.1",
-    "prettier": "^2.5.1",
-    "react": "^16.14.0",
-    "rollup": "2.67.2",
-    "ts-jest": "^27.1.3",
-    "tslib": "^2.3.1",
-    "typescript": "^4.5.5"
+    "@rollup/plugin-replace": "^4.0.0",
+    "@types/react": "^18.0.8",
+    "@types/react-dom": "^18.0.6",
+    "@types/react-reconciler": "^0.26.6",
+    "@typescript-eslint/eslint-plugin": "^5.21.0",
+    "@typescript-eslint/parser": "^5.21.0",
+    "@vitejs/plugin-react": "^1.3.2",
+    "c8": "^7.11.3",
+    "eslint": "^8.14.0",
+    "eslint-plugin-react": "^7.29.4",
+    "eslint-plugin-react-hooks": "^4.5.0",
+    "happy-dom": "^6.0.2",
+    "prettier": "^2.6.2",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "rollup": "2.71.1",
+    "rollup-plugin-esbuild": "^4.9.1",
+    "tslib": "^2.4.0",
+    "typescript": "^4.6.4",
+    "vitest": "^0.17.1"
   },
   "peerDependencies": {
-    "react": "^17.0.0"
+    "react": "^18.1.0"
   }
 }
